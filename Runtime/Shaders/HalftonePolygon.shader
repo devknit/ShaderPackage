@@ -16,16 +16,24 @@
 		[KeywordEnum(None, Override, Multiply, Add, Substract, ReverseSubstract, Offset, Maximum)]
 		_ALPHABLENDOP2( "Alpha Blend Op", float) = 2
 		_AlphaBlendRatio2( "Alpha Blend Ratio Value", float) = 1.0
+		
+		[Header(Vertex Color Blending Properties)]
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
 		_VERTEXCOLORBLENDOP( "Vertex Color Blend Op", float) = 2
+		[KeywordEnum(Value, AlphaBlendOp, OneMinusAlphaBlendOp, BaseAlpha, OneMinusBaseAlpha, BlendAlpha, OneMinusBlendAlpha, BaseColorValue, OneMinusBaseColorValue, BlendColorValue, OneMinusBlendColorValue)]
+		_VERTEXCOLORBLENDSRC( "Vertex Color Blend Ratop Source", float) = 1
+		_VertexColorBlendRatio( "Vertex Color Blend Ratio Value", float) = 1.0
+		[KeywordEnum(None, Override, Multiply, Add, Substract, ReverseSubstract, Offset, Maximum)]
+		_VERTEXALPHABLENDOP( "Vertex Alpha Blend Op", float) = 2
+		_VertexAlphaBlendRatio( "Vertex Alpha Blend Ratio Value", float) = 1.0
 		
 		[Header(Halftone Properties)]
+		[IntRange] _HalftonePolygon( "Halftone Polygon", Range( 3, 10)) = 3
 		_HalftoneThreshold( "Halftone Threshold", Range( 0.0, 1.0)) = 0.5
-		_HalftoneRotation( "Halftone UV Rotation", Range(0.0, 90.0)) = 0.0
+		_HalftoneRotation( "Halftone UV Rotation", Range(0.0, 360.0)) = 0.0
 		_HalftoneScale( "Halftone UV Scale", float) = 8.0
 		_HalftoneScaleOffset( "Halftone UV Axis Scale(xy) Offset(zw)", Vector) = (1.0, 1.0, 0.0, 0.0)
-		[IntRange]
-		_HalftonePolygon("Halftone Polygon", Range(3,10)) = 3
+		
 		
 		/* Rendering Status */
 		[Header(Rendering Status)]
@@ -104,6 +112,8 @@
 			#pragma shader_feature _COLORBLENDSRC2_VALUE _COLORBLENDSRC2_ALPHABLENDOP _COLORBLENDSRC2_ONEMINUSALPHABLENDOP _COLORBLENDSRC2_BASEALPHA _COLORBLENDSRC2_ONEMINUSBASEALPHA _COLORBLENDSRC2_BLENDALPHA _COLORBLENDSRC2_ONEMINUSBLENDALPHA _COLORBLENDSRC2_BASECOLORSQUARE _COLORBLENDSRC2_ONEMINUSBASECOLORSQUARE _COLORBLENDSRC2_BLENDCOLORSQUARE _COLORBLENDSRC2_ONEMINUSBLENDCOLORSQUARE
 			#pragma shader_feature _ALPHABLENDOP2_NONE _ALPHABLENDOP2_OVERRIDE _ALPHABLENDOP2_MULTIPLY _ALPHABLENDOP2_ADD _ALPHABLENDOP2_SUBSTRACT _ALPHABLENDOP2_REVERSESUBSTRACT _ALPHABLENDOP2_OFFSET _ALPHABLENDOP2_MAXIMUM
 			#pragma shader_feature _VERTEXCOLORBLENDOP_NONE _VERTEXCOLORBLENDOP_OVERRIDE _VERTEXCOLORBLENDOP_MULTIPLY _VERTEXCOLORBLENDOP_DARKEN _VERTEXCOLORBLENDOP_COLORBURN _VERTEXCOLORBLENDOP_LINEARBURN _VERTEXCOLORBLENDOP_LIGHTEN _VERTEXCOLORBLENDOP_SCREEN _VERTEXCOLORBLENDOP_COLORDODGE _VERTEXCOLORBLENDOP_LINEARDODGE _VERTEXCOLORBLENDOP_OVERLAY _VERTEXCOLORBLENDOP_HARDLIGHT _VERTEXCOLORBLENDOP_VIVIDLIGHT _VERTEXCOLORBLENDOP_LINEARLIGHT _VERTEXCOLORBLENDOP_PINLIGHT _VERTEXCOLORBLENDOP_HARDMIX _VERTEXCOLORBLENDOP_DIFFERENCE _VERTEXCOLORBLENDOP_EXCLUSION _VERTEXCOLORBLENDOP_SUBSTRACT _VERTEXCOLORBLENDOP_DIVISION
+			#pragma shader_feature _VERTEXCOLORBLENDSRC_VALUE _VERTEXCOLORBLENDSRC_ALPHABLENDOP _VERTEXCOLORBLENDSRC_ONEMINUSALPHABLENDOP _VERTEXCOLORBLENDSRC_BASEALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBASEALPHA _VERTEXCOLORBLENDSRC_BLENDALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBLENDALPHA _VERTEXCOLORBLENDSRC_BASECOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBASECOLORVALUE _VERTEXCOLORBLENDSRC_BLENDCOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBLENDCOLORVALUE
+			#pragma shader_feature _VERTEXALPHABLENDOP_NONE _VERTEXALPHABLENDOP_OVERRIDE _VERTEXALPHABLENDOP_MULTIPLY _VERTEXALPHABLENDOP_ADD _VERTEXALPHABLENDOP_SUBSTRACT _VERTEXALPHABLENDOP_REVERSESUBSTRACT _VERTEXALPHABLENDOP_OFFSET _VERTEXALPHABLENDOP_MAXIMUM
 			#pragma shader_feature _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
@@ -122,6 +132,12 @@
 				UNITY_DEFINE_INSTANCED_PROP( float, _HalftoneScale)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _HalftoneScaleOffset)
 				UNITY_DEFINE_INSTANCED_PROP( int, _HalftonePolygon)
+			#if !defined(_VERTEXCOLORBLENDOP_NONE)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio);
+			#endif
+			#if !defined(_VERTEXALPHABLENDOP_NONE)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexAlphaBlendRatio);
+			#endif
 			#if defined(_BLENDFACTOR_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
 			#endif
@@ -132,7 +148,7 @@
 				float4 vertex : POSITION;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				float2 uv0 : TEXCOORD0;
-			#if !defined(_VERTEXCOLORBLENDOP_NONE)
+			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				fixed4 vertexColor : COLOR;
 			#endif
 			};
@@ -141,7 +157,7 @@
 				float4 position : SV_POSITION;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				float4 uv0 : TEXCOORD0;
-			#if !defined(_VERTEXCOLORBLENDOP_NONE)
+			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				fixed4 vertexColor : COLOR;
 			#endif
 			};
@@ -153,7 +169,7 @@
 				o.position = UnityObjectToClipPos( v.vertex);
 				o.uv0.xy = TRANSFORM_TEX( v.uv0, _MainTex);
 				o.uv0.zw = sincos( radians( UNITY_ACCESS_INSTANCED_PROP( Props, _HalftoneRotation)));
-			#if !defined(_VERTEXCOLORBLENDOP_NONE)
+			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				o.vertexColor = v.vertexColor;
 			#endif
 			}
@@ -166,10 +182,19 @@
 				float alphaBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaBlendRatio2);
 				color = Blending2( color, value, colorBlendRatio, alphaBlendRatio);
 				
+		#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 			#if !defined(_VERTEXCOLORBLENDOP_NONE)
-				color.a *= i.vertexColor.a;
-				color.rgb = VertexColorBlending( color.rgb, i.vertexColor.rgb, 1.0);
+				float vertexColorBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _VertexColorBlendRatio);
+			#else
+				float vertexColorBlendRatio = 0.0;
 			#endif
+			#if !defined(_VERTEXALPHABLENDOP_NONE)
+				float vertexAlphaBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _VertexAlphaBlendRatio);
+			#else
+				float vertexAlphaBlendRatio = 0.0;
+			#endif
+				color = VertexColorBlending( color, i.vertexColor, vertexColorBlendRatio, vertexAlphaBlendRatio);
+		#endif
 				float halftoneThreshold = UNITY_ACCESS_INSTANCED_PROP( Props, _HalftoneThreshold);
 				float halftoneScale = UNITY_ACCESS_INSTANCED_PROP( Props, _HalftoneScale);
 				float4 halftoneScaleOffset = UNITY_ACCESS_INSTANCED_PROP( Props, _HalftoneScaleOffset);
@@ -179,10 +204,10 @@
 				uv.x *= _ScreenParams.x / _ScreenParams.y;
 				uv = rotation( uv, i.uv0.zw) * halftoneScaleOffset.xy + halftoneScaleOffset.zw;
 				uv = frac( uv) - 0.5;
-
-				float a = atan2(uv.x,uv.y) + 3.141592;
-				float r = 6.283185 / _HalftonePolygon;
-				color.a = 1.0 - step( halftoneThreshold, pow( cos( floor(0.5 + a / r) * r - a) * length(uv), color.a));
+				
+				float a = atan2(uv.x,uv.y) + 3.141592653589793;
+				float r = 6.283185307179586 / _HalftonePolygon;
+				color.a = 1.0 - step( halftoneThreshold, pow( cos( floor( 0.5 + a / r) * r - a) * length( uv), color.a));
 			#if defined(_BLENDFACTOR_ON)
 				color.rgb = (color.rgb * color.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _RS_BlendFactor) * (1.0 - color.a));
 			#endif

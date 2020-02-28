@@ -7,6 +7,7 @@
 		
 		[Header(Multi Map Blending Properties)]
 		_MultiTex( "Blend Map", 2D) = "white" {}
+		_MultiTexAlphaRemap( "Blend Map Alpha Remap Param", Vector) = (0.0, 1.0, 0.0, 1.0)
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
 		_COLORBLENDOP1( "Multi Map Color Blend Op", float) = 2
 		[KeywordEnum(Value, AlphaBlendOp, OneMinusAlphaBlendOp, BaseAlpha, OneMinusBaseAlpha, BlendAlpha, OneMinusBlendAlpha, BaseColorValue, OneMinusBaseColorValue, BlendColorValue, OneMinusBlendColorValue)]
@@ -19,13 +20,19 @@
 		_DISTORTIONBASE( "Multi Map Distortion Factor", float) = 5
 		_DistortionVolume( "Multi Map Distortion Volume", float) = 1.0
 		
-		[Header(Color Blending Properties)]
+		[Header(Vertex Color Blending Properties)]
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
 		_VERTEXCOLORBLENDOP( "Vertex Color Blend Op", float) = 2
+		[KeywordEnum(Value, AlphaBlendOp, OneMinusAlphaBlendOp, BaseAlpha, OneMinusBaseAlpha, BlendAlpha, OneMinusBlendAlpha, BaseColorValue, OneMinusBaseColorValue, BlendColorValue, OneMinusBlendColorValue)]
+		_VERTEXCOLORBLENDSRC( "Vertex Color Blend Ratop Source", float) = 1
+		_VertexColorBlendRatio( "Vertex Color Blend Ratio Value", float) = 1.0
+		[KeywordEnum(None, Override, Multiply, Add, Substract, ReverseSubstract, Offset, Maximum)]
+		_VERTEXALPHABLENDOP( "Vertex Alpha Blend Op", float) = 2
+		_VertexAlphaBlendRatio( "Vertex Alpha Blend Ratio Value", float) = 1.0
 		
 		/* Use Custom Data */
 		[Header(Use Custom Data)]
-		[Toggle] _CD_COLORBLENDRATIO1( "Multi Map RGB Blend Ratio Value *= (TEXCORD0.z)", float) = 0
+		[Toggle] _CD_COLORBLENDRATIO1( "Multi Map Color Blend Ratio Value *= (TEXCORD0.z)", float) = 0
 		[Toggle] _CD_ALPHABLENDRATIO1( "Multi Map Alpha Blend Ratio Value *= (TEXCORD0.w)", float) = 0
 		[Toggle] _CD_DISTORTIONCUSTOM( "Multi Map Distortion Volume *= (TEXCORD1.x)", float) = 0
 		
@@ -107,6 +114,8 @@
 			#pragma shader_feature _COLORBLENDSRC1_VALUE _COLORBLENDSRC1_ALPHABLENDOP _COLORBLENDSRC1_ONEMINUSALPHABLENDOP _COLORBLENDSRC1_BASEALPHA _COLORBLENDSRC1_ONEMINUSBASEALPHA _COLORBLENDSRC1_BLENDALPHA _COLORBLENDSRC1_ONEMINUSBLENDALPHA _COLORBLENDSRC1_BASECOLORVALUE _COLORBLENDSRC1_ONEMINUSBASECOLORVALUE _COLORBLENDSRC1_BLENDCOLORVALUE _COLORBLENDSRC1_ONEMINUSBLENDCOLORVALUE
 			#pragma shader_feature _ALPHABLENDOP1_NONE _ALPHABLENDOP1_OVERRIDE _ALPHABLENDOP1_MULTIPLY _ALPHABLENDOP1_ADD _ALPHABLENDOP1_SUBSTRACT _ALPHABLENDOP1_REVERSESUBSTRACT _ALPHABLENDOP1_OFFSET _ALPHABLENDOP1_MAXIMUM
 			#pragma shader_feature _VERTEXCOLORBLENDOP_NONE _VERTEXCOLORBLENDOP_OVERRIDE _VERTEXCOLORBLENDOP_MULTIPLY _VERTEXCOLORBLENDOP_DARKEN _VERTEXCOLORBLENDOP_COLORBURN _VERTEXCOLORBLENDOP_LINEARBURN _VERTEXCOLORBLENDOP_LIGHTEN _VERTEXCOLORBLENDOP_SCREEN _VERTEXCOLORBLENDOP_COLORDODGE _VERTEXCOLORBLENDOP_LINEARDODGE _VERTEXCOLORBLENDOP_OVERLAY _VERTEXCOLORBLENDOP_HARDLIGHT _VERTEXCOLORBLENDOP_VIVIDLIGHT _VERTEXCOLORBLENDOP_LINEARLIGHT _VERTEXCOLORBLENDOP_PINLIGHT _VERTEXCOLORBLENDOP_HARDMIX _VERTEXCOLORBLENDOP_DIFFERENCE _VERTEXCOLORBLENDOP_EXCLUSION _VERTEXCOLORBLENDOP_SUBSTRACT _VERTEXCOLORBLENDOP_DIVISION
+			#pragma shader_feature _VERTEXCOLORBLENDSRC_VALUE _VERTEXCOLORBLENDSRC_ALPHABLENDOP _VERTEXCOLORBLENDSRC_ONEMINUSALPHABLENDOP _VERTEXCOLORBLENDSRC_BASEALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBASEALPHA _VERTEXCOLORBLENDSRC_BLENDALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBLENDALPHA _VERTEXCOLORBLENDSRC_BASECOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBASECOLORVALUE _VERTEXCOLORBLENDSRC_BLENDCOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBLENDCOLORVALUE
+			#pragma shader_feature _VERTEXALPHABLENDOP_NONE _VERTEXALPHABLENDOP_OVERRIDE _VERTEXALPHABLENDOP_MULTIPLY _VERTEXALPHABLENDOP_ADD _VERTEXALPHABLENDOP_SUBSTRACT _VERTEXALPHABLENDOP_REVERSESUBSTRACT _VERTEXALPHABLENDOP_OFFSET _VERTEXALPHABLENDOP_MAXIMUM
 			#pragma shader_feature _ _CD_COLORBLENDRATIO1_ON
 			#pragma shader_feature _ _CD_ALPHABLENDRATIO1_ON
 			#pragma shader_feature _ _CD_DISTORTIONCUSTOM_ON
@@ -120,9 +129,16 @@
 			uniform sampler2D _MultiTex;
 			uniform float4 _MultiTex_ST;
 			UNITY_INSTANCING_BUFFER_START( Props)
-				UNITY_DEFINE_INSTANCED_PROP( float, _ColorBlendRatio1);
-				UNITY_DEFINE_INSTANCED_PROP( float, _AlphaBlendRatio1);
-				UNITY_DEFINE_INSTANCED_PROP( float, _DistortionVolume)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _MultiTexAlphaRemap);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _ColorBlendRatio1);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaBlendRatio1);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _DistortionVolume)
+			#if !defined(_VERTEXCOLORBLENDOP_NONE)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio);
+			#endif
+			#if !defined(_VERTEXALPHABLENDOP_NONE)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexAlphaBlendRatio);
+			#endif
 			#if defined(_BLENDFACTOR_ON)
 	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
 	        #endif
@@ -136,7 +152,7 @@
 			#if defined(_CD_DISTORTIONCUSTOM_ON)
 				float2 uv1 : TEXCOORD1;
 			#endif
-			#if !defined(_VERTEXCOLORBLENDOP_NONE)
+			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				fixed4 vertexColor : COLOR;
 			#endif
 			};
@@ -148,7 +164,7 @@
 			#if defined(_CD_COLORBLENDRATIO1_ON) || defined(_CD_ALPHABLENDRATIO1_ON) || defined(_CD_DISTORTIONCUSTOM_ON)
 				float4 uv1 : TEXCOORD1;
 			#endif
-			#if !defined(_VERTEXCOLORBLENDOP_NONE)
+			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				fixed4 vertexColor : COLOR;
 			#endif
 			};
@@ -166,7 +182,7 @@
 			#if defined(_CD_DISTORTIONCUSTOM_ON)
 				o.uv1.z = v.uv1.x;
 			#endif
-			#if !defined(_VERTEXCOLORBLENDOP_NONE)
+			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				o.vertexColor = v.vertexColor;
 			#endif
 			}
@@ -206,11 +222,21 @@
 			#if defined(_CD_COLORBLENDRATIO1_ON)
 				alphaBlendRatio *= i.uv1.y;
 			#endif
+				value.a = remap( value.a, UNITY_ACCESS_INSTANCED_PROP( Props, _MultiTexAlphaRemap));
 				color = Blending1( color, value, colorBlendRatio, alphaBlendRatio);
+		#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 			#if !defined(_VERTEXCOLORBLENDOP_NONE)
-				color.a *= i.vertexColor.a;
-				color.rgb = VertexColorBlending( color.rgb, i.vertexColor.rgb, 1.0);
+				float vertexColorBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _VertexColorBlendRatio);
+			#else
+				float vertexColorBlendRatio = 0.0;
 			#endif
+			#if !defined(_VERTEXALPHABLENDOP_NONE)
+				float vertexAlphaBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _VertexAlphaBlendRatio);
+			#else
+				float vertexAlphaBlendRatio = 0.0;
+			#endif
+				color = VertexColorBlending( color, i.vertexColor, vertexColorBlendRatio, vertexAlphaBlendRatio);
+		#endif
 			#if defined(_BLENDFACTOR_ON)
 				color.rgb = (color.rgb * color.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _RS_BlendFactor) * (1.0 - color.a));
 			#endif
