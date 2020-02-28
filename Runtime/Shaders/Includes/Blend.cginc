@@ -1,0 +1,459 @@
+// Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
+
+#ifndef ZANLIB_INCLUDED
+#define ZANLIB_INCLUDED
+
+//http://optie.hatenablog.com/entry/2018/03/15/212107
+//Base  = Background
+//Blend = Foreground
+
+float3 RGBToHSV( float3 rgb)
+{
+	float4 K = float4( 0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+	float4 P = lerp( float4( rgb.bg, K.wz), float4( rgb.gb, K.xy), step( rgb.b, rgb.g));
+	float4 Q = lerp( float4( P.xyw, rgb.r), float4( rgb.r, P.yzx), step( P.x, rgb.r));
+	float  D = Q.x - min( Q.w, Q.y);
+	float  E = 1e-4;
+	return float3( abs( Q.z + (Q.w - Q.y) / (6.0 * D + E)), D / (Q.x + E), Q.x);
+}
+float3 HSVToRGB( float3 hsv)
+{
+	float4 K = float4( 1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+	float3 P = abs( frac( hsv.xxx + K.xyz) * 6.0 - K.www);
+	return hsv.z * lerp( K.xxx, saturate( P - K.xxx), hsv.y);
+}
+
+/* 乗算 */
+inline fixed3 BelndMultiply( fixed3 Base, fixed3 Blend)
+{
+	return Base * Blend;
+}
+
+/* 比較(暗):各成分の低い方を出力する */
+inline fixed3 BelndDarken( fixed3 Base, fixed3 Blend)
+{
+	return min( Base, Blend);
+}
+
+/* 焼き込みカラー:(反転した背景 / 前景) を反転する */
+inline fixed3 BelndColorBurn( fixed3 Base, fixed3 Blend)
+{
+	return 1.0 - (1.0 - Base) / (Blend + 1e-12);
+}
+
+/* 焼き込みリニア:(反転背景 + 反転前景) を反転する */
+inline fixed3 BelndLinearBurn( fixed3 Base, fixed3 Blend)
+{
+//	return saturate( 1.0 - ((1.0 - Base) + (1.0 - Blend)));
+	return saturate( Base + Blend - 1.0);
+}
+
+/* 比較(明):各成分の高い方を出力する */
+inline fixed3 BelndLighten( fixed3 Base, fixed3 Blend)
+{
+	return max( Base, Blend);
+}
+
+/* スクリーン:反転して乗算し、また反転して戻す */
+inline fixed3 BelndScreen( fixed3 Base, fixed3 Blend)
+{
+	return 1.0 - (1.0 - Base) * (1.0 - Blend);
+}
+
+/* 覆い焼きカラー:背景 / 反転した前景 */
+inline fixed3 BelndColorDodge( fixed3 Base, fixed3 Blend)
+{
+	return Base / (1.0 - clamp( Blend, 1e-12, 0.999999));
+}
+
+/* 覆い焼きリニア:加算する */
+inline fixed3 BelndLinearDodge( fixed3 Base, fixed3 Blend)
+{
+	return saturate( Blend + Base);
+}
+
+/* オーバーレイ:背景の暗部では乗算、背景の明部ではスクリーン */
+inline fixed3 BelndOverlay( fixed3 Base, fixed3 Blend)
+{
+	float3 result1 = 2.0 * Base * Blend;
+	float3 result2 = 1.0 - 2.0 * (1.0 - Base) * (1.0 - Blend);
+    float3 zeroOrOne = step( Base, 0.5);
+    return result1 * zeroOrOne + (1 - zeroOrOne) * result2;
+}
+
+/* ハードライト:前景の暗部では乗算、前景の明部ではスクリーン */
+inline fixed3 BelndHardLight( fixed3 Base, fixed3 Blend)
+{
+	float3 result1 = 2.0 * Base * Blend;
+	float3 result2 = 1.0 - 2.0 * (1.0 - Base) * (1.0 - Blend);
+	float3 zeroOrOne = step( Blend, 0.5);
+	return result1 * zeroOrOne + (1 - zeroOrOne) * result2;
+}
+
+/* ビビッドライト:前景の暗部では焼き込みカラー、前景の明部では覆い焼きカラー */
+inline fixed3 BelndVividLight( fixed3 Base, fixed3 Blend)
+{
+    float3 result1 = BelndColorBurn( Base, 2.0 * Blend);
+    float3 result2 = BelndColorDodge( Base, 2.0 * (Blend - 0.5));
+    float3 zeroOrOne = step( Blend, 0.5);
+    return result1 * zeroOrOne + (1 - zeroOrOne) * result2;
+}
+
+/* リニアライト:前景の暗部では焼き込みリニア、前景の明部では覆い焼きリニア */
+inline fixed3 BelndLinearLight( fixed3 Base, fixed3 Blend)
+{
+	float3 result1 = BelndLinearBurn( Base, 2.0 * Blend);
+	float3 result2 = BelndLinearDodge( Base, 2.0 * (Blend - 0.5));
+	float3 zeroOrOne = step( Blend, 0.5);
+	return result1 * zeroOrOne + (1 - zeroOrOne) * result2;
+}
+
+/* ピンライト:前景の暗部では比較(暗)、前景の明部では比較(明) */
+inline fixed3 BelndPinLight( fixed3 Base, fixed3 Blend)
+{
+	float3 result1 = BelndDarken( Base, 2.0 * Blend);
+	float3 result2 = BelndLighten( Base, 2.0 * (Blend - 0.5));
+	float3 zeroOrOne = step( Blend, 0.5);
+	return result1 * zeroOrOne + (1 - zeroOrOne) * result2;
+}
+
+/* ハードミックス:ビビッドライトの演算結果を各成分毎に二値化します */
+inline fixed3 BelndHardMix( fixed3 Base, fixed3 Blend)
+{
+//	return step( 0.5, BelndVividLight( Base, Blend));
+	return step( 1 - Base, Blend);
+}
+
+/* 差:前景と背景の値の差分を出力する */
+inline fixed3 BelndDifference( fixed3 Base, fixed3 Blend)
+{
+	return abs( Base - Blend);
+}
+
+/* 除外:前景と背景の相加平均と相乗平均の差をとって2倍する */
+inline fixed3 BelndExclusion( fixed3 Base, fixed3 Blend)
+{
+	return Base + Blend - 2.0 * Base * Blend;
+}
+
+/* 減算:背景から前景を引きます */
+inline fixed3 BelndSubstract( fixed3 Base, fixed3 Blend)
+{
+	return saturate( Base - Blend);
+}
+
+/* 除算:前景で背景を割ります */
+inline fixed3 BelndDivision( fixed3 Base, fixed3 Blend)
+{
+	return saturate( Base / (Blend + 1e-12));
+}
+
+/* 色相:背景の輝度と彩度を維持したまま、前景の色相だけを移します */
+inline fixed3 BelndHue( fixed3 Base, fixed3 Blend)
+{
+	float3 hsvBase = RGBToHSV( Base);
+	float3 hsvBlend = RGBToHSV( Blend);
+	return HSVToRGB( float3( hsvBlend.x, hsvBase.yz));
+}
+/* 彩度:背景の輝度と色相を維持したまま、前景の彩度だけを移します */
+inline fixed3 BelndSaturation( fixed3 Base, fixed3 Blend)
+{
+	float3 hsvBase = RGBToHSV( Base);
+	float3 hsvBlend = RGBToHSV( Blend);
+	return HSVToRGB( float3( hsvBase.x, hsvBlend.y, hsvBase.z));
+}
+/* 彩度:背景の色相と彩度を維持したまま、前景の輝度だけを移します */
+inline fixed3 BelndLuminosity( fixed3 Base, fixed3 Blend)
+{
+	float3 hsvBase = RGBToHSV( Base);
+	float3 hsvBlend = RGBToHSV( Blend);
+	return HSVToRGB( float3( hsvBase.xy, hsvBlend.z));
+}
+/* 彩度:背景の輝度を維持したまま、前景の色相と彩度を移します */
+inline fixed3 BelndColor( fixed3 Base, fixed3 Blend)
+{
+	float3 hsvBase = RGBToHSV( Base);
+	float3 hsvBlend = RGBToHSV( Blend);
+	return HSVToRGB( float3( hsvBlend.xy, hsvBase.z));
+}
+/*
+Shader
+{
+	Properties
+	{
+		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
+		_COLORBLENDOP1( "Multi Map RGB Blend Op", float) = 2
+		[KeywordEnum(Value, AlphaBlendOp, OneMinusAlphaBlendOp, BaseAlpha, OneMinusBaseAlpha, BlendAlpha, OneMinusBlendAlpha, BaseColorValue, OneMinusBaseColorValue, BlendColorValue, OneMinusBlendColorValue)]
+		_COLORBLENDSRC1( "Multi Map RGB Blend Ratop Source", float) = 1
+		_ColorBlendRatio1( "Multi Map RGB Blend Ratio Value", float) = 1.0
+		[KeywordEnum(None, Override, Multiply, Add, Substract, ReverseSubstract, Offset, Maximum)]
+		_ALPHABLENDOP1( "Multi Map Alpha Blend Op", float) = 2
+		_AlphaBlendRatio1( "Multi Map Alpha Blend Ratio Value", float) = 1.0
+	}
+	SubShader
+	{
+		Pass
+		{
+			#pragma shader_feature _COLORBLENDOP1_NONE _COLORBLENDOP1_OVERRIDE _COLORBLENDOP1_MULTIPLY _COLORBLENDOP1_DARKEN _COLORBLENDOP1_COLORBURN _COLORBLENDOP1_LINEARBURN _COLORBLENDOP1_LIGHTEN _COLORBLENDOP1_SCREEN _COLORBLENDOP1_COLORDODGE _COLORBLENDOP1_LINEARDODGE _COLORBLENDOP1_OVERLAY _COLORBLENDOP1_HARDLIGHT _COLORBLENDOP1_VIVIDLIGHT _COLORBLENDOP1_LINEARLIGHT _COLORBLENDOP1_PINLIGHT _COLORBLENDOP1_HARDMIX _COLORBLENDOP1_DIFFERENCE _COLORBLENDOP1_EXCLUSION _COLORBLENDOP1_SUBSTRACT _COLORBLENDOP1_DIVISION
+			#pragma shader_feature _COLORBLENDSRC1_VALUE _COLORBLENDSRC1_ALPHABLENDOP _COLORBLENDSRC1_ONEMINUSALPHABLENDOP _COLORBLENDSRC1_BASEALPHA _COLORBLENDSRC1_ONEMINUSBASEALPHA _COLORBLENDSRC1_BLENDALPHA _COLORBLENDSRC1_ONEMINUSBLENDALPHA _COLORBLENDSRC1_BASECOLORVALUE _COLORBLENDSRC1_ONEMINUSBASECOLORVALUE _COLORBLENDSRC1_BLENDCOLORVALUE _COLORBLENDSRC1_ONEMINUSBLENDCOLORVALUE
+			#pragma shader_feature _ALPHABLENDOP1_NONE _ALPHABLENDOP1_OVERRIDE _ALPHABLENDOP1_MULTIPLY _ALPHABLENDOP1_ADD _ALPHABLENDOP1_SUBSTRACT _ALPHABLENDOP1_REVERSESUBSTRACT _ALPHABLENDOP1_OFFSET _ALPHABLENDOP1_MAXIMUM
+		}
+	}
+}
+*/
+inline fixed4 Blending1( fixed4 Base, fixed4 Blend, float ColorRatio, float AlphaRatio)
+{
+	fixed alpha = Base.a;
+#if   _ALPHABLENDOP1_OVERRIDE
+	alpha = Blend.a;
+#elif _ALPHABLENDOP1_MULTIPLY
+	alpha = Base.a * Blend.a;
+#elif _ALPHABLENDOP1_ADD
+	alpha = Base.a + Blend.a;
+#elif _ALPHABLENDOP1_SUBSTRACT
+	alpha = Base.a - Blend.a;
+#elif _ALPHABLENDOP1_REVERSESUBSTRACT
+	alpha = Blend.a - Base.a;
+#elif _ALPHABLENDOP1_OFFSET
+	alpha = Base.a + (Blend.a * 2.0 - 1.0);
+#elif _ALPHABLENDOP1_MAXIMUM
+	alpha = max( Base.a, Blend.a);
+#endif
+	alpha = saturate( lerp( Base.a, alpha, AlphaRatio));
+
+#if   _COLORBLENDSRC1_VALUE
+#elif _COLORBLENDSRC1_ALPHABLENDOP
+	ColorRatio *= alpha;
+#elif _COLORBLENDSRC1_ONEMINUSALPHABLENDOP
+	ColorRatio *= 1.0 - alpha;
+#elif _COLORBLENDSRC1_BASEALPHA
+	ColorRatio *= Base.a;
+#elif _COLORBLENDSRC1_ONEMINUSBASEALPHA
+	ColorRatio *= 1.0 - Base.a;
+#elif _COLORBLENDSRC1_BLENDALPHA
+	ColorRatio *= Blend.a;
+#elif _COLORBLENDSRC1_ONEMINUSBLENDALPHA
+	ColorRatio *= 1.0 - Blend.a;
+#elif _COLORBLENDSRC1_BASECOLORVALUE
+	ColorRatio *= max( Base.r, max( Base.g, Base.b));
+#elif _COLORBLENDSRC1_ONEMINUSBASECOLORVALUE
+	ColorRatio *= 1.0 - max( Base.r, max( Base.g, Base.b));
+#elif _COLORBLENDSRC1_BLENDCOLORVALUE
+	ColorRatio *= max( Blend.r, max( Blend.g, Blend.b));
+#elif _COLORBLENDSRC1_ONEMINUSBLENDCOLORVALUE
+	ColorRatio *= 1.0 - max( Blend.r, max( Blend.g, Blend.b));
+#endif
+
+	fixed3 color = Base.rgb;
+#if   _COLORBLENDOP1_OVERRIDE
+	color = Blend.rgb;
+#elif _COLORBLENDOP1_MULTIPLY
+	color = BelndMultiply( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_DARKEN
+	color = BelndDarken( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_COLORBURN
+	color = BelndColorBurn( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_LINEARBURN
+	color = BelndLinearBurn( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_LIGHTEN
+	color = BelndLighten( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_SCREEN
+	color = BelndScreen( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_COLORDODGE
+	color = BelndColorDodge( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_LINEARDODGE
+	color = BelndLinearDodge( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_OVERLAY
+	color = BelndOverlay( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_HARDLIGHT
+	color = BelndHardLight( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_VIVIDLIGHT
+	color = BelndVividLight( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_LINEARLIGHT
+	color = BelndLinearLight( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_PINLIGHT
+	color = BelndPinLight( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_HARDMIX
+	color = BelndHardMix( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_DIFFERENCE
+	color = BelndDifference( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_EXCLUSION
+	color = BelndExclusion( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_SUBSTRACT
+	color = BelndSubstract( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP1_DIVISION
+	color = BelndDivision( Base.rgb, Blend.rgb);
+#endif
+	return fixed4( saturate( lerp( Base.rgb, color, ColorRatio)), alpha);
+}
+/*
+Shader
+{
+	Properties
+	{
+		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
+		_COLORBLENDOP2( "Color Blend Op", float) = 2
+		[KeywordEnum(Value, AlphaBlendOp, OneMinusAlphaBlendOp, BaseAlpha, OneMinusBaseAlpha, BlendAlpha, OneMinusBlendAlpha, BaseColorValue, OneMinusBaseColorValue, BlendColorValue, OneMinusBlendColorValue)]
+		_COLORBLENDSRC2( "Color Blend Ratop Source", float) = 0
+		_ColorBlendRatio2( "Color Blend Ratio", float) = 1.0
+		[KeywordEnum(None, Override, Multiply, Add, Substract, ReverseSubstract, Offset, Maximum)]
+		_ALPHABLENDOP2( "Alpha Blend Op", float) = 2
+		_AlphaBlendRatio2( "Alpha Blend Ratio", float) = 1.0
+		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
+		_VERTEXCOLORBLENDOP( "Vertex Color Blend Op", float) = 2
+	}
+	SubShader
+	{
+		Pass
+		{
+			#pragma shader_feature _COLORBLENDOP2_NONE _COLORBLENDOP2_OVERRIDE _COLORBLENDOP2_MULTIPLY _COLORBLENDOP2_DARKEN _COLORBLENDOP2_COLORBURN _COLORBLENDOP2_LINEARBURN _COLORBLENDOP2_LIGHTEN _COLORBLENDOP2_SCREEN _COLORBLENDOP2_COLORDODGE _COLORBLENDOP2_LINEARDODGE _COLORBLENDOP2_OVERLAY _COLORBLENDOP2_HARDLIGHT _COLORBLENDOP2_VIVIDLIGHT _COLORBLENDOP2_LINEARLIGHT _COLORBLENDOP2_PINLIGHT _COLORBLENDOP2_HARDMIX _COLORBLENDOP2_DIFFERENCE _COLORBLENDOP2_EXCLUSION _COLORBLENDOP2_SUBSTRACT _COLORBLENDOP2_DIVISION
+			#pragma shader_feature _COLORBLENDSRC2_VALUE _COLORBLENDSRC2_ALPHABLENDOP _COLORBLENDSRC2_ONEMINUSALPHABLENDOP _COLORBLENDSRC2_BASEALPHA _COLORBLENDSRC2_ONEMINUSBASEALPHA _COLORBLENDSRC2_BLENDALPHA _COLORBLENDSRC2_ONEMINUSBLENDALPHA _COLORBLENDSRC2_BASECOLORVALUE _COLORBLENDSRC2_ONEMINUSBASECOLORVALUE _COLORBLENDSRC2_BLENDCOLORVALUE _COLORBLENDSRC2_ONEMINUSBLENDCOLORVALUE
+			#pragma shader_feature _ALPHABLENDOP2_NONE _ALPHABLENDOP2_OVERRIDE _ALPHABLENDOP2_MULTIPLY _ALPHABLENDOP2_ADD _ALPHABLENDOP2_SUBSTRACT _ALPHABLENDOP2_REVERSESUBSTRACT _ALPHABLENDOP2_OFFSET _ALPHABLENDOP2_MAXIMUM
+		}
+	}
+}
+*/
+inline fixed4 Blending2( fixed4 Base, fixed4 Blend, float ColorRatio, float AlphaRatio)
+{
+	fixed alpha = Base.a;
+#if   _ALPHABLENDOP2_OVERRIDE
+	alpha = Blend.a;
+#elif _ALPHABLENDOP2_MULTIPLY
+	alpha = Base.a * Blend.a;
+#elif _ALPHABLENDOP2_ADD
+	alpha = Base.a + Blend.a;
+#elif _ALPHABLENDOP2_SUBSTRACT
+	alpha = Base.a - Blend.a;
+#elif _ALPHABLENDOP2_REVERSESUBSTRACT	
+	alpha = Blend.a - Base.a;
+#elif _ALPHABLENDOP2_OFFSET
+	alpha = Base.a + (Blend.a * 2.0 - 1.0);
+#elif _ALPHABLENDOP2_MAXIMUM
+	alpha = max( Base.a, Blend.a);
+#endif
+	alpha = saturate( lerp( Base.a, alpha, AlphaRatio));
+
+#if   _COLORBLENDSRC2_VALUE
+#elif _COLORBLENDSRC2_ALPHABLENDOP
+	ColorRatio *= alpha;
+#elif _COLORBLENDSRC2_ONEMINUSALPHABLENDOP
+	ColorRatio *= 1.0 - alpha;
+#elif _COLORBLENDSRC2_BASEALPHA
+	ColorRatio *= Base.a;
+#elif _COLORBLENDSRC2_ONEMINUSBASEALPHA
+	ColorRatio *= 1.0 - Base.a;
+#elif _COLORBLENDSRC2_BLENDALPHA
+	ColorRatio *= Blend.a;
+#elif _COLORBLENDSRC2_ONEMINUSBLENDALPHA
+	ColorRatio *= 1.0 - Blend.a;
+#elif _COLORBLENDSRC2_BASECOLORVALUE
+	ColorRatio *= max( Base.r, max( Base.g, Base.b));
+#elif _COLORBLENDSRC2_ONEMINUSBASECOLORVALUE
+	ColorRatio *= 1.0 - max( Base.r, max( Base.g, Base.b));
+#elif _COLORBLENDSRC2_BLENDCOLORVALUE
+	ColorRatio *= max( Blend.r, max( Blend.g, Blend.b));
+#elif _COLORBLENDSRC2_ONEMINUSBLENDCOLORVALUE
+	ColorRatio *= 1.0 - max( Blend.r, max( Blend.g, Blend.b));
+#endif
+
+	fixed3 color = Base.rgb;
+#if   _COLORBLENDOP2_OVERRIDE
+	color = Blend.rgb;
+#elif _COLORBLENDOP2_MULTIPLY
+	color = BelndMultiply( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_DARKEN
+	color = BelndDarken( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_COLORBURN
+	color = BelndColorBurn( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_LINEARBURN
+	color = BelndLinearBurn( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_LIGHTEN
+	color = BelndLighten( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_SCREEN
+	color = BelndScreen( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_COLORDODGE
+	color = BelndColorDodge( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_LINEARDODGE
+	color = BelndLinearDodge( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_OVERLAY
+	color = BelndOverlay( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_HARDLIGHT
+	color = BelndHardLight( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_VIVIDLIGHT
+	color = BelndVividLight( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_LINEARLIGHT
+	color = BelndLinearLight( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_PINLIGHT
+	color = BelndPinLight( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_HARDMIX
+	color = BelndHardMix( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_DIFFERENCE
+	color = BelndDifference( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_EXCLUSION
+	color = BelndExclusion( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_SUBSTRACT
+	color = BelndSubstract( Base.rgb, Blend.rgb);
+#elif _COLORBLENDOP2_DIVISION
+	color = BelndDivision( Base.rgb, Blend.rgb);
+#endif
+	return fixed4( saturate( lerp( Base.rgb, color, ColorRatio)), alpha);
+}
+/**
+Properties
+{
+	[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
+	_VERTEXCOLORBLENDOP( "Vertex Color Blend Op", float) = 2
+}
+Pass
+{
+	#pragma shader_feature _VERTEXCOLORBLENDOP_NONE _VERTEXCOLORBLENDOP_OVERRIDE _VERTEXCOLORBLENDOP_MULTIPLY _VERTEXCOLORBLENDOP_DARKEN _VERTEXCOLORBLENDOP_COLORBURN _VERTEXCOLORBLENDOP_LINEARBURN _VERTEXCOLORBLENDOP_LIGHTEN _VERTEXCOLORBLENDOP_SCREEN _VERTEXCOLORBLENDOP_COLORDODGE _VERTEXCOLORBLENDOP_LINEARDODGE _VERTEXCOLORBLENDOP_OVERLAY _VERTEXCOLORBLENDOP_HARDLIGHT _VERTEXCOLORBLENDOP_VIVIDLIGHT _VERTEXCOLORBLENDOP_LINEARLIGHT _VERTEXCOLORBLENDOP_PINLIGHT _VERTEXCOLORBLENDOP_HARDMIX _VERTEXCOLORBLENDOP_DIFFERENCE _VERTEXCOLORBLENDOP_EXCLUSION _VERTEXCOLORBLENDOP_SUBSTRACT _VERTEXCOLORBLENDOP_DIVISION
+}
+*/
+inline fixed3 VertexColorBlending( fixed3 Base, fixed3 Blend, float Ratio)
+{
+	fixed3 color = Base;
+#if   _VERTEXCOLORBLENDOP_OVERRIDE
+	color = Blend;
+#elif _VERTEXCOLORBLENDOP_MULTIPLY
+	color = BelndMultiply( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_DARKEN
+	color = BelndDarken( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_COLORBURN
+	color = BelndColorBurn( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_LINEARBURN
+	color = BelndLinearBurn( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_LIGHTEN
+	color = BelndLighten( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_SCREEN
+	color = BelndScreen( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_COLORDODGE
+	color = BelndColorDodge( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_LINEARDODGE
+	color = BelndLinearDodge( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_OVERLAY
+	color = BelndOverlay( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_HARDLIGHT
+	color = BelndHardLight( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_VIVIDLIGHT
+	color = BelndVividLight( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_LINEARLIGHT
+	color = BelndLinearLight( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_PINLIGHT
+	color = BelndPinLight( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_HARDMIX
+	color = BelndHardMix( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_DIFFERENCE
+	color = BelndDifference( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_EXCLUSION
+	color = BelndExclusion( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_SUBSTRACT
+	color = BelndSubstract( Base, Blend);
+#elif _VERTEXCOLORBLENDOP_DIVISION
+	color = BelndDivision( Base, Blend);
+#else
+	Ratio = 0.0;
+#endif
+	return lerp( Base, color, Ratio);
+}
+
+#endif /* ZANLIB_INCLUDED */
