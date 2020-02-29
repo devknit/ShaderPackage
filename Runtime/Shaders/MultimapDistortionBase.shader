@@ -37,7 +37,6 @@
 		[Toggle] _CD_DISTORTIONCUSTOM( "Multi Map Distortion Volume *= (TEXCORD1.x)", float) = 0
 		
 		/* Rendering Status */
-		[Header(Rendering Status)]
 		[Enum( UnityEngine.Rendering.CullMode)]
 		_RS_Cull( "Cull", float) = 0 /* Off */
 		[Enum(Off, 0, On, 1)]
@@ -45,12 +44,11 @@
 		[Enum( UnityEngine.Rendering.CompareFunction)]
 		_RS_ZTest( "ZTest", float) = 8	/* Always */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
-		_RS_ColorMask( "<!>Color Mask (deprecated for mobile)", float) = 15 /* RGBA */
+		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
 		[Toggle]
-		_ALPHACLIP( "<!>Alpha Clip (deprecated for mobile)", float) = 0
+		_ALPHACLIP( "Alpha Clip", float) = 0
 		
 		/* Blending Status */
-		[Header(Blending Status)]
 		[Enum( UnityEngine.Rendering.BlendOp)]
 		_RS_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
@@ -67,7 +65,6 @@
 		[Toggle] _BLENDFACTOR( "Use Blend Factor", float) = 0
 		
 		/* Depth Stencil Status */
-		[Header(Depth Stencil Status)]
 		_StencilRef( "Stencil Reference", Range( 0, 255)) = 0
 		_StencilReadMask( "Stencil Read Mask", Range( 0, 255)) = 255
 		_StencilWriteMask( "Stencil Write Mask", Range( 0, 255)) = 255
