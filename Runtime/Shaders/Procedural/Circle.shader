@@ -19,7 +19,6 @@
 		_CircleRadius( "Circle Radius", Range( 0, 3)) = 1.0
 		_SmoothEdges( "Smooth Edges", Range( 0, 1)) = 0.02
 		[Toggle] _FASTMODE( "Fast Mode (non-linear)", float) = 1
-	//	[Toggle] _ALPHACLIP( "Alpha Clip (deprecated for mobile)", float) = 0
 		
 		/* Use Custom Datas */
 		[Header(Use Custom Data)]
@@ -34,7 +33,9 @@
 		[Enum( UnityEngine.Rendering.CompareFunction)]
 		_RS_ZTest( "ZTest", float) = 8	/* Always */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
-		_RS_ColorMask( "Colro Mask", float) = 15 /* RGB */
+		_RS_ColorMask( "<!>Colro Mask (deprecated for mobile)", float) = 15 /* RGBA */
+		[Toggle]
+		_ALPHACLIP( "<!>Alpha Clip (deprecated for mobile)", float) = 0
 		
 		/* Blending Status */
 		[Header(Blending Status)]
@@ -100,11 +101,11 @@
 			#pragma fragment frag
 			
 			#pragma shader_feature _ _FASTMODE_ON
-		//	#pragma shader_feature _ _ALPHACLIP_ON
 			#pragma shader_feature _ _CD_CIRCLERADIUSCUSTOM_ON
 			#pragma shader_feature _VERTEXCOLORBLENDOP_NONE _VERTEXCOLORBLENDOP_OVERRIDE _VERTEXCOLORBLENDOP_MULTIPLY _VERTEXCOLORBLENDOP_DARKEN _VERTEXCOLORBLENDOP_COLORBURN _VERTEXCOLORBLENDOP_LINEARBURN _VERTEXCOLORBLENDOP_LIGHTEN _VERTEXCOLORBLENDOP_SCREEN _VERTEXCOLORBLENDOP_COLORDODGE _VERTEXCOLORBLENDOP_LINEARDODGE _VERTEXCOLORBLENDOP_OVERLAY _VERTEXCOLORBLENDOP_HARDLIGHT _VERTEXCOLORBLENDOP_VIVIDLIGHT _VERTEXCOLORBLENDOP_LINEARLIGHT _VERTEXCOLORBLENDOP_PINLIGHT _VERTEXCOLORBLENDOP_HARDMIX _VERTEXCOLORBLENDOP_DIFFERENCE _VERTEXCOLORBLENDOP_EXCLUSION _VERTEXCOLORBLENDOP_SUBSTRACT _VERTEXCOLORBLENDOP_DIVISION
 			#pragma shader_feature _VERTEXCOLORBLENDSRC_VALUE _VERTEXCOLORBLENDSRC_ALPHABLENDOP _VERTEXCOLORBLENDSRC_ONEMINUSALPHABLENDOP _VERTEXCOLORBLENDSRC_BASEALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBASEALPHA _VERTEXCOLORBLENDSRC_BLENDALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBLENDALPHA _VERTEXCOLORBLENDSRC_BASECOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBASECOLORVALUE _VERTEXCOLORBLENDSRC_BLENDCOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBLENDCOLORVALUE
 			#pragma shader_feature _VERTEXALPHABLENDOP_NONE _VERTEXALPHABLENDOP_OVERRIDE _VERTEXALPHABLENDOP_MULTIPLY _VERTEXALPHABLENDOP_ADD _VERTEXALPHABLENDOP_SUBSTRACT _VERTEXALPHABLENDOP_REVERSESUBSTRACT _VERTEXALPHABLENDOP_OFFSET _VERTEXALPHABLENDOP_MAXIMUM
+			#pragma shader_feature _ _ALPHACLIP_ON
 			#pragma shader_feature _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
@@ -116,10 +117,10 @@
                 UNITY_DEFINE_INSTANCED_PROP( float, _CircleRadius)
                 UNITY_DEFINE_INSTANCED_PROP( float, _SmoothEdges)
             #if !defined(_VERTEXCOLORBLENDOP_NONE)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio)
 			#endif
 			#if !defined(_VERTEXALPHABLENDOP_NONE)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexAlphaBlendRatio);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexAlphaBlendRatio)
 			#endif
 	        #if defined(_BLENDFACTOR_ON)
 	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
@@ -185,9 +186,9 @@
 				float value = length( uv * 2.0);
 			#endif
 				color.a *= 1.0 - smoothstep( circleRadius - smoothEdges, circleRadius, value);
-		//	if defined(_ALPHACLIP_ON)
-		//		clip( color.a - 0.01);
-		//	#endif
+			#if defined(_ALPHACLIP_ON)
+				clip( color.a - 1e-4);
+			#endif
 			#if defined(_BLENDFACTOR_ON)
 				color.rgb = (color.rgb * color.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _RS_BlendFactor) * (1.0 - color.a));
 			#endif

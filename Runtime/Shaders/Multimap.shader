@@ -41,7 +41,9 @@
 		[Enum( UnityEngine.Rendering.CompareFunction)]
 		_RS_ZTest( "ZTest", float) = 8	/* Always */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
-		_RS_ColorMask( "Colro Mask", float) = 15 /* RGB */
+		_RS_ColorMask( "<!>Colro Mask (deprecated for mobile)", float) = 15 /* RGBA */
+		[Toggle]
+		_ALPHACLIP( "<!>Alpha Clip (deprecated for mobile)", float) = 0
 		
 		/* Blending Status */
 		[Header(Blending Status)]
@@ -113,6 +115,7 @@
 			#pragma shader_feature _VERTEXALPHABLENDOP_NONE _VERTEXALPHABLENDOP_OVERRIDE _VERTEXALPHABLENDOP_MULTIPLY _VERTEXALPHABLENDOP_ADD _VERTEXALPHABLENDOP_SUBSTRACT _VERTEXALPHABLENDOP_REVERSESUBSTRACT _VERTEXALPHABLENDOP_OFFSET _VERTEXALPHABLENDOP_MAXIMUM
 			#pragma shader_feature _ _CD_COLORBLENDRATIO1_ON
 			#pragma shader_feature _ _CD_ALPHABLENDRATIO1_ON
+			#pragma shader_feature _ _ALPHACLIP_ON
 			#pragma shader_feature _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
@@ -123,14 +126,14 @@
 			uniform sampler2D _MultiTex;
 			uniform float4 _MultiTex_ST;
 			UNITY_INSTANCING_BUFFER_START( Props)
-				UNITY_DEFINE_INSTANCED_PROP( float4, _MultiTexAlphaRemap);
-				UNITY_DEFINE_INSTANCED_PROP( float,  _ColorBlendRatio1);
-				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaBlendRatio1);
+				UNITY_DEFINE_INSTANCED_PROP( float4, _MultiTexAlphaRemap)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _ColorBlendRatio1)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaBlendRatio1)
 			#if !defined(_VERTEXCOLORBLENDOP_NONE)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio)
 			#endif
 			#if !defined(_VERTEXALPHABLENDOP_NONE)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexAlphaBlendRatio);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexAlphaBlendRatio)
 			#endif
 			#if defined(_BLENDFACTOR_ON)
 	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
@@ -201,6 +204,9 @@
 			#endif
 				color = VertexColorBlending( color, i.vertexColor, vertexColorBlendRatio, vertexAlphaBlendRatio);
 		#endif
+			#if defined(_ALPHACLIP_ON)
+				clip( color.a - 1e-4);
+			#endif
 			#if defined(_BLENDFACTOR_ON)
 				color.rgb = (color.rgb * color.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _RS_BlendFactor) * (1.0 - color.a));
 			#endif
