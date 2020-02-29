@@ -31,7 +31,8 @@
 		_HalftoneThreshold( "Halftone Threshold", Range( 0.0, 1.0)) = 0.5
 		_HalftoneRotation( "Halftone UV Rotation", Range(0.0, 90.0)) = 0.0
 		_HalftoneScale( "Halftone UV Scale", float) = 8.0
-		_HalftoneScaleOffset( "Halftone UV Axis Scale(xy) Offset(zw)", Vector) = (1.0, 1.0, 0.0, 0.0)
+		[Vector2x2(Tiling, Offset)]
+		_HalftoneScaleOffset( "Halftone UV Axis", Vector) = (1.0, 1.0, 0.0, 0.0)
 		
 		/* Rendering Status */
 		[Caption(Rendering Status)]

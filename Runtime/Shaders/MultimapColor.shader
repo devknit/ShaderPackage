@@ -7,6 +7,7 @@
 		
 		[Caption(Multi Map Blending Properties)]
 		_MultiTex( "Blend Map", 2D) = "white" {}
+		[Vector2x2(Input, Output, Min, Max)]
 		_MultiTexAlphaRemap( "Blend Map Alpha Remap Param", Vector) = (0.0, 1.0, 0.0, 1.0)
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
 		_COLORBLENDOP1( "Multi Map Color Blend Op", float) = 2

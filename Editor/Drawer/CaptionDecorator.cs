@@ -5,17 +5,17 @@ using UnityEngine;
 
 namespace ZanShader.Editor
 {
-    class MaterialCaptionDecorator : MaterialPropertyDrawer
+    class CaptionDecorator : MaterialPropertyDrawer
     {
 		public static bool enabled = true;
 		public static Action OnBeforeGUI = null;
 		public static Action OnAfterGUI = null;
 		
-        public MaterialCaptionDecorator( string header)
+        public CaptionDecorator( string header)
         {
             this.header = header;
         }
-        public MaterialCaptionDecorator( float headerAsNumber)
+        public CaptionDecorator( float headerAsNumber)
         {
             this.header = headerAsNumber.ToString( System.Globalization.CultureInfo.InvariantCulture);
         }

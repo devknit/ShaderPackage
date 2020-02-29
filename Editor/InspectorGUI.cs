@@ -157,7 +157,8 @@ namespace ZanShader.Editor
 				}
 			}
 			EditorGUIUtility.fieldWidth = 64; //EditorGUI.kObjectFieldThumbnailHeight;
-			MaterialCaptionDecorator.OnBeforeGUI = () =>
+		//	EditorGUIUtility.labelWidth = EditorGUIUtility.currentViewWidth - 204;
+			CaptionDecorator.OnBeforeGUI = () =>
 			{
 				if( indentCount > 0)
 				{
@@ -165,7 +166,7 @@ namespace ZanShader.Editor
 					indentCount = 0;
 				}
 			};
-			MaterialCaptionDecorator.OnAfterGUI = () =>
+			CaptionDecorator.OnAfterGUI = () =>
 			{
 				++EditorGUI.indentLevel;
 				++indentCount;
@@ -183,9 +184,9 @@ namespace ZanShader.Editor
 				EditorGUI.indentLevel -= indentCount;
 				indentCount = 0;
 			}
-			MaterialCaptionDecorator.OnBeforeGUI = null;
-            MaterialCaptionDecorator.OnAfterGUI = null;
-			MaterialCaptionDecorator.enabled = false;
+			CaptionDecorator.OnBeforeGUI = null;
+            CaptionDecorator.OnAfterGUI = null;
+			CaptionDecorator.enabled = false;
 			
 			/* Rendering Status */
 			if( rsCullProp != null
@@ -353,7 +354,7 @@ namespace ZanShader.Editor
             materialEditor.EnableInstancingField();
             materialEditor.DoubleSidedGIField();
             
-            MaterialCaptionDecorator.enabled = true;
+            CaptionDecorator.enabled = true;
 		}
 		
 		/* Rendering Status */
