@@ -14,6 +14,13 @@ namespace ZanShader.Editor
 	}
 	internal class BlendAlphaPresetParam
 	{
+		public static string[] kBlendAlphaPresetNames = new string[]
+		{
+			"前景を上書き",
+			"前景のアルファで合成",
+			"背景のアルファで合成",
+			"その他",
+		};
 		public static BlendAlphaPreset GetPreset( float blendOp, float srcFactor, float dstFactor)
 		{
 			for( int i0 = 0; i0 < kBlendAlphaPresetParams.Length; ++i0)

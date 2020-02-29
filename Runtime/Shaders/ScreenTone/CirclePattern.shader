@@ -1,4 +1,4 @@
-﻿Shader "Zan/Unlit/HalftoneMesh"
+﻿Shader "Zan/Unlit/ScreenTone/CirclePattern"
 {
 	Properties
 	{
@@ -118,19 +118,19 @@
 			#pragma shader_feature _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
-			#include "Includes/Blend.cginc"
-			#include "Includes/Procedural.cginc"
+			#include "../Includes/Blend.cginc"
+			#include "../Includes/Procedural.cginc"
 			
 			uniform sampler2D _MainTex;
 			uniform float4 _MainTex_ST;
 			uniform sampler3D _DitherMaskLOD;
 			UNITY_INSTANCING_BUFFER_START( Props)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _Color)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _ColorBlendRatio2)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaBlendRatio2)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _HalftoneThreshold)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _HalftoneRotation)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _HalftoneScale)
+				UNITY_DEFINE_INSTANCED_PROP( float, _ColorBlendRatio2)
+				UNITY_DEFINE_INSTANCED_PROP( float, _AlphaBlendRatio2)
+				UNITY_DEFINE_INSTANCED_PROP( float, _HalftoneThreshold)
+				UNITY_DEFINE_INSTANCED_PROP( float, _HalftoneRotation)
+				UNITY_DEFINE_INSTANCED_PROP( float, _HalftoneScale)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _HalftoneScaleOffset)
 			#if !defined(_VERTEXCOLORBLENDOP_NONE)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio)
@@ -202,11 +202,8 @@
 				float2 uv = ((i.position.xy / _ScreenParams.xy) - 0.5) * halftoneScale;
 				uv.x *= _ScreenParams.x / _ScreenParams.y;
 				uv = rotation( uv, i.uv0.zw) * halftoneScaleOffset.xy + halftoneScaleOffset.zw;
-				
 				uv = frac( uv) - 0.5;
-				uv = float2( dot( uv.x, uv.x), dot( uv.y, uv.y)) * 2.0;
-				uv = step( halftoneThreshold, pow( uv, color.a));
-				color.a = 1.0 - uv.x * uv.y;
+				color.a = 1.0 - step( halftoneThreshold, pow( dot( uv, uv) * 2.0, color.a));
 			#if defined(_ALPHACLIP_ON)
 				clip( color.a - 1e-4);
 			#endif

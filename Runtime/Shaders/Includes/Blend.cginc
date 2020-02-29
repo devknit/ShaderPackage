@@ -1,7 +1,7 @@
 // Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
 
-#ifndef ZANLIB_INCLUDED
-#define ZANLIB_INCLUDED
+#ifndef __BLEND_CGINC__
+#define __BLEND_CGINC__
 
 //http://optie.hatenablog.com/entry/2018/03/15/212107
 //Base  = Background
@@ -516,4 +516,4 @@ inline fixed4 VertexColorBlending( fixed4 Base, fixed4 Blend, float ColorRatio, 
 	return fixed4( saturate( lerp( Base.rgb, color, ColorRatio)), alpha);
 }
 
-#endif /* ZANLIB_INCLUDED */
+#endif /* __BLEND_CGINC__ */

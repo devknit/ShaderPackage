@@ -208,28 +208,41 @@ namespace ZanShader.Editor
 					materialEditor.ShaderProperty( rsZWriteProp, rsZWriteProp.displayName);
 					materialEditor.ShaderProperty( rsZTestProp, rsZTestProp.displayName);
 					EditorGUI.BeginChangeCheck();
-					materialEditor.ShaderProperty( rsColorMaskProp, "<!>" + rsColorMaskProp.displayName);
+					materialEditor.ShaderProperty( rsColorMaskProp, rsColorMaskProp.displayName);
 					if( EditorGUI.EndChangeCheck() != false)
 					{
 						if( rsColorMaskProp.floatValue != 15.0f)
 						{
-							if( EditorUtility.DisplayDialog( "Warning", "Color Mask を RGBA 以外に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映させてよろしいですか？", "はい", "いいえ") == false)
+							if( EditorUtility.DisplayDialog( "Warning", "Color Mask を RGBA 以外に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映してもよろしいですか？", "はい", "いいえ") == false)
 							{
 								rsColorMaskProp.floatValue = 15.0f;
 							}
 						}
 					}
+					if( rsColorMaskProp.floatValue != 15.0f)
+					{
+	                	EditorGUILayout.LabelField( new GUIContent( 
+							"Color Mask の設定がモバイルでは高負荷となる状態です\n設定をRGBAに変更することで解消されます",
+	                    	EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
+	                }
+					
 					EditorGUI.BeginChangeCheck();
-					materialEditor.ShaderProperty( rsAlphaClipProp, "<!>" + rsAlphaClipProp.displayName);
+					materialEditor.ShaderProperty( rsAlphaClipProp, rsAlphaClipProp.displayName);
 					if( EditorGUI.EndChangeCheck() != false)
 					{
 						if( rsAlphaClipProp.floatValue != 0.0f)
 						{
-							if( EditorUtility.DisplayDialog( "Warning", "Alpha Clip を有効に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映させてよろしいですか？", "はい", "いいえ") == false)
+							if( EditorUtility.DisplayDialog( "Warning", "Alpha Clip を有効に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映してもよろしいですか？", "はい", "いいえ") == false)
 							{
 								rsAlphaClipProp.floatValue = 0.0f;
 							}
 						}
+					}
+					if( rsAlphaClipProp.floatValue != 0.0f)
+					{
+	                	EditorGUILayout.LabelField( new GUIContent( 
+							"Alpha Clip の設定がモバイルでは高負荷となる状態です\n設定を無効に変更することで解消されます",
+	                    	EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
 					}
 					--EditorGUI.indentLevel;
 				}
@@ -259,7 +272,8 @@ namespace ZanShader.Editor
 						rsColorDstFactorProp.floatValue, 
 						_fColorBlendFactorProp.floatValue, 
 						rsColorBlendFactorProp.colorValue);
-					var nextColor = (BlendColorPreset)EditorGUILayout.EnumPopup( "Color Channel Blending", prevColor);
+					var nextColor = (BlendColorPreset)EditorGUILayout.Popup( 
+						"Color Channel Blending", (int)prevColor, BlendColorPresetParam.kBlendColorPresetNames);
 					
 					if( EditorGUI.EndChangeCheck() != false)
 					{
@@ -285,6 +299,27 @@ namespace ZanShader.Editor
 						materialEditor.ShaderProperty( rsColorDstFactorProp, "├─ " + rsColorDstFactorProp.displayName);
 						materialEditor.ShaderProperty( rsColorBlendFactorProp, "├─ " + rsColorBlendFactorProp.displayName);
 						materialEditor.ShaderProperty( _fColorBlendFactorProp, "└─ " + _fColorBlendFactorProp.displayName);
+						
+						string formula;
+						
+						if( TryGetBlendFormula( 
+							(BlendOp)rsColorBlendOpProp.floatValue,
+							(BlendMode)rsColorSrcFactorProp.floatValue,
+							(BlendMode)rsColorDstFactorProp.floatValue,
+							"rgb", out formula) != false)
+						{
+							if( _fColorBlendFactorProp.floatValue != 0.0f)
+							{
+								formula = "src.rgb = src.rgb * src.a + BlendFacter.rgb * (1.0 - src.a);\n" + formula;
+							}
+							EditorGUILayout.LabelField( new GUIContent( formula), EditorStyles.helpBox);
+						}
+						if( _fColorBlendFactorProp.floatValue != 0.0f)
+						{
+		                	EditorGUILayout.LabelField( new GUIContent( 
+								"事前に透過計算をするためにGPUへのプロパティ転送とフラグメント演算が追加されています",
+		                    	EditorGUIUtility.Load( "console.infoicon.sml") as Texture2D), EditorStyles.helpBox);
+		                }
 					}
 					EditorGUILayout.EndVertical();
 					
@@ -294,7 +329,8 @@ namespace ZanShader.Editor
 						rsAlphaBlendOpProp.floatValue,
 						rsAlphaSrcFactorProp.floatValue,
 						rsAlphaDstFactorProp.floatValue);
-					var nextAlpha = (BlendAlphaPreset)EditorGUILayout.EnumPopup( "Alpha Channel Blending", prevAlpha);
+					var nextAlpha = (BlendAlphaPreset)EditorGUILayout.Popup( 
+						"Alpha Channel Blending", (int)prevAlpha, BlendAlphaPresetParam.kBlendAlphaPresetNames);
 					
 					if( EditorGUI.EndChangeCheck() != false)
 					{
@@ -316,6 +352,17 @@ namespace ZanShader.Editor
 						materialEditor.ShaderProperty( rsAlphaBlendOpProp, "├─ " + rsAlphaBlendOpProp.displayName);
 						materialEditor.ShaderProperty( rsAlphaSrcFactorProp, "├─ " + rsAlphaSrcFactorProp.displayName);
 						materialEditor.ShaderProperty( rsAlphaDstFactorProp, "└─ " + rsAlphaDstFactorProp.displayName);
+						
+						string formula;
+						
+						if( TryGetBlendFormula( 
+							(BlendOp)rsAlphaBlendOpProp.floatValue,
+							(BlendMode)rsAlphaSrcFactorProp.floatValue,
+							(BlendMode)rsAlphaDstFactorProp.floatValue,
+							"a", out formula) != false)
+						{
+							EditorGUILayout.LabelField( new GUIContent( formula), EditorStyles.helpBox);
+						}
 					}
 					EditorGUILayout.EndVertical();
 					--EditorGUI.indentLevel;
@@ -359,6 +406,117 @@ namespace ZanShader.Editor
             materialEditor.DoubleSidedGIField();
             
             CaptionDecorator.enabled = true;
+		}
+		static bool TryGetBlendFormula( BlendOp blendOp, BlendMode srcFactor, BlendMode dstFactor, string swizzle, out string formula)
+		{
+			string format, srcValue, dstValue;
+			formula = string.Empty;
+			
+			if( TryGetBlendOpFormat( blendOp, swizzle, out format) != false
+			&&	TryGetBlendFactorValue( srcFactor, out srcValue) != false
+			&&	TryGetBlendFactorValue( dstFactor, out dstValue) != false)
+			{
+				formula = string.Format( format, srcValue, dstValue);
+			}
+			return string.IsNullOrEmpty( formula) == false;
+		}
+		static bool TryGetBlendOpFormat( BlendOp blendOp, string swizzle, out string format)
+		{
+			format = string.Empty;
+			
+			switch( blendOp)
+			{
+				case BlendOp.Add:
+				{
+					format = string.Format( "{0} = dst.{0} * {1} + src.{0} * {2};", swizzle, "{1}", "{0}");
+					break;
+				}
+				case BlendOp.Subtract:
+				{
+					format = string.Format( "{0} = src.{0} * {1} - dst.{0} * {2};", swizzle, "{1}", "{0}");
+					break;
+				}
+				case BlendOp.ReverseSubtract:
+				{
+					format = string.Format( "{0} = dst.{0} * {1} - src.{0} * {2};", swizzle, "{1}", "{0}");
+					break;
+				}
+				case BlendOp.Min:
+				{
+					format = string.Format( "{0} = min( dst.{0}, src.{0});", swizzle);
+					break;
+				}
+				case BlendOp.Max:
+				{
+					format = string.Format( "{0} = max( dst.{0}, src.{0});", swizzle);
+					break;
+				}
+			}
+			return string.IsNullOrEmpty( format) == false;
+		}
+		static bool TryGetBlendFactorValue( BlendMode factor, out string value)
+		{
+			value = string.Empty;
+			
+			switch( factor)
+			{
+				case BlendMode.Zero:
+				{
+					value = "0.0";
+					break;
+				}
+				case BlendMode.One:
+				{
+					value = "1.0";
+					break;
+				}
+				case BlendMode.DstColor:
+				{
+					value = "dst.rgb";
+					break;
+				}
+				case BlendMode.SrcColor:
+				{
+					value = "src.rgb";
+					break;
+				}
+				case BlendMode.OneMinusDstColor:
+				{
+					value = "(1.0 - dst.rgb)";
+					break;
+				}
+				case BlendMode.SrcAlpha:
+				{
+					value = "src.a";
+					break;
+				}
+				case BlendMode.OneMinusSrcColor:
+				{
+					value = "(1.0 - src.rgb)";
+					break;
+				}
+				case BlendMode.DstAlpha:
+				{
+					value = "dst.a";
+					break;
+				}
+				case BlendMode.OneMinusDstAlpha:
+				{
+					value = "(1.0 - dst.a)";
+					break;
+				}
+				case BlendMode.SrcAlphaSaturate:
+				{
+					value = "min( 1.0 - dst.a, src.a)";
+					break;
+				}
+				case BlendMode.OneMinusSrcAlpha:
+				{
+					value = "(1.0 - src.a)";
+					break;
+				}
+			}
+			return string.IsNullOrEmpty( value) == false;
 		}
 		
 		/* Rendering Status */

@@ -1,4 +1,4 @@
-﻿Shader "Zan/Unlit/HalftoneSquare"
+﻿Shader "Zan/Unlit/ScreenTone/SquarePattern"
 {
 	Properties
 	{
@@ -118,8 +118,8 @@
 			#pragma shader_feature _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
-			#include "Includes/Blend.cginc"
-			#include "Includes/Procedural.cginc"
+			#include "../Includes/Blend.cginc"
+			#include "../Includes/Procedural.cginc"
 			
 			uniform sampler2D _MainTex;
 			uniform float4 _MainTex_ST;
