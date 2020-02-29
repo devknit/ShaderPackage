@@ -251,5 +251,5 @@
 		}
 	}
 	Fallback Off
-	CustomEditor "ZanShader.InspectorGUI"
+	CustomEditor "ZanShader.Editor.InspectorGUI"
 }

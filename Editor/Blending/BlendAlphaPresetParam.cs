@@ -3,16 +3,16 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace ZanShader
+namespace ZanShader.Editor
 {
-	public enum BlendAlphaPreset
+	internal enum BlendAlphaPreset
 	{
 		None,
 		SrcAlphaBlend,
 		DstAlphaBlend,
 		Other
 	}
-	class BlendAlphaPresetParam
+	internal class BlendAlphaPresetParam
 	{
 		public static BlendAlphaPreset GetPreset( float blendOp, float srcFactor, float dstFactor)
 		{

@@ -3,9 +3,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace ZanShader
+namespace ZanShader.Editor
 {
-	public enum BlendColorPreset
+	internal enum BlendColorPreset
 	{
 		None,
 		SrcAlphaBlend,
@@ -21,7 +21,7 @@ namespace ZanShader
 		MultiplyDouble,
 		Other
 	}
-	class BlendColorPresetParam : BlendAlphaPresetParam
+	internal class BlendColorPresetParam : BlendAlphaPresetParam
 	{
 		public static BlendColorPreset GetPreset( float blendOp, float srcFactor, float dstFactor, float blendFactorFlag, Color blendFactorColor)
 		{
