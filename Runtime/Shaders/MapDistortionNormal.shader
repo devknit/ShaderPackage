@@ -3,14 +3,14 @@
 	Properties
 	{
 		/* Shader Properties */
-		[Header(Base Map Properties)]
+		[Caption(Base Map Properties)]
 		_MainTex( "Base Map", 2D) = "white" {}
 		
-		[Header(Distortion Map Properties)]
+		[Caption(Distortion Map Properties)]
 		_DistortionTex( "Distortion (Normal.xy)", 2D) = "bump" {}
 		_DistortionVolume( "Distortion Volume", float) = 1
 		
-		[Header(Vertex Color Blending Properties)]
+		[Caption(Vertex Color Blending Properties)]
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
 		_VERTEXCOLORBLENDOP( "Vertex Color Blend Op", float) = 2
 		[KeywordEnum(Value, AlphaBlendOp, OneMinusAlphaBlendOp, BaseAlpha, OneMinusBaseAlpha, BlendAlpha, OneMinusBlendAlpha, BaseColorValue, OneMinusBaseColorValue, BlendColorValue, OneMinusBlendColorValue)]
@@ -21,10 +21,11 @@
 		_VertexAlphaBlendRatio( "Vertex Alpha Blend Ratio Value", float) = 1.0
 		
 		/* Use Custom Data */
-		[Header(Use Custom Data)]
+		[Caption(Use Custom Data)]
 		[Toggle] _CD_DISTORTIONCUSTOM( "Distortion Volume *= (TEXCORD0.z)", float) = 0
 		
 		/* Rendering Status */
+		[Caption(Rendering Status)]
 		[Enum( UnityEngine.Rendering.CullMode)]
 		_RS_Cull( "Cull", float) = 0 /* Off */
 		[Enum(Off, 0, On, 1)]
@@ -33,10 +34,10 @@
 		_RS_ZTest( "ZTest", float) = 8	/* Always */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		[Toggle]
-		_ALPHACLIP( "Alpha Clip", float) = 0
+		[Toggle] _ALPHACLIP( "Alpha Clip", float) = 0
 		
 		/* Blending Status */
+		[Caption(Blending Status)]
 		[Enum( UnityEngine.Rendering.BlendOp)]
 		_RS_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
@@ -53,6 +54,7 @@
 		[Toggle] _BLENDFACTOR( "Use Blend Factor", float) = 0
 		
 		/* Depth Stencil Status */
+		[Caption(Depth Stencil Status)]
 		_StencilRef( "Stencil Reference", Range( 0, 255)) = 0
 		_StencilReadMask( "Stencil Read Mask", Range( 0, 255)) = 255
 		_StencilWriteMask( "Stencil Write Mask", Range( 0, 255)) = 255

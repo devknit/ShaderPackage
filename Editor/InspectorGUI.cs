@@ -32,6 +32,7 @@ namespace ZanShader
 			MaterialProperty stencilFailProp = null;
 			MaterialProperty stencilZFailProp = null;
 			MaterialProperty property;
+			int indentCount = 0;
 			
 			for( int i0 = 0; i0 < properties.Length; ++i0)
 			{
@@ -147,11 +148,28 @@ namespace ZanShader
 					
 					default:
 					{
-						baseProperties[ i0] = true;
+						if( (property.flags & (MaterialProperty.PropFlags.HideInInspector | MaterialProperty.PropFlags.PerRendererData)) == 0)
+						{
+							baseProperties[ i0] = true;
+						}
 						break;
 					}
 				}
 			}
+			EditorGUIUtility.fieldWidth = 64; //EditorGUI.kObjectFieldThumbnailHeight;
+			MaterialCaptionDecorator.OnBeforeGUI = () =>
+			{
+				if( indentCount > 0)
+				{
+					EditorGUI.indentLevel -= indentCount;
+					indentCount = 0;
+				}
+			};
+			MaterialCaptionDecorator.OnAfterGUI = () =>
+			{
+				++EditorGUI.indentLevel;
+				++indentCount;
+			};
 			for( int i0 = 0; i0 < properties.Length; ++i0)
 			{
 				if( baseProperties[ i0] != false)
@@ -160,6 +178,14 @@ namespace ZanShader
 					materialEditor.ShaderProperty( property, property.displayName);
 				}
 			}
+			if( indentCount > 0)
+			{
+				EditorGUI.indentLevel -= indentCount;
+				indentCount = 0;
+			}
+			MaterialCaptionDecorator.OnBeforeGUI = null;
+            MaterialCaptionDecorator.OnAfterGUI = null;
+			MaterialCaptionDecorator.enabled = false;
 			
 			/* Rendering Status */
 			if( rsCullProp != null
@@ -177,7 +203,7 @@ namespace ZanShader
 					materialEditor.ShaderProperty( rsZWriteProp, rsZWriteProp.displayName);
 					materialEditor.ShaderProperty( rsZTestProp, rsZTestProp.displayName);
 					EditorGUI.BeginChangeCheck();
-					materialEditor.ShaderProperty( rsColorMaskProp, rsColorMaskProp.displayName);
+					materialEditor.ShaderProperty( rsColorMaskProp, "<!>" + rsColorMaskProp.displayName);
 					if( EditorGUI.EndChangeCheck() != false)
 					{
 						if( rsColorMaskProp.floatValue != 15.0f)
@@ -189,7 +215,7 @@ namespace ZanShader
 						}
 					}
 					EditorGUI.BeginChangeCheck();
-					materialEditor.ShaderProperty( rsAlphaClipProp, rsAlphaClipProp.displayName);
+					materialEditor.ShaderProperty( rsAlphaClipProp, "<!>" + rsAlphaClipProp.displayName);
 					if( EditorGUI.EndChangeCheck() != false)
 					{
 						if( rsAlphaClipProp.floatValue != 0.0f)
@@ -326,6 +352,8 @@ namespace ZanShader
             }
             materialEditor.EnableInstancingField();
             materialEditor.DoubleSidedGIField();
+            
+            MaterialCaptionDecorator.enabled = true;
 		}
 		
 		/* Rendering Status */

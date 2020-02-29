@@ -1,5 +1,5 @@
 {
-    "name": "ZanShaders.Editor",
+    "name": "ZanShader.Editor",
     "references": [],
     "includePlatforms": [
         "Editor"

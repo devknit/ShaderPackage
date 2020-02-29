@@ -3,10 +3,10 @@
 	Properties
 	{
 		/* Shader Properties */
-		[Header(Shader Properties)]
+		[Caption(Shader Properties)]
 		_MainTex( "Base Map", 2D) = "white" {}
 		
-		[Header(Color Blending Properties)]
+		[Caption(Color Blending Properties)]
 		_Color( "Blend Color", Color) = ( 1,1,1,1)
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
 		_COLORBLENDOP2( "Color Blend Op", float) = 2
@@ -17,7 +17,7 @@
 		_ALPHABLENDOP2( "Alpha Blend Op", float) = 2
 		_AlphaBlendRatio2( "Alpha Blend Ratio Value", float) = 1.0
 		
-		[Header(Vertex Color Blending Properties)]
+		[Caption(Vertex Color Blending Properties)]
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
 		_VERTEXCOLORBLENDOP( "Vertex Color Blend Op", float) = 2
 		[KeywordEnum(Value, AlphaBlendOp, OneMinusAlphaBlendOp, BaseAlpha, OneMinusBaseAlpha, BlendAlpha, OneMinusBlendAlpha, BaseColorValue, OneMinusBaseColorValue, BlendColorValue, OneMinusBlendColorValue)]
@@ -27,7 +27,7 @@
 		_VERTEXALPHABLENDOP( "Vertex Alpha Blend Op", float) = 2
 		_VertexAlphaBlendRatio( "Vertex Alpha Blend Ratio Value", float) = 1.0
 		
-		[Header(Halftone Properties)]
+		[Caption(Halftone Properties)]
 		[IntRange] _HalftonePolygon( "Halftone Polygon", Range( 3, 8)) = 3
 		_HalftoneThreshold( "Halftone Threshold", Range( 0.0, 1.0)) = 0.5
 		_HalftoneRotation( "Halftone UV Rotation", Range(0.0, 360.0)) = 0.0
@@ -35,6 +35,7 @@
 		_HalftoneScaleOffset( "Halftone UV Axis Scale(xy) Offset(zw)", Vector) = (1.0, 1.0, 0.0, 0.0)
 		
 		/* Rendering Status */
+		[Caption(Rendering Status)]
 		[Enum( UnityEngine.Rendering.CullMode)]
 		_RS_Cull( "Cull", float) = 0 /* Off */
 		[Enum(Off, 0, On, 1)]
@@ -43,10 +44,10 @@
 		_RS_ZTest( "ZTest", float) = 8	/* Always */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		[Toggle]
-		_ALPHACLIP( "Alpha Clip", float) = 0
+		[Toggle] _ALPHACLIP( "Alpha Clip", float) = 0
 		
 		/* Blending Status */
+		[Caption(Blending Status)]
 		[Enum( UnityEngine.Rendering.BlendOp)]
 		_RS_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
@@ -63,6 +64,7 @@
 		[Toggle] _BLENDFACTOR( "Use Blend Factor", float) = 0
 		
 		/* Depth Stencil Status */
+		[Caption(Depth Stencil Status)]
 		_StencilRef( "Stencil Reference", Range( 0, 255)) = 0
 		_StencilReadMask( "Stencil Read Mask", Range( 0, 255)) = 255
 		_StencilWriteMask( "Stencil Write Mask", Range( 0, 255)) = 255
