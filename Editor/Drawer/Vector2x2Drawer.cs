@@ -32,7 +32,7 @@ namespace ZanShader.Editor
 			{
 				return (EditorGUIUtility.singleLineHeight + kHeightInterval) * 3;
 			}
-			return base.GetPropertyHeight( prop, label, editor);
+			return EditorGUIUtility.singleLineHeight * 2.5f;
 		}
 		public override void OnGUI( Rect position, MaterialProperty prop, string label, MaterialEditor editor)
 		{
@@ -46,6 +46,7 @@ namespace ZanShader.Editor
 			}
 			
 			EditorGUI.BeginChangeCheck();
+			EditorGUI.showMixedValue = prop.hasMixedValue;
 			
 			var xy = new float[]{ prop.vectorValue.x, prop.vectorValue.y };
 			var zw = new float[]{ prop.vectorValue.z, prop.vectorValue.w };
@@ -65,6 +66,8 @@ namespace ZanShader.Editor
 			valueRect.y += EditorGUIUtility.singleLineHeight + kHeightInterval;
 			EditorGUI.PrefixLabel( labelRect, zwLabel);
 			EditorGUI.MultiFloatField( valueRect, subLabels, zw);
+			
+			EditorGUI.showMixedValue = false;
 			
 			if( EditorGUI.EndChangeCheck() != false)
 			{

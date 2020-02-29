@@ -29,8 +29,8 @@
 		
 		/* Use Custom Data */
 		[Caption(Use Custom Data)]
-		[Toggle] _CD_COLORBLENDRATIO2( "Color Blend Ratio Value *= (TEXCORD0.z)", float) = 0
-		[Toggle] _CD_ALPHABLENDRATIO2( "Alpha Blend Ratio Value *= (TEXCORD0.w)", float) = 0
+		[EdgeToggle] _CD_COLORBLENDRATIO2( "Color Blend Ratio Value *= (TEXCORD0.z)", float) = 0
+		[EdgeToggle] _CD_ALPHABLENDRATIO2( "Alpha Blend Ratio Value *= (TEXCORD0.w)", float) = 0
 		
 		/* Rendering Status */
 		[Caption(Rendering Status)]
@@ -42,7 +42,7 @@
 		_RS_ZTest( "ZTest", float) = 8	/* Always */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		[Toggle] _ALPHACLIP( "Alpha Clip", float) = 0
+		[EdgeToggle] _ALPHACLIP( "Alpha Clip", float) = 0
 		
 		/* Blending Status */
 		[Caption(Blending Status)]
@@ -59,7 +59,7 @@
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_RS_AlphaDstFactor( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
 		_RS_BlendFactor( "Blend Factor", Color) = ( 0, 0, 0, 0)
-		[Toggle] _BLENDFACTOR( "Use Blend Factor", float) = 0
+		[EdgeToggle] _BLENDFACTOR( "Use Blend Factor", float) = 0
 		
 		/* Depth Stencil Status */
 		[Caption(Depth Stencil Status)]

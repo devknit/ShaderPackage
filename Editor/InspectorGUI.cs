@@ -157,7 +157,11 @@ namespace ZanShader.Editor
 				}
 			}
 			EditorGUIUtility.fieldWidth = 64; //EditorGUI.kObjectFieldThumbnailHeight;
-		//	EditorGUIUtility.labelWidth = EditorGUIUtility.currentViewWidth - 204;
+			EditorGUIUtility.labelWidth = EditorGUIUtility.currentViewWidth * 0.5f;
+			if( EditorGUIUtility.labelWidth < 204)
+			{
+				EditorGUIUtility.labelWidth = EditorGUIUtility.currentViewWidth - 204;
+			}
 			CaptionDecorator.OnBeforeGUI = () =>
 			{
 				if( indentCount > 0)
