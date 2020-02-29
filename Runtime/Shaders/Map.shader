@@ -24,7 +24,7 @@
 		[Enum( UnityEngine.Rendering.CompareFunction)]
 		_RS_ZTest( "ZTest", float) = 8	/* Always */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
-		_RS_ColorMask( "<!>Colro Mask (deprecated for mobile)", float) = 15 /* RGBA */
+		_RS_ColorMask( "<!>Color Mask (deprecated for mobile)", float) = 15 /* RGBA */
 		[Toggle]
 		_ALPHACLIP( "<!>Alpha Clip (deprecated for mobile)", float) = 0
 		
