@@ -1,4 +1,4 @@
-﻿Shader "ZanLib/Unlit/MapDistortionNormal"
+﻿Shader "Zan/Unlit/MapDistortionNormal"
 {
 	Properties
 	{

@@ -1,4 +1,4 @@
-﻿Shader "ZanLib/Unlit/MultimapDistortionBase"
+﻿Shader "Zan/Unlit/MultimapDistortionBase"
 {
 	Properties
 	{

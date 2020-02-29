@@ -1,4 +1,4 @@
-﻿Shader "ZanLib/Unlit/Procedural/Circle"
+﻿Shader "Zan/Unlit/Procedural/Circle"
 {
 	Properties
 	{

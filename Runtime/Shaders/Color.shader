@@ -1,4 +1,4 @@
-﻿Shader "ZanLib/Unlit/Color"
+﻿Shader "Zan/Unlit/Color"
 {
 	Properties
 	{

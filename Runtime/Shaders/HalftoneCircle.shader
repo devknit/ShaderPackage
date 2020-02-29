@@ -1,4 +1,4 @@
-﻿Shader "ZanLib/Unlit/HalftoneCircle"
+﻿Shader "Zan/Unlit/HalftoneCircle"
 {
 	Properties
 	{

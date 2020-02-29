@@ -1,4 +1,4 @@
-﻿Shader "ZanLib/Unlit/HalftoneMesh"
+﻿Shader "Zan/Unlit/HalftoneMesh"
 {
 	Properties
 	{

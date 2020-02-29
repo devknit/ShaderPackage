@@ -1,4 +1,4 @@
-﻿Shader "ZanLib/Unlit/MultimapColor"
+﻿Shader "Zan/Unlit/MultimapColor"
 {
 	Properties
 	{

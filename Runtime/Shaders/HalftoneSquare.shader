@@ -1,4 +1,4 @@
-﻿Shader "ZanLib/Unlit/HalftoneSquare"
+﻿Shader "Zan/Unlit/HalftoneSquare"
 {
 	Properties
 	{

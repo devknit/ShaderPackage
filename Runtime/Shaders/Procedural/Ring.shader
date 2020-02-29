@@ -1,4 +1,4 @@
-﻿Shader "ZanLib/Unlit/Procedural/Ring"
+﻿Shader "Zan/Unlit/Procedural/Ring"
 {
 	Properties
 	{

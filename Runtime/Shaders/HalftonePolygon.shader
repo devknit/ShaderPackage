@@ -1,4 +1,4 @@
-﻿Shader "ZanLib/Unlit/HalftonePolygon"
+﻿Shader "Zan/Unlit/HalftonePolygon"
 {
 	Properties
 	{
