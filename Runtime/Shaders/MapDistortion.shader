@@ -124,6 +124,7 @@
 	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
 		    #endif
             UNITY_INSTANCING_BUFFER_END( Props)
+            #include "Includes/BlendMacro.cginc"
             
 			struct VertexInput
 			{
@@ -172,19 +173,9 @@
 				baseVolume *= i.uv1.x;
 			#endif
 				fixed4 color = tex2D( _MainTex, i.uv0.xy + (distortion.xy * baseVolume));
-		#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
-			#if !defined(_VERTEXCOLORBLENDOP_NONE)
-				float vertexColorBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _VertexColorBlendRatio);
-			#else
-				float vertexColorBlendRatio = 0.0;
+			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
+				color = VertexColorBlending( color, i.vertexColor);
 			#endif
-			#if !defined(_VERTEXALPHABLENDOP_NONE)
-				float vertexAlphaBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _VertexAlphaBlendRatio);
-			#else
-				float vertexAlphaBlendRatio = 0.0;
-			#endif
-				color = VertexColorBlending( color, i.vertexColor, vertexColorBlendRatio, vertexAlphaBlendRatio);
-		#endif
 			#if defined(_ALPHACLIP_ON)
 				clip( color.a - 1e-4);
 			#endif

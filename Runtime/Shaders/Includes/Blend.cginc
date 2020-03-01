@@ -3,9 +3,6 @@
 #define __BLEND_CGINC__
 
 //https://qiita.com/yoya/items/96c36b069e74398796f3
-//http://optie.hatenablog.com/entry/2018/03/15/212107
-//Base  = Background
-//Blend = Foreground
 
 float3 RGBToHSV( float3 rgb)
 {
@@ -62,6 +59,10 @@ inline fixed GlayScaleYofYCgCo( fixed3 color)
 	return color.r / 4.0 + color.g / 2.0 + color.b  / 4.0;
 //	return (((color.r + color.b) >> 1) + color.g) >> 1;
 }
+
+//http://optie.hatenablog.com/entry/2018/03/15/212107
+//Base  = Background
+//Blend = Foreground
 
 /* 乗算 */
 inline fixed3 BelndMultiply( fixed3 Base, fixed3 Blend)

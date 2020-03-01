@@ -39,6 +39,10 @@
 		_VERTEXALPHABLENDOP( "Vertex Alpha Blend Op", float) = 2
 		_VertexAlphaBlendRatio( "Vertex Alpha Blend Ratio Value", float) = 1.0
 		
+		[Caption(Blending Process)]
+		[KeywordEnum(Default, Inverse, BaesLast)]
+		_BLENDORDER( "Blend Order", float) = 0
+		
 		/* Use Custom Data */
 		[Caption(Use Custom Data)]
 		[EdgeToggle] _CD_COLORBLENDRATIO1( "Multi Map Color Blend Ratio Value *= (TEXCORD0.z)", float) = 0
@@ -120,6 +124,7 @@
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
+			#pragma shader_feature _BLENDORDER_DEFAULT _BLENDORDER_INVERSE _BLENDORDER_BAESLAST
 			#pragma shader_feature _COLORBLENDOP1_NONE _COLORBLENDOP1_OVERRIDE _COLORBLENDOP1_MULTIPLY _COLORBLENDOP1_DARKEN _COLORBLENDOP1_COLORBURN _COLORBLENDOP1_LINEARBURN _COLORBLENDOP1_LIGHTEN _COLORBLENDOP1_SCREEN _COLORBLENDOP1_COLORDODGE _COLORBLENDOP1_LINEARDODGE _COLORBLENDOP1_OVERLAY _COLORBLENDOP1_HARDLIGHT _COLORBLENDOP1_VIVIDLIGHT _COLORBLENDOP1_LINEARLIGHT _COLORBLENDOP1_PINLIGHT _COLORBLENDOP1_HARDMIX _COLORBLENDOP1_DIFFERENCE _COLORBLENDOP1_EXCLUSION _COLORBLENDOP1_SUBSTRACT _COLORBLENDOP1_DIVISION
 			#pragma shader_feature _COLORBLENDSRC1_VALUE _COLORBLENDSRC1_ALPHABLENDOP _COLORBLENDSRC1_ONEMINUSALPHABLENDOP _COLORBLENDSRC1_BASEALPHA _COLORBLENDSRC1_ONEMINUSBASEALPHA _COLORBLENDSRC1_BLENDALPHA _COLORBLENDSRC1_ONEMINUSBLENDALPHA _COLORBLENDSRC1_BASECOLORVALUE _COLORBLENDSRC1_ONEMINUSBASECOLORVALUE _COLORBLENDSRC1_BLENDCOLORVALUE _COLORBLENDSRC1_ONEMINUSBLENDCOLORVALUE
 			#pragma shader_feature _ALPHABLENDOP1_NONE _ALPHABLENDOP1_OVERRIDE _ALPHABLENDOP1_MULTIPLY _ALPHABLENDOP1_ADD _ALPHABLENDOP1_SUBSTRACT _ALPHABLENDOP1_REVERSESUBSTRACT _ALPHABLENDOP1_OFFSET _ALPHABLENDOP1_MAXIMUM
@@ -160,6 +165,7 @@
 	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
 	        #endif
             UNITY_INSTANCING_BUFFER_END( Props)
+            #include "Includes/BlendMacro.cginc"
         	
 			struct VertexInput
 			{
@@ -207,8 +213,9 @@
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
 				fixed4 color = tex2D( _MainTex, i.uv0.xy);
-				fixed4 value1 = tex2D( _MultiTex, i.uv0.zw);
-				fixed4 value2 = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
+				fixed4 blendColor1 = tex2D( _MultiTex, i.uv0.zw);
+				fixed4 blendColor2 = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
+				blendColor1.a = remap( blendColor1.a, UNITY_ACCESS_INSTANCED_PROP( Props, _MultiTexAlphaRemap));
 				float colorBlendRatio1 = UNITY_ACCESS_INSTANCED_PROP( Props, _ColorBlendRatio1);
 				float alphaBlendRatio1 = UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaBlendRatio1);
 				float colorBlendRatio2 = UNITY_ACCESS_INSTANCED_PROP( Props, _ColorBlendRatio2);
@@ -225,22 +232,25 @@
 			#if defined(_CD_ALPHABLENDRATIO2_ON)
 				alphaBlendRatio2 *= i.uv1.w;
 			#endif
-				value1.a = remap( value1.a, UNITY_ACCESS_INSTANCED_PROP( Props, _MultiTexAlphaRemap));
-				color = Blending1( color, value1, colorBlendRatio1, alphaBlendRatio1);
-				color = Blending2( color, value2, colorBlendRatio2, alphaBlendRatio2);
-		#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
-			#if !defined(_VERTEXCOLORBLENDOP_NONE)
-				float vertexColorBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _VertexColorBlendRatio);
-			#else
-				float vertexColorBlendRatio = 0.0;
+				
+		#if defined(_BLENDORDER_INVERSE)
+			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
+				blendColor2 = VertexColorBlending( blendColor2, i.vertexColor);
 			#endif
-			#if !defined(_VERTEXALPHABLENDOP_NONE)
-				float vertexAlphaBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _VertexAlphaBlendRatio);
-			#else
-				float vertexAlphaBlendRatio = 0.0;
+				blendColor1 = Blending1( blendColor1, blendColor2, colorBlendRatio1, alphaBlendRatio1);
+		#elif defined(_BLENDORDER_BAESLAST)
+				blendColor1 = Blending1( blendColor1, blendColor2, colorBlendRatio1, alphaBlendRatio1);
+			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
+				blendColor1 = VertexColorBlending( blendColor1, i.vertexColor);
 			#endif
-				color = VertexColorBlending( color, i.vertexColor, vertexColorBlendRatio, vertexAlphaBlendRatio);
 		#endif
+				color = Blending1( color, blendColor1, colorBlendRatio1, alphaBlendRatio1);
+		#if defined(_BLENDORDER_DEFAULT)
+				color = Blending2( color, blendColor2, colorBlendRatio2, alphaBlendRatio2);
+			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
+				color = VertexColorBlending( color, i.vertexColor);
+			#endif
+		#endif	
 			#if defined(_ALPHACLIP_ON)
 				clip( color.a - 1e-4);
 			#endif

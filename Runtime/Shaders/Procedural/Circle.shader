@@ -125,6 +125,7 @@
 	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
 			#endif    
             UNITY_INSTANCING_BUFFER_END( Props)
+            #include "../Includes/BlendMacro.cginc"
 			
 			struct VertexInput
 			{
@@ -158,21 +159,9 @@
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
 				fixed4 color = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
-				
-		#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
-			#if !defined(_VERTEXCOLORBLENDOP_NONE)
-				float vertexColorBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _VertexColorBlendRatio);
-			#else
-				float vertexColorBlendRatio = 0.0;
+			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
+				color = VertexColorBlending( color, i.vertexColor);
 			#endif
-			#if !defined(_VERTEXALPHABLENDOP_NONE)
-				float vertexAlphaBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _VertexAlphaBlendRatio);
-			#else
-				float vertexAlphaBlendRatio = 0.0;
-			#endif
-				color = VertexColorBlending( color, i.vertexColor, vertexColorBlendRatio, vertexAlphaBlendRatio);
-		#endif
-			
 				float circleRadius = UNITY_ACCESS_INSTANCED_PROP( Props, _CircleRadius);
 				float smoothEdges = UNITY_ACCESS_INSTANCED_PROP( Props, _SmoothEdges);
 			#if defined(_CD_CIRCLERADIUSCUSTOM_ON)
