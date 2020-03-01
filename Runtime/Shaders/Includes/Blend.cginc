@@ -1,4 +1,3 @@
-// Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
 
 #ifndef __BLEND_CGINC__
 #define __BLEND_CGINC__

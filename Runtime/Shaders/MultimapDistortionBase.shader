@@ -17,8 +17,6 @@
 		[KeywordEnum(None, Override, Multiply, Add, Substract, ReverseSubstract, Offset, Maximum)]
 		_ALPHABLENDOP1( "Multi Map Alpha Blend Op", float) = 2
 		_AlphaBlendRatio1( "Multi Map Alpha Blend Ratio Value", float) = 1.0
-		[KeywordEnum(Red, Green, Blue, Alpha, Length, Luminance, Hue, Saturation, Brightness)]
-		_DISTORTIONBASE( "Multi Map Distortion Factor", float) = 5
 		_DistortionVolume( "Multi Map Distortion Volume", float) = 1.0
 		
 		[Caption(Vertex Color Blending Properties)]
@@ -111,7 +109,6 @@
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#pragma shader_feature _DISTORTIONBASE_RED _DISTORTIONBASE_GREEN _DISTORTIONBASE_BLUE _DISTORTIONBASE_ALPHA _DISTORTIONBASE_LENGTH _DISTORTIONBASE_LUMINANCE _DISTORTIONBASE_HUE _DISTORTIONBASE_SATURATION _DISTORTIONBASE_BRIGHTNESS
 			#pragma shader_feature _COLORBLENDOP1_NONE _COLORBLENDOP1_OVERRIDE _COLORBLENDOP1_MULTIPLY _COLORBLENDOP1_DARKEN _COLORBLENDOP1_COLORBURN _COLORBLENDOP1_LINEARBURN _COLORBLENDOP1_LIGHTEN _COLORBLENDOP1_SCREEN _COLORBLENDOP1_COLORDODGE _COLORBLENDOP1_LINEARDODGE _COLORBLENDOP1_OVERLAY _COLORBLENDOP1_HARDLIGHT _COLORBLENDOP1_VIVIDLIGHT _COLORBLENDOP1_LINEARLIGHT _COLORBLENDOP1_PINLIGHT _COLORBLENDOP1_HARDMIX _COLORBLENDOP1_DIFFERENCE _COLORBLENDOP1_EXCLUSION _COLORBLENDOP1_SUBSTRACT _COLORBLENDOP1_DIVISION
 			#pragma shader_feature _COLORBLENDSRC1_VALUE _COLORBLENDSRC1_ALPHABLENDOP _COLORBLENDSRC1_ONEMINUSALPHABLENDOP _COLORBLENDSRC1_BASEALPHA _COLORBLENDSRC1_ONEMINUSBASEALPHA _COLORBLENDSRC1_BLENDALPHA _COLORBLENDSRC1_ONEMINUSBLENDALPHA _COLORBLENDSRC1_BASECOLORVALUE _COLORBLENDSRC1_ONEMINUSBASECOLORVALUE _COLORBLENDSRC1_BLENDCOLORVALUE _COLORBLENDSRC1_ONEMINUSBLENDCOLORVALUE
 			#pragma shader_feature _ALPHABLENDOP1_NONE _ALPHABLENDOP1_OVERRIDE _ALPHABLENDOP1_MULTIPLY _ALPHABLENDOP1_ADD _ALPHABLENDOP1_SUBSTRACT _ALPHABLENDOP1_REVERSESUBSTRACT _ALPHABLENDOP1_OFFSET _ALPHABLENDOP1_MAXIMUM
@@ -193,30 +190,13 @@
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
 				fixed4 color = tex2D( _MainTex, i.uv0.xy);
+				fixed2 distortion = (color.xy * 2.0 - 1.0) * color.a;
 				float volume = UNITY_ACCESS_INSTANCED_PROP( Props, _DistortionVolume);
-			#if   defined(_DISTORTIONBASE_RED)
-				volume *= color.r;
-			#elif defined(_DISTORTIONBASE_GREEN)
-				volume *= color.g;
-			#elif defined(_DISTORTIONBASE_BLUE)
-				volume *= color.b;
-			#elif defined(_DISTORTIONBASE_ALPHA)
-				volume *= color.a;
-			#elif defined(_DISTORTIONBASE_LENGTH)
-				volume *= dot( color.rgb, color.rgb) / 3.0;
-			#elif defined(_DISTORTIONBASE_LUMINANCE)
-				volume *= Luminance( color.rgb);
-			#elif defined(_DISTORTIONBASE_HUE)
-				volume *= RGBToHSV( color.rgb).r;
-			#elif defined(_DISTORTIONBASE_SATURATION)
-				volume *= RGBToHSV( color.rgb).g;
-			#elif defined(_DISTORTIONBASE_SATURATION)
-				volume *= RGBToHSV( color.rgb).b;
-			#endif
 			#if defined(_CD_MULTIDISTORTION_ON)
 				volume *= i.uv1.z;
 			#endif
-				fixed4 value = tex2D( _MultiTex, i.uv0.zw + volume);
+				distortion *= volume;
+				fixed4 value = tex2D( _MultiTex, i.uv0.zw + distortion);
 				float colorBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _ColorBlendRatio1);
 				float alphaBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaBlendRatio1);
 			#if defined(_CD_COLORBLENDRATIO1_ON)

@@ -3,7 +3,7 @@
 	Properties
 	{
 		[Caption(Distortion Map Properties)]
-		_DistortionTex( "Distortion (Normal.xy)", 2D) = "bump" {}
+		_DistortionTex( "Distortion Map", 2D) = "black" {}
 		
 		[Caption(Base Map Properties)]
 		_MainTex( "Base Map", 2D) = "white" {}
@@ -164,12 +164,14 @@
 			fixed4 frag( VertexOutput i) : COLOR
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
-				fixed3 value = UnpackNormal( tex2D( _DistortionTex, i.uv0.zw));
-				float volume = UNITY_ACCESS_INSTANCED_PROP( Props, _BaseMapDistortionVolume);
+				fixed4 distortion = tex2D( _DistortionTex, i.uv0.zw);
+				distortion.xy = (distortion.xy * 2 - 1) * distortion.w;
+			//	distortion.xy = mul( unity_ObjectToWorld, distortion.xy);
+				float baseVolume = UNITY_ACCESS_INSTANCED_PROP( Props, _BaseMapDistortionVolume);
 			#if defined(_CD_BASEDISTORTION_ON)
-				volume *= i.uv1.x;
+				baseVolume *= i.uv1.x;
 			#endif
-				fixed4 color = tex2D( _MainTex, i.uv0.xy + (value.xy * volume));
+				fixed4 color = tex2D( _MainTex, i.uv0.xy + (distortion.xy * baseVolume));
 		#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 			#if !defined(_VERTEXCOLORBLENDOP_NONE)
 				float vertexColorBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _VertexColorBlendRatio);

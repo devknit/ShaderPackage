@@ -3,7 +3,7 @@
 	Properties
 	{
 		[Caption(Distortion Map Properties)]
-		_DistortionTex( "Distortion (Normal.xy)", 2D) = "bump" {}
+		_DistortionTex( "Distortion Map", 2D) = "black" {}
 		_BaseMapDistortionVolume( "Base Map Distortion Volume", float) = 1
 		
 		[Caption(Multi Map Blending Properties)]
@@ -201,7 +201,9 @@
 			fixed4 frag( VertexOutput i) : COLOR
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
-				fixed3 distortion = UnpackNormal( tex2D( _DistortionTex, i.uv0.zw));
+				fixed4 distortion = tex2D( _DistortionTex, i.uv0.zw);
+				distortion.xy = (distortion.xy * 2 - 1) * distortion.w;
+				distortion.xy = mul( unity_ObjectToWorld, distortion.xy);
 				float baseVolume = UNITY_ACCESS_INSTANCED_PROP( Props, _BaseMapDistortionVolume);
 				float multiVolume = UNITY_ACCESS_INSTANCED_PROP( Props, _MultiMapDistortionVolume);
 			#if defined(_CD_BASEDISTORTION_ON)
