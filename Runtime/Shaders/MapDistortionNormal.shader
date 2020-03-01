@@ -2,12 +2,12 @@
 {
 	Properties
 	{
-		[Caption(Base Map Properties)]
-		_MainTex( "Base Map", 2D) = "white" {}
-		
 		[Caption(Distortion Map Properties)]
 		_DistortionTex( "Distortion (Normal.xy)", 2D) = "bump" {}
-		_DistortionVolume( "Distortion Volume", float) = 1
+		
+		[Caption(Base Map Properties)]
+		_MainTex( "Base Map", 2D) = "white" {}
+		_BaseMapDistortionVolume( "Base Map Distortion Volume", float) = 1
 		
 		[Caption(Vertex Color Blending Properties)]
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
@@ -21,7 +21,7 @@
 		
 		/* Use Custom Data */
 		[Caption(Use Custom Data)]
-		[EdgeToggle] _CD_DISTORTIONCUSTOM( "Distortion Volume *= (TEXCORD0.z)", float) = 0
+		[EdgeToggle] _CD_BASEDISTORTION( "Base Map Distortion Volume *= (TEXCORD0.z)", float) = 0
 		
 		/* Rendering Status */
 		[Caption(Rendering Status)]
@@ -100,7 +100,7 @@
 			#pragma shader_feature _VERTEXCOLORBLENDOP_NONE _VERTEXCOLORBLENDOP_OVERRIDE _VERTEXCOLORBLENDOP_MULTIPLY _VERTEXCOLORBLENDOP_DARKEN _VERTEXCOLORBLENDOP_COLORBURN _VERTEXCOLORBLENDOP_LINEARBURN _VERTEXCOLORBLENDOP_LIGHTEN _VERTEXCOLORBLENDOP_SCREEN _VERTEXCOLORBLENDOP_COLORDODGE _VERTEXCOLORBLENDOP_LINEARDODGE _VERTEXCOLORBLENDOP_OVERLAY _VERTEXCOLORBLENDOP_HARDLIGHT _VERTEXCOLORBLENDOP_VIVIDLIGHT _VERTEXCOLORBLENDOP_LINEARLIGHT _VERTEXCOLORBLENDOP_PINLIGHT _VERTEXCOLORBLENDOP_HARDMIX _VERTEXCOLORBLENDOP_DIFFERENCE _VERTEXCOLORBLENDOP_EXCLUSION _VERTEXCOLORBLENDOP_SUBSTRACT _VERTEXCOLORBLENDOP_DIVISION
 			#pragma shader_feature _VERTEXCOLORBLENDSRC_VALUE _VERTEXCOLORBLENDSRC_ALPHABLENDOP _VERTEXCOLORBLENDSRC_ONEMINUSALPHABLENDOP _VERTEXCOLORBLENDSRC_BASEALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBASEALPHA _VERTEXCOLORBLENDSRC_BLENDALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBLENDALPHA _VERTEXCOLORBLENDSRC_BASECOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBASECOLORVALUE _VERTEXCOLORBLENDSRC_BLENDCOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBLENDCOLORVALUE
 			#pragma shader_feature _VERTEXALPHABLENDOP_NONE _VERTEXALPHABLENDOP_OVERRIDE _VERTEXALPHABLENDOP_MULTIPLY _VERTEXALPHABLENDOP_ADD _VERTEXALPHABLENDOP_SUBSTRACT _VERTEXALPHABLENDOP_REVERSESUBSTRACT _VERTEXALPHABLENDOP_OFFSET _VERTEXALPHABLENDOP_MAXIMUM
-			#pragma shader_feature _ _CD_DISTORTIONCUSTOM_ON
+			#pragma shader_feature _ _CD_BASEDISTORTION_ON
 			#pragma shader_feature _ _ALPHACLIP_ON
 			#pragma shader_feature _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
@@ -113,7 +113,7 @@
 			uniform float4 _DistortionTex_ST;
 		
 			UNITY_INSTANCING_BUFFER_START( Props)
-				UNITY_DEFINE_INSTANCED_PROP( float, _DistortionVolume)
+				UNITY_DEFINE_INSTANCED_PROP( float, _BaseMapDistortionVolume)
 			#if !defined(_VERTEXCOLORBLENDOP_NONE)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio)
 			#endif
@@ -139,7 +139,7 @@
 				float4 position : SV_POSITION;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				float4 uv0 : TEXCOORD0;
-			#if defined(_CD_DISTORTIONCUSTOM_ON)
+			#if defined(_CD_BASEDISTORTION_ON)
 				float4 uv1 : TEXCOORD1;
 			#endif
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
@@ -154,7 +154,7 @@
 				o.position = UnityObjectToClipPos( v.vertex);
 				o.uv0.xy = TRANSFORM_TEX( v.uv0.xy, _MainTex);
 				o.uv0.zw = TRANSFORM_TEX( v.uv0.xy, _DistortionTex);
-			#if defined(_CD_DISTORTIONCUSTOM_ON)
+			#if defined(_CD_BASEDISTORTION_ON)
 				o.uv1.x = v.uv0.z;
 			#endif
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
@@ -165,8 +165,8 @@
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
 				fixed3 value = UnpackNormal( tex2D( _DistortionTex, i.uv0.zw));
-				float volume = UNITY_ACCESS_INSTANCED_PROP( Props, _DistortionVolume);
-			#if defined(_CD_DISTORTIONCUSTOM_ON)
+				float volume = UNITY_ACCESS_INSTANCED_PROP( Props, _BaseMapDistortionVolume);
+			#if defined(_CD_BASEDISTORTION_ON)
 				volume *= i.uv1.x;
 			#endif
 				fixed4 color = tex2D( _MainTex, i.uv0.xy + (value.xy * volume));

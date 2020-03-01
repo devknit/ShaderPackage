@@ -35,7 +35,7 @@
 		[Caption(Use Custom Data)]
 		[EdgeToggle] _CD_COLORBLENDRATIO1( "Multi Map Color Blend Ratio Value *= (TEXCORD0.z)", float) = 0
 		[EdgeToggle] _CD_ALPHABLENDRATIO1( "Multi Map Alpha Blend Ratio Value *= (TEXCORD0.w)", float) = 0
-		[EdgeToggle] _CD_DISTORTIONCUSTOM( "Multi Map Distortion Volume *= (TEXCORD1.x)", float) = 0
+		[EdgeToggle] _CD_MULTIDISTORTION( "Multi Map Distortion Volume *= (TEXCORD1.x)", float) = 0
 		
 		/* Rendering Status */
 		[Caption(Rendering Status)]
@@ -120,7 +120,7 @@
 			#pragma shader_feature _VERTEXALPHABLENDOP_NONE _VERTEXALPHABLENDOP_OVERRIDE _VERTEXALPHABLENDOP_MULTIPLY _VERTEXALPHABLENDOP_ADD _VERTEXALPHABLENDOP_SUBSTRACT _VERTEXALPHABLENDOP_REVERSESUBSTRACT _VERTEXALPHABLENDOP_OFFSET _VERTEXALPHABLENDOP_MAXIMUM
 			#pragma shader_feature _ _CD_COLORBLENDRATIO1_ON
 			#pragma shader_feature _ _CD_ALPHABLENDRATIO1_ON
-			#pragma shader_feature _ _CD_DISTORTIONCUSTOM_ON
+			#pragma shader_feature _ _CD_MULTIDISTORTION_ON
 			#pragma shader_feature _ _ALPHACLIP_ON
 			#pragma shader_feature _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
@@ -152,7 +152,7 @@
 				float4 vertex : POSITION;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				float4 uv0 : TEXCOORD0;
-			#if defined(_CD_DISTORTIONCUSTOM_ON)
+			#if defined(_CD_MULTIDISTORTION_ON)
 				float2 uv1 : TEXCOORD1;
 			#endif
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
@@ -164,7 +164,7 @@
 				float4 position : SV_POSITION;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				float4 uv0 : TEXCOORD0;
-			#if defined(_CD_COLORBLENDRATIO1_ON) || defined(_CD_ALPHABLENDRATIO1_ON) || defined(_CD_DISTORTIONCUSTOM_ON)
+			#if defined(_CD_COLORBLENDRATIO1_ON) || defined(_CD_ALPHABLENDRATIO1_ON) || defined(_CD_MULTIDISTORTION_ON)
 				float4 uv1 : TEXCOORD1;
 			#endif
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
@@ -182,7 +182,7 @@
 			#if defined(_CD_COLORBLENDRATIO1_ON) || defined(_CD_ALPHABLENDRATIO1_ON)
 				o.uv1.xy = v.uv0.zw;
 			#endif
-			#if defined(_CD_DISTORTIONCUSTOM_ON)
+			#if defined(_CD_MULTIDISTORTION_ON)
 				o.uv1.z = v.uv1.x;
 			#endif
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
@@ -213,7 +213,7 @@
 			#elif defined(_DISTORTIONBASE_SATURATION)
 				volume *= RGBToHSV( color.rgb).b;
 			#endif
-			#if defined(_CD_DISTORTIONCUSTOM_ON)
+			#if defined(_CD_MULTIDISTORTION_ON)
 				volume *= i.uv1.z;
 			#endif
 				fixed4 value = tex2D( _MultiTex, i.uv0.zw + volume);
