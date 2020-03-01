@@ -162,10 +162,12 @@ namespace ZanShader.Editor
 			{
 				EditorGUIUtility.labelWidth = EditorGUIUtility.currentViewWidth - 204;
 			}
-			CaptionDecorator.OnBeforeGUI = () =>
+			CaptionDecorator.OnBeforeGUI = (position) =>
 			{
 				if( indentCount > 0)
 				{
+					position.height = 1;
+					EditorGUI.DrawRect( position, Color.gray);
 					EditorGUI.indentLevel -= indentCount;
 					indentCount = 0;
 				}

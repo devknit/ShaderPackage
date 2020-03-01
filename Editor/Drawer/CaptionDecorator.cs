@@ -8,7 +8,7 @@ namespace ZanShader.Editor
     class CaptionDecorator : MaterialPropertyDrawer
     {
 		public static bool enabled = true;
-		public static Action OnBeforeGUI = null;
+		public static Action<Rect> OnBeforeGUI = null;
 		public static Action OnAfterGUI = null;
 		
         public CaptionDecorator( string header)
@@ -27,8 +27,8 @@ namespace ZanShader.Editor
         {
 			if( enabled != false)
 			{
-				OnBeforeGUI?.Invoke();
-	            position.y += 4;
+				position.y += 4;
+	            OnBeforeGUI?.Invoke( position);
 	            position = EditorGUI.IndentedRect( position);
 	            GUI.Label( position, header, EditorStyles.boldLabel);
 	            OnAfterGUI?.Invoke();

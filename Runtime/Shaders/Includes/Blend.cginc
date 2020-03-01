@@ -2,6 +2,7 @@
 #ifndef __BLEND_CGINC__
 #define __BLEND_CGINC__
 
+//https://qiita.com/yoya/items/96c36b069e74398796f3
 //http://optie.hatenablog.com/entry/2018/03/15/212107
 //Base  = Background
 //Blend = Foreground
@@ -20,6 +21,46 @@ float3 HSVToRGB( float3 hsv)
 	float4 K = float4( 1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
 	float3 P = abs( frac( hsv.xxx + K.xyz) * 6.0 - K.www);
 	return hsv.z * lerp( K.xxx, saturate( P - K.xxx), hsv.y);
+}
+
+
+/* グレースケール:平均 */
+inline fixed GlayScaleAverage( fixed3 color)
+{
+	return (color.r + color.g + color.b) / 3.0;
+}
+
+/* グレースケール:ITU-R Rec BT.601
+ * https://www.itu.int/rec/R-REC-BT.601/en
+ */
+inline fixed GlayScaleBT601( fixed3 color)
+{
+	return color.r * 0.299 + color.g * 0.587 + color.b * 0.114;
+}
+
+/* グレースケール:ITU-R Rec BT.709
+ * https://www.itu.int/rec/R-REC-BT.709/en
+ */
+inline fixed GlayScaleBT709( fixed3 color)
+{
+	return color.r * 0.2126 + color.g * 0.7152 + color.b * 0.722;
+}
+
+/* グレースケール:標準テレビジョン放送規格
+ * https://www.tele.soumu.go.jp/horei/reiki_honbun/a72ab21051.html
+ */
+inline fixed GlayScaleTV( fixed3 color)
+{
+	return color.r * 0.30 + color.g * 0.59 + color.b * 0.11;
+}
+
+/* グレースケール:YCgCo の Y
+ * https://www.tele.soumu.go.jp/horei/reiki_honbun/a72ab21051.html
+ */
+inline fixed GlayScaleYofYCgCo( fixed3 color)
+{
+	return color.r / 4.0 + color.g / 2.0 + color.b  / 4.0;
+//	return (((color.r + color.b) >> 1) + color.g) >> 1;
 }
 
 /* 乗算 */
