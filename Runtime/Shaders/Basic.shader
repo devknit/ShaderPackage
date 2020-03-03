@@ -25,6 +25,9 @@ Shader "Zan/Lit/Basic"
 		[Caption(Global Illumination Properties)]
 		[EdgeToggle] _GLOBALILLUMINATION( "Global Illumination", float) = 0
 		
+		[Caption(Shadow Properties)]
+		[EdgeToggle] _SHADOWTRANSLUCENT( "Shadow Translucent", float) = 0
+		
 		/* Forward Base Rendering Status */
 		[Caption(Rendering Status)]
 		[Enum( UnityEngine.Rendering.CullMode)]
@@ -464,33 +467,62 @@ Shader "Zan/Lit/Basic"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#include "UnityCG.cginc"
+			#pragma shader_feature _ _SHADOWTRANSLUCENT_ON
 			#pragma fragmentoption ARB_precision_hint_fastest
 			#pragma multi_compile_shadowcaster
 			#pragma multi_compile_instancing
-		#if 0	
+			#include "UnityCG.cginc"
+			
+		#if defined(_SHADOWTRANSLUCENT_ON)
 			uniform sampler2D _MainTex;
 			uniform float4 _MainTex_ST;
 			uniform sampler3D _DitherMaskLOD;
 			UNITY_INSTANCING_BUFFER_START( Props)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
 			UNITY_INSTANCING_BUFFER_END( Props)
-		#endif
+			
 			struct VertexInput
 			{
 			    float4 vertex : POSITION;
 			    float3 normal : NORMAL;
-			#if 0
 			    float2 texcoord0 : TEXCOORD0;
-			#endif
+			    UNITY_VERTEX_INPUT_INSTANCE_ID
+			};
+			struct VertexOutput
+			{
+				V2F_SHADOW_CASTER_NOPOS
+				float2 uv0 : TEXCOORD1;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+			};
+			VertexOutput vert( VertexInput v, out float4 pos : SV_POSITION)
+			{
+			    VertexOutput o = (VertexOutput)0;
+			    UNITY_SETUP_INSTANCE_ID( v);
+				UNITY_TRANSFER_INSTANCE_ID( v, o);
+				o.uv0 = TRANSFORM_TEX( v.texcoord0.xy, _MainTex);
+			    TRANSFER_SHADOW_CASTER_NOPOS( o, pos);
+			    return o;
+			}
+			float4 frag( VertexOutput i, UNITY_VPOS_TYPE vpos: VPOS) : COLOR
+			{
+				UNITY_SETUP_INSTANCE_ID( i);
+				float4 baseMap = tex2D( _MainTex, i.uv0);
+				float4 baseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
+				float alpha = baseMap.a * baseColor.a;
+				alpha = tex3D( _DitherMaskLOD, float3( vpos.xy * 0.25, alpha * 0.9375)).a;
+				clip( alpha - 1e-4);
+			    SHADOW_CASTER_FRAGMENT( i);
+			}
+		#else
+			struct VertexInput
+			{
+			    float4 vertex : POSITION;
+			    float3 normal : NORMAL;
 			    UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 			struct VertexOutput
 			{
 				V2F_SHADOW_CASTER;
-			#if 0
-				float2 uv0 : TEXCOORD1;
-			#endif
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 			void vert( VertexInput v, out VertexOutput o)
@@ -498,25 +530,14 @@ Shader "Zan/Lit/Basic"
 			    o = (VertexOutput)0;
 			    UNITY_SETUP_INSTANCE_ID( v);
 				UNITY_TRANSFER_INSTANCE_ID( v, o);
-			#if 0
-				o.uv0 = TRANSFORM_TEX( v.texcoord0.xy, _MainTex);
-			#endif
 			    TRANSFER_SHADOW_CASTER_NORMALOFFSET( o);
 			}
-			float4 frag( VertexOutput i/*, UNITY_VPOS_TYPE vpos: VPOS*/) : COLOR
+			float4 frag( VertexOutput i) : COLOR
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
-		#if 0
-				float4 baseMap = tex2D( _MainTex, i.uv0);
-				float4 baseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
-				float alpha = baseMap.a * baseColor.a;
-				alpha = tex3D( _DitherMaskLOD, float3( vpos.xy * 0.25, alpha * 0.9375)).a;
-		//	#if defined(_ALPHACLIP_ON)
-				clip( alpha - 1e-4);
-		//	#endif
-		#endif
 			    SHADOW_CASTER_FRAGMENT( i);
 			}
+		#endif
 			ENDCG
 		}
 	}
