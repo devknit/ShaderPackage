@@ -3,32 +3,33 @@ Shader "Zan/Lit/Basic"
 {
 	Properties
 	{
+		[Caption(Bidirectional Reflectance Distribution Function)]
 		[KeywordEnum(None, Lambert, Disney)]
-		_DIFFUSEBRDF( "Diffuse BRDF", float) = 1
+		_DIFFUSEBRDF( "Diffuse", float) = 1
 		[KeywordEnum(None, BlinnPhong, Phong, CookTorrance, CookTorranceGGX, TorranceSparrow, TorranceSparrowGGX)]
-		_SPECULARBRDF( "Specular BRDF", float) = 1
-		
-		[KeywordEnum(None, Ambient, FastGI, GI, ReflectionFastGI, ReflectionGI)]
-		_INDIRECTMODE( "Indirect Mode", float) = 4
+		_SPECULARBRDF( "Specular", float) = 1
+		[KeywordEnum(None, AmbientOnly, FastGI, GI, ReflectionFastGI, ReflectionGI)]
+		_INDIRECTMODE( "Indirect", float) = 4
 		
 		[Caption(Diffuse Properties)]
-		_MainTex( "Diffuse Map", 2D) = "white" {}
-		[HDR] _Color( "Diffuse Color", Color) = (1,1,1,1)
+		_MainTex( "Albedo", 2D) = "white" {}
+		[HDR] _Color( "Color", Color) = (1,1,1,1)
 		
 		[Caption(Specular Properties)]
-		_Metallic( "Metallic", Range(0, 1)) = 0
+		_MetallicGlossMap("Metallic Gloss Map", 2D) = "white" {}
+		[Gamma] _Metallic( "Metallic", Range(0, 1)) = 0
 		_Gloss( "Gloss", Range(0, 1)) = 0.0
 		
-		[Caption(Rim Lighting Properties)]
+		[Caption(Emissive Properties)]
+		_EmissiveMap("Emissive Map", 2D) = "white" {}
 		[KeywordEnum(None, Normal, NormalMap)]
 		_RIMLIGHTTYPE( "Rim Light Type", float) = 0
 		[HDR] _RimColor( "Rim Color", Color) = (1,1,1,1)
 		_RimPower( "Rim Power", Range( 0, 10)) = 2.0
 		
-		[Caption(Normal Map Properties)]
+		[Caption(Bump Map Properties)]
 		_NormalMap( "Normal Map", 2D) = "bump" {}
 		
-		[Caption(Shadow Properties)]
 		[EdgeToggle] _SHADOWTRANSLUCENT( "Shadow Translucent", float) = 0
 		
 		/* Forward Base Rendering Status */
@@ -106,7 +107,7 @@ Shader "Zan/Lit/Basic"
 			#pragma fragment fragBase
 			#pragma shader_feature _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
 			#pragma shader_feature _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
-			#pragma shader_feature _INDIRECTMODE_NONE _INDIRECTMODE_AMBIENT _INDIRECTMODE_FASTGI _INDIRECTMODE_GI _INDIRECTMODE_REFLECTIONFASTGI _INDIRECTMODE_REFLECTIONGI
+			#pragma shader_feature _INDIRECTMODE_NONE _INDIRECTMODE_AMBIENTONLY _INDIRECTMODE_FASTGI _INDIRECTMODE_GI _INDIRECTMODE_REFLECTIONFASTGI _INDIRECTMODE_REFLECTIONGI
 			#pragma shader_feature _RIMLIGHTTYPE_NONE _RIMLIGHTTYPE_NORMAL _RIMLIGHTTYPE_NORMALMAP
 			#pragma shader_feature _ _ALPHACLIP_ON
 			#pragma shader_feature _ _FB_BLENDFACTOR_ON
@@ -253,7 +254,7 @@ Shader "Zan/Lit/Basic"
 			#endif
 				indirectSpecular *= FresnelLerp( specularColor, grazingTerm, NdotV) * surfaceReduction;
 		#endif
-#elif defined(_INDIRECTMODE_AMBIENT)
+#elif defined(_INDIRECTMODE_AMBIENTONLY)
 				float3 indirectDiffuse = UNITY_LIGHTMODEL_AMBIENT.rgb * diffuseColor.rgb;
 				float3 indirectSpecular = 0;
 #else
