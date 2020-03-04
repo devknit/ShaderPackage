@@ -3,27 +3,30 @@ Shader "Zan/Lit/Basic"
 {
 	Properties
 	{
+		[KeywordEnum(None, Lambert, Disney)]
+		_DIFFUSEBRDF( "Diffuse BRDF", float) = 1
+		[KeywordEnum(None, BlinnPhong, Phong, CookTorrance, CookTorranceGGX, TorranceSparrow, TorranceSparrowGGX)]
+		_SPECULARBRDF( "Specular BRDF", float) = 1
+		
+		[KeywordEnum(None, Ambient, FastGI, GI, ReflectionFastGI, ReflectionGI)]
+		_INDIRECTMODE( "Indirect Mode", float) = 4
+		
 		[Caption(Diffuse Properties)]
 		_MainTex( "Diffuse Map", 2D) = "white" {}
 		[HDR] _Color( "Diffuse Color", Color) = (1,1,1,1)
 		
 		[Caption(Specular Properties)]
-		[KeywordEnum(BlinnPhong, Phong)]
-		_REFLECTIONMODEL( "Reflection Model", float) = 0
 		_Metallic( "Metallic", Range(0, 1)) = 0
 		_Gloss( "Gloss", Range(0, 1)) = 0.0
 		
 		[Caption(Rim Lighting Properties)]
-		[KeywordEnum(Off, Normal, NormalMap)]
+		[KeywordEnum(None, Normal, NormalMap)]
 		_RIMLIGHTTYPE( "Rim Light Type", float) = 0
 		[HDR] _RimColor( "Rim Color", Color) = (1,1,1,1)
 		_RimPower( "Rim Power", Range( 0, 10)) = 2.0
 		
 		[Caption(Normal Map Properties)]
 		_NormalMap( "Normal Map", 2D) = "bump" {}
-		
-		[Caption(Global Illumination Properties)]
-		[EdgeToggle] _GLOBALILLUMINATION( "Global Illumination", float) = 0
 		
 		[Caption(Shadow Properties)]
 		[EdgeToggle] _SHADOWTRANSLUCENT( "Shadow Translucent", float) = 0
@@ -101,9 +104,10 @@ Shader "Zan/Lit/Basic"
 			CGPROGRAM
 			#pragma vertex vertBase
 			#pragma fragment fragBase
-			#pragma multi_compile _ _GLOBALILLUMINATION_ON
-			#pragma shader_feature _REFLECTIONMODEL_BLINNPHONG _REFLECTIONMODEL_PHONG
-			#pragma shader_feature _RIMLIGHTTYPE_OFF _RIMLIGHTTYPE_NORMAL _RIMLIGHTTYPE_NORMALMAP
+			#pragma shader_feature _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
+			#pragma shader_feature _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
+			#pragma shader_feature _INDIRECTMODE_NONE _INDIRECTMODE_AMBIENT _INDIRECTMODE_FASTGI _INDIRECTMODE_GI _INDIRECTMODE_REFLECTIONFASTGI _INDIRECTMODE_REFLECTIONGI
+			#pragma shader_feature _RIMLIGHTTYPE_NONE _RIMLIGHTTYPE_NORMAL _RIMLIGHTTYPE_NORMALMAP
 			#pragma shader_feature _ _ALPHACLIP_ON
 			#pragma shader_feature _ _FB_BLENDFACTOR_ON
 			#pragma multi_compile_instancing
@@ -112,6 +116,8 @@ Shader "Zan/Lit/Basic"
 			#include "UnityCG.cginc"
 			#include "AutoLight.cginc"
 			#include "Lighting.cginc"
+			#include "UnityStandardBRDF.cginc"
+			#include "Includes/Lighting.cginc"
 			
 			uniform sampler2D _MainTex;
 			uniform float4 _MainTex_ST;
@@ -121,13 +127,13 @@ Shader "Zan/Lit/Basic"
 				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Metallic)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Gloss)
-			#if !defined(_RIMLIGHTTYPE_OFF)
+			#if !defined(_RIMLIGHTTYPE_NONE)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _RimColor)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _RimPower)
 			#endif
 			#if defined(_BLENDFACTOR_ON)
-	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FB_BlendFactor)
-	        #endif
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FB_BlendFactor)
+			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
 			
 			struct VertexInput
@@ -136,7 +142,7 @@ Shader "Zan/Lit/Basic"
 				float3 normal : NORMAL;
 				float4 tangent : TANGENT;
 				float2 texcoord0 : TEXCOORD0;
-			#if defined(_GLOBALILLUMINATION_ON)
+			#if defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI)
 				float2 texcoord1 : TEXCOORD1;
 				float2 texcoord2 : TEXCOORD2;
 			#endif
@@ -152,46 +158,11 @@ Shader "Zan/Lit/Basic"
 				float3 bitangentDirection : TEXCOORD4;
 				LIGHTING_COORDS( 5, 6)
 				UNITY_FOG_COORDS( 7)
-			#if defined(_GLOBALILLUMINATION_ON)
+			#if defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI)
 				float4 ambientOrLightmapUV : TEXCOORD10;
 			#endif
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
-			inline half4 vertGI( VertexInput v, float3 posWorld, half3 normalWorld)
-			{
-			    half4 ambientOrLightmapUV = 0;
-	    #ifdef LIGHTMAP_ON
-		        ambientOrLightmapUV.xy = v.texcoord1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
-		        ambientOrLightmapUV.zw = 0;
-	    #elif UNITY_SHOULD_SAMPLE_SH
-	        #ifdef VERTEXLIGHT_ON
-	            ambientOrLightmapUV.rgb = Shade4PointLights( unity_4LightPosX0, unity_4LightPosY0, unity_4LightPosZ0,
-	                unity_LightColor[ 0].rgb, unity_LightColor[ 1].rgb, unity_LightColor[ 2].rgb, unity_LightColor[ 3].rgb,
-	                unity_4LightAtten0, posWorld, normalWorld);
-	        #endif
-		        ambientOrLightmapUV.rgb = ShadeSHPerVertex (normalWorld, ambientOrLightmapUV.rgb);
-	    #endif
-		    #ifdef DYNAMICLIGHTMAP_ON
-		        ambientOrLightmapUV.zw = v.texcoord2.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
-		    #endif
-			    return ambientOrLightmapUV;
-			}
-			float specularReflection( float3 normalDirection, float3 viewDirection, float3 lightDirection, float specularPower)
-			{
-			#if defined(_REFLECTIONMODEL_BLINNPHONG)
-				/* Blinn-Phong */
-				float3 halfDirection = normalize( viewDirection + lightDirection);
-				float HdotN = saturate( dot( halfDirection, normalDirection));
-				return pow( HdotN, specularPower);
-			#elif defined(_REFLECTIONMODEL_PHONG)
-				/* Phong */
-				float3 lightReflectDirection = reflect( -lightDirection, normalDirection);
-				float LdotV = saturate( dot( lightReflectDirection, viewDirection));
-				return pow( LdotV, specularPower);
-			#else
-				return normalDirection;
-			#endif
-			}
 			void vertBase( VertexInput v, out VertexOutputBase o)
 			{
 				o = (VertexOutputBase)0;
@@ -203,8 +174,8 @@ Shader "Zan/Lit/Basic"
 				o.normalDirection = UnityObjectToWorldNormal( v.normal);
 				o.tangentDirection = normalize( mul( unity_ObjectToWorld, float4( v.tangent.xyz, 0.0)).xyz);
 				o.bitangentDirection = normalize( cross( o.normalDirection, o.tangentDirection) * v.tangent.w);
-			#if defined(_GLOBALILLUMINATION_ON)
-				o.ambientOrLightmapUV = vertGI( v, o.worldPosition, o.normalDirection);
+			#if defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI)
+				o.ambientOrLightmapUV = vertGI( v.texcoord1, v.texcoord2, o.worldPosition, o.normalDirection);
 			#endif
 				UNITY_TRANSFER_FOG( o, o.pos);
 				TRANSFER_VERTEX_TO_FRAGMENT( o);
@@ -214,78 +185,153 @@ Shader "Zan/Lit/Basic"
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
 				
-				float attenuation = LIGHT_ATTENUATION( i);
-				float3 attenColor = attenuation * _LightColor0.rgb;
-				float3 normalMap = UnpackNormal( tex2D( _NormalMap, i.uv0));
-				float4 baseMap = tex2D( _MainTex, i.uv0);
+				float4 baseMap = tex2D( _MainTex, TRANSFORM_TEX( i.uv0, _MainTex));
 				float4 baseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 				float4 diffuseColor = baseMap * baseColor;
 			#if defined(_ALPHACLIP_ON)
 				clip( diffuseColor.a - 1e-4);
 			#endif
+				float3 normalMap = UnpackNormal( tex2D( _NormalMap, TRANSFORM_TEX( i.uv0, _NormalMap)));
+				float attenuation = LIGHT_ATTENUATION( i);
+				float3 attenColor = attenuation * _LightColor0.rgb;
+				
+				half metallic = UNITY_ACCESS_INSTANCED_PROP( Props, _Metallic);
+				float smoothness = UNITY_ACCESS_INSTANCED_PROP( Props, _Gloss);
+				float perceptualRoughness = 1.0 - smoothness;
+				float roughness = perceptualRoughness * perceptualRoughness;
+				
+				float3 specularColor = lerp( unity_ColorSpaceDielectricSpec.rgb, diffuseColor.rgb, metallic);
+				half oneMinusDielectricSpec = unity_ColorSpaceDielectricSpec.a;
+				half specularMonochrome = oneMinusDielectricSpec - metallic * oneMinusDielectricSpec;
+				diffuseColor.rgb *= specularMonochrome;
+				specularMonochrome = 1.0 - specularMonochrome;
 				
 				float3 preNormalDirection = normalize( i.normalDirection * (facing >= 0 ? 1.0 : -1.0));
 				float3x3 tangentTransform = float3x3( i.tangentDirection, i.bitangentDirection, preNormalDirection);
 				float3 normalDirection = normalize( mul( normalMap, tangentTransform));
 				float3 viewDirection = normalize( _WorldSpaceCameraPos.xyz - i.worldPosition.xyz);
-				float3 viewReflectDirection = reflect( -viewDirection, normalDirection);
 				float3 lightDirection = normalize( _WorldSpaceLightPos0.xyz);
 				
-				/* gloss */
-				float gloss = UNITY_ACCESS_INSTANCED_PROP( Props, _Gloss);
-				float specPow = exp2( gloss * 10.0 + 1.0);
+				float3 halfDirection = normalize( viewDirection + lightDirection);
+				float NdotL = saturate( dot( normalDirection, lightDirection));
+				float NdotV = abs( dot( normalDirection, viewDirection));
+				float NdotH = saturate( dot( normalDirection, halfDirection));
+				float LdotH = saturate( dot( lightDirection, halfDirection));
 				
-				/* global illumination */
-		#if defined(_GLOBALILLUMINATION_ON)
-				UnityLight light;
-			#ifdef LIGHTMAP_OFF
-				light.color = _LightColor0.rgb;
-				light.dir = lightDirection;
-				light.ndotl = LambertTerm( normalDirection, lightDirection);
-			#else
-				light.color = half3( 0.0f, 0.0f, 0.0f);
-				light.ndotl = 0.0f;
-				light.dir = half3( 0.0f, 0.0f, 0.0f);
-			#endif
-				UnityGIInput data;
-				data.light = light;
-				data.worldPos = i.worldPosition.xyz;
-				data.worldViewDir = viewDirection;
-				data.atten = attenuation;
-			#if defined(LIGHTMAP_ON) || defined(DYNAMICLIGHTMAP_ON)
-				data.ambient = 0;
-				data.lightmapUV = i.ambientOrLightmapUV;
-			#else
-				data.ambient = i.ambientOrLightmapUV;
-			#endif
-			#if UNITY_SPECCUBE_BLENDING || UNITY_SPECCUBE_BOX_PROJECTION
-				data.boxMin[ 0] = unity_SpecCube0_BoxMin;
-				data.boxMin[ 1] = unity_SpecCube1_BoxMin;
-			#endif
-			#if UNITY_SPECCUBE_BOX_PROJECTION
-				data.boxMax[ 0] = unity_SpecCube0_BoxMax;
-				data.boxMax[ 1] = unity_SpecCube1_BoxMax;
-				data.probePosition[ 0] = unity_SpecCube0_ProbePosition;
-				data.probePosition[ 1] = unity_SpecCube1_ProbePosition;
-			#endif
-				data.probeHDR[ 0] = unity_SpecCube0_HDR;
-				data.probeHDR[ 1] = unity_SpecCube1_HDR;
+/* global illumination */
+#if defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI)
+				UnityGIInput data = fragGIData( i.worldPosition.xyz, 
+					normalDirection, viewDirection, lightDirection, 
+					i.ambientOrLightmapUV, attenuation, perceptualRoughness);
+			#if defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI)
 				Unity_GlossyEnvironmentData glossData;
-				glossData.roughness = 1.0 - gloss;
-				glossData.reflUVW = viewReflectDirection;
+				glossData.roughness = perceptualRoughness;
+				glossData.reflUVW = reflect( -viewDirection, normalDirection);
 				UnityGI gi = UnityGlobalIllumination( data, 1, normalDirection, glossData);
+			#else
+				UnityGI gi = UnityGlobalIllumination( data, 1, normalDirection);
+			#endif
 				lightDirection = gi.light.dir;
 				
+				float3 indirectDiffuse = gi.indirect.diffuse * diffuseColor.rgb;
 				float3 indirectSpecular = gi.indirect.specular;
-				float3 indirectDiffuse = gi.indirect.diffuse;
+				
+				half grazingTerm = saturate( smoothness + specularMonochrome);
+		#if defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_REFLECTIONFASTGI)
+			#ifdef UNITY_COLORSPACE_GAMMA
+				half surfaceReduction = 0.28h;
+			#else
+				half surfaceReduction = (0.6h - 0.08h * perceptualRoughness);
+			#endif
+				surfaceReduction = 1.0h - roughness * perceptualRoughness * surfaceReduction;
+				indirectSpecular *= FresnelLerpFast( specularColor, grazingTerm, NdotV) * surfaceReduction;
 		#else
+			#ifdef UNITY_COLORSPACE_GAMMA
+				half surfaceReduction = 1.0 - 0.28 * roughness * perceptualRoughness;
+			#else
+				half surfaceReduction = 1.0 / (roughness * roughness + 1.0);
+			#endif
+				indirectSpecular *= FresnelLerp( specularColor, grazingTerm, NdotV) * surfaceReduction;
+		#endif
+#elif defined(_INDIRECTMODE_AMBIENT)
+				float3 indirectDiffuse = UNITY_LIGHTMODEL_AMBIENT.rgb * diffuseColor.rgb;
 				float3 indirectSpecular = 0;
-				float3 indirectDiffuse = UNITY_LIGHTMODEL_AMBIENT.rgb;
-		#endif	
+#else
+				float3 indirectDiffuse = 0;
+				float3 indirectSpecular = 0;
+#endif
+				
+/* specular */
+#if defined(_SPECULARBRDF_TORRANCESPARROW) || defined(_SPECULARBRDF_TORRANCESPARROWGGX)
+			#if defined(_SPECULARBRDF_TORRANCESPARROWGGX)
+				roughness = max( 0.002, roughness);
+				float Vis = SmithJointGGXVisibilityTerm( NdotL, NdotV, roughness);
+				float D = GGXTerm( NdotH, roughness);
+			#else
+				half Vis =	SmithBeckmannVisibilityTerm( NdotL, NdotV, roughness);
+				half D = NDFBlinnPhongNormalizedTerm( NdotH, PerceptualRoughnessToSpecPower( perceptualRoughness));
+			#endif
+				float specularTerm = Vis * D * UNITY_PI;
+				
+			#ifdef UNITY_COLORSPACE_GAMMA
+				specularTerm = sqrt( max( 1e-4h, specularTerm));
+			#endif
+				specularTerm = max( 0, specularTerm * NdotL);
+				float3 directSpecular = any( specularColor) ? FresnelTerm( specularColor, LdotH) * attenColor * specularTerm : 0.0;
+#elif defined(_SPECULARBRDF_COOKTORRANCE) || defined(_SPECULARBRDF_COOKTORRANCEGGX)
+		#if defined(_SPECULARBRDF_COOKTORRANCEGGX)
+				roughness = max( 0.002, roughness);
+				float roughness2 = roughness * roughness;
+				float d = NdotH * NdotH * (roughness2 - 1.0) + 1.00001;
+			#ifdef UNITY_COLORSPACE_GAMMA
+			    float specularTerm = roughness / (max( 0.32, LdotH) * (1.5 + roughness) * d);
+			#else
+			    float specularTerm = roughness2 / (max(0.1, LdotH * LdotH) * (roughness + 0.5) * (d * d) * 4.0);
+			#endif
+			#if defined(SHADER_API_MOBILE)
+			    specularTerm = specularTerm - 1e-4;
+			#endif
+		#else
+				half specularPower = PerceptualRoughnessToSpecPower( perceptualRoughness);
+				half invV = LdotH * LdotH * smoothness + perceptualRoughness * perceptualRoughness;
+				half invF = LdotH;
+				half specularTerm = ((specularPower + 1.0h) * pow( NdotH, specularPower)) / (8.0h * invV * invF + 1e-4h);
+			#ifdef UNITY_COLORSPACE_GAMMA
+			    specularTerm = sqrt( max( 1e-4h, specularTerm));
+			#endif
+		#endif
+			#if defined (SHADER_API_MOBILE)
+			    specularTerm = clamp( specularTerm, 0.0, 100.0);
+			#endif
+				float3 directSpecular = specularTerm * NdotL * specularColor;
+#elif defined(_SPECULARBRDF_PHONG)
+			   	float specPower = exp2( smoothness * 10.0 + 1.0);
+				float3 lightReflectDirection = reflect( -lightDirection, normalDirection);
+				float LdotV = max( 0, dot( lightReflectDirection, viewDirection));
+				float3 directSpecular = pow( LdotV, specPower) * attenColor * specularColor;
+#elif defined(_SPECULARBRDF_BLINNPHONG)
+				float specPower = exp2( smoothness * 10.0 + 1.0);
+				float3 directSpecular = pow( NdotH, specPower) * attenColor * specularColor;
+#else
+				float3 directSpecular = 0;
+#endif
+				float3 specular = directSpecular + indirectSpecular;
+		
+/* diffuse */
+#if defined(_DIFFUSEBRDF_DISNEY)
+			 	float3 directDiffuse = diffuseDisney( NdotV, NdotL, LdotH, perceptualRoughness, attenColor) * diffuseColor.rgb;
+#elif defined(_DIFFUSEBRDF_LAMBERT)
+				float3 directDiffuse = diffuseLambert( NdotL, attenColor) * diffuseColor.rgb;
+#else
+				float3 directDiffuse = 0;
+#endif
+				float3 diffuse = directDiffuse + indirectDiffuse;
+
+/* emissive */
 				fixed4 emissive = 0;
 				
 				/* rim */
-		#if !defined(_RIMLIGHTTYPE_OFF)
+#if !defined(_RIMLIGHTTYPE_NONE)
 				fixed4 rimColor = UNITY_ACCESS_INSTANCED_PROP( Props, _RimColor);
 				float rimPower = UNITY_ACCESS_INSTANCED_PROP( Props, _RimPower);
 			#if defined(_RIMLIGHTTYPE_NORMAL)
@@ -293,21 +339,11 @@ Shader "Zan/Lit/Basic"
 			#else
 				float VdotN = saturate( dot( viewDirection, normalDirection));
 			#endif
-				emissive += rimColor *  pow( 1.0 - VdotN, rimPower) * rimColor.a;
-		#endif
-				
-				/* specular */
-			   	float3 specularColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Metallic).xxx;
-			   	float3 directSpecular = specularReflection( normalDirection, viewDirection, lightDirection, specPow) * attenColor;
-			   	float3 specular = directSpecular * specularColor;
-			   	
-				/* diffuse */
-				float NdotL = saturate( dot( normalDirection, lightDirection));
-			 	float3 directDiffuse = NdotL * attenColor;
-				float3 diffuse = (directDiffuse + indirectDiffuse) * diffuseColor.rgb;
+				emissive += rimColor *	pow( 1.0 - VdotN, rimPower) * rimColor.a;
+#endif
 				
 				/* final Color */
-				fixed4 finalColor = fixed4( emissive + diffuse + specular, diffuseColor.a);
+				fixed4 finalColor = fixed4( diffuse + specular + emissive, diffuseColor.a);
 				UNITY_APPLY_FOG( i.fogCoord, finalColor);
 			#if defined(_FB_BLENDFACTOR_ON)
 				finalColor.rgb = (finalColor.rgb * finalColor.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _RS_FB_BlendFactor) * (1.0 - finalColor.a));
@@ -332,7 +368,8 @@ Shader "Zan/Lit/Basic"
 			CGPROGRAM
 			#pragma vertex vertAdd
 			#pragma fragment fragAdd
-			#pragma shader_feature _REFLECTIONMODEL_BLINNPHONG _REFLECTIONMODEL_PHONG
+			#pragma shader_feature _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
+			#pragma shader_feature _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
 			#pragma shader_feature _ _ALPHACLIP_ON
 			#pragma shader_feature _ _FA_BLENDFACTOR_ON
 			#pragma multi_compile_instancing
@@ -341,6 +378,8 @@ Shader "Zan/Lit/Basic"
 			#include "UnityCG.cginc"
 			#include "AutoLight.cginc"
 			#include "Lighting.cginc"
+			#include "UnityStandardBRDF.cginc"
+			#include "Includes/Lighting.cginc"
 			
 			uniform sampler2D _MainTex;
 			uniform float4 _MainTex_ST;
@@ -351,8 +390,8 @@ Shader "Zan/Lit/Basic"
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Metallic)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Gloss)
 			#if defined(_BLENDFACTOR_ON)
-	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FA_BlendFactor)
-	        #endif
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FA_BlendFactor)
+			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
 
 			struct VertexInput
@@ -361,8 +400,6 @@ Shader "Zan/Lit/Basic"
 				float3 normal : NORMAL;
 				float4 tangent : TANGENT;
 				float2 texcoord0 : TEXCOORD0;
-				float2 texcoord1 : TEXCOORD1;
-				float2 texcoord2 : TEXCOORD2;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 			struct VertexOutputAdd
@@ -377,29 +414,13 @@ Shader "Zan/Lit/Basic"
 				UNITY_FOG_COORDS( 7)
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
-			float specularReflection( float3 normalDirection, float3 viewDirection, float3 lightDirection, float specularPower)
-			{
-			#if defined(_REFLECTIONMODEL_BLINNPHONG)
-				/* Blinn-Phong */
-				float3 halfDirection = normalize( viewDirection + lightDirection);
-				float HdotN = saturate( dot( halfDirection, normalDirection));
-				return pow( HdotN, specularPower);
-			#elif defined(_REFLECTIONMODEL_PHONG)
-				/* Phong */
-				float3 lightReflectDirection = reflect( -lightDirection, normalDirection);
-				float LdotV = saturate( dot( lightReflectDirection, viewDirection));
-				return pow( LdotV, specularPower);
-			#else
-				return normalDirection;
-			#endif
-			}
 			void vertAdd( VertexInput v, out VertexOutputAdd o)
 			{
 				o = (VertexOutputAdd)0;
 				UNITY_SETUP_INSTANCE_ID( v);
 				UNITY_TRANSFER_INSTANCE_ID( v, o);
 				o.pos = UnityObjectToClipPos( v.vertex);
-				o.uv0 = TRANSFORM_TEX( v.texcoord0.xy, _MainTex);
+				o.uv0 = v.texcoord0.xy;
 				o.worldPosition = mul( unity_ObjectToWorld, v.vertex);
 				o.normalDirection = UnityObjectToWorldNormal( v.normal);
 				o.tangentDirection = normalize( mul( unity_ObjectToWorld, float4( v.tangent.xyz, 0.0)).xyz);
@@ -411,38 +432,103 @@ Shader "Zan/Lit/Basic"
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
 				
-				float attenuation = LIGHT_ATTENUATION( i);
-				float3 attenColor = attenuation * _LightColor0.rgb;
-				float3 normalMap = UnpackNormal( tex2D( _NormalMap, i.uv0));
-				float4 baseMap = tex2D( _MainTex, i.uv0);
+				float4 baseMap = tex2D( _MainTex, TRANSFORM_TEX( i.uv0, _MainTex));
 				float4 baseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 				float4 diffuseColor = baseMap * baseColor;
 			#if defined(_ALPHACLIP_ON)
 				clip( diffuseColor.a - 1e-4);
 			#endif
+				float3 normalMap = UnpackNormal( tex2D( _NormalMap, TRANSFORM_TEX( i.uv0, _NormalMap)));
+				float attenuation = LIGHT_ATTENUATION( i);
+				float3 attenColor = attenuation * _LightColor0.rgb;
 				
-				float3 normalDirection = normalize( i.normalDirection * (facing >= 0 ? 1.0 : -1.0));
-				float3x3 tangentTransform = float3x3( i.tangentDirection, i.bitangentDirection, normalDirection);
-				normalDirection = normalize( mul( normalMap, tangentTransform));
+				half metallic = UNITY_ACCESS_INSTANCED_PROP( Props, _Metallic);
+				float smoothness = UNITY_ACCESS_INSTANCED_PROP( Props, _Gloss);
+				float perceptualRoughness = 1.0 - smoothness;
+				float roughness = perceptualRoughness * perceptualRoughness;
+				
+				float3 specularColor = lerp( unity_ColorSpaceDielectricSpec.rgb, diffuseColor.rgb, metallic);
+				half oneMinusDielectricSpec = unity_ColorSpaceDielectricSpec.a;
+				half specularMonochrome = oneMinusDielectricSpec - metallic * oneMinusDielectricSpec;
+				diffuseColor.rgb *= specularMonochrome;
+				specularMonochrome = 1.0 - specularMonochrome;
+				
+				float3 preNormalDirection = normalize( i.normalDirection * (facing >= 0 ? 1.0 : -1.0));
+				float3x3 tangentTransform = float3x3( i.tangentDirection, i.bitangentDirection, preNormalDirection);
+				float3 normalDirection = normalize( mul( normalMap, tangentTransform));
 				float3 viewDirection = normalize( _WorldSpaceCameraPos.xyz - i.worldPosition.xyz);
-				float3 viewReflectDirection = reflect( -viewDirection, normalDirection);
 				float3 lightDirection = normalize( lerp( _WorldSpaceLightPos0.xyz, 
 					_WorldSpaceLightPos0.xyz - i.worldPosition.xyz, _WorldSpaceLightPos0.w));
 				
-				/* gloss */
-				float gloss = UNITY_ACCESS_INSTANCED_PROP( Props, _Gloss);
-				float specPow = exp2( gloss * 10.0 + 1.0);
-				
-				/* specular */
-			   	float specularIntensity = specularReflection( normalDirection, viewDirection, lightDirection, specPow);
-			   	float3 specularColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Metallic).xxx;
-			   	float3 directSpecular = specularIntensity * attenColor * specularColor;
-			   	float3 specular = directSpecular;
-			   	
-				/* diffuse */
+				float3 halfDirection = normalize( viewDirection + lightDirection);
 				float NdotL = saturate( dot( normalDirection, lightDirection));
-			 	float3 directDiffuse = NdotL * attenColor;
-				float3 diffuse = directDiffuse * diffuseColor.rgb;
+				float NdotV = abs( dot( normalDirection, viewDirection));
+				float NdotH = saturate( dot( normalDirection, halfDirection));
+				float LdotH = saturate( dot( lightDirection, halfDirection));
+				
+/* specular */
+#if defined(_SPECULARBRDF_TORRANCESPARROW) || defined(_SPECULARBRDF_TORRANCESPARROWGGX)
+			#if defined(_SPECULARBRDF_TORRANCESPARROWGGX)
+				roughness = max( 0.002, roughness);
+				float Vis = SmithJointGGXVisibilityTerm( NdotL, NdotV, roughness);
+				float D = GGXTerm( NdotH, roughness);
+			#else
+				half Vis =	SmithBeckmannVisibilityTerm( NdotL, NdotV, roughness);
+				half D = NDFBlinnPhongNormalizedTerm( NdotH, PerceptualRoughnessToSpecPower( perceptualRoughness));
+			#endif
+				float specularTerm = Vis * D * UNITY_PI;
+				
+			#ifdef UNITY_COLORSPACE_GAMMA
+				specularTerm = sqrt( max( 1e-4h, specularTerm));
+			#endif
+				specularTerm = max( 0, specularTerm * NdotL);
+				float3 specular = any( specularColor) ? FresnelTerm( specularColor, LdotH) * attenColor * specularTerm : 0.0;
+#elif defined(_SPECULARBRDF_COOKTORRANCE) || defined(_SPECULARBRDF_COOKTORRANCEGGX)
+		#if defined(_SPECULARBRDF_COOKTORRANCEGGX)
+				roughness = max( 0.002, roughness);
+				float roughness2 = roughness * roughness;
+				float d = NdotH * NdotH * (roughness2 - 1.0) + 1.00001;
+			#ifdef UNITY_COLORSPACE_GAMMA
+			    float specularTerm = roughness / (max( 0.32, LdotH) * (1.5 + roughness) * d);
+			#else
+			    float specularTerm = roughness2 / (max(0.1, LdotH * LdotH) * (roughness + 0.5) * (d * d) * 4.0);
+			#endif
+			#if defined(SHADER_API_MOBILE)
+			    specularTerm = specularTerm - 1e-4;
+			#endif
+		#else
+				half specularPower = PerceptualRoughnessToSpecPower( perceptualRoughness);
+				half invV = LdotH * LdotH * smoothness + perceptualRoughness * perceptualRoughness;
+				half invF = LdotH;
+				half specularTerm = ((specularPower + 1.0h) * pow( NdotH, specularPower)) / (8.0h * invV * invF + 1e-4h);
+			#ifdef UNITY_COLORSPACE_GAMMA
+			    specularTerm = sqrt( max( 1e-4h, specularTerm));
+			#endif
+		#endif
+			#if defined (SHADER_API_MOBILE)
+			    specularTerm = clamp( specularTerm, 0.0, 100.0);
+			#endif
+				float3 specular = specularTerm * NdotL * specularColor;
+#elif defined(_SPECULARBRDF_PHONG)
+			   	float specPower = exp2( smoothness * 10.0 + 1.0);
+				float3 lightReflectDirection = reflect( -lightDirection, normalDirection);
+				float LdotV = max( 0, dot( lightReflectDirection, viewDirection));
+				float3 specular = pow( LdotV, specPower) * attenColor * specularColor;
+#elif defined(_SPECULARBRDF_BLINNPHONG)
+				float specPower = exp2( smoothness * 10.0 + 1.0);
+				float3 specular = pow( NdotH, specPower) * attenColor * specularColor;
+#else
+				float3 specular = 0;
+#endif
+		
+/* diffuse */
+#if defined(_DIFFUSEBRDF_DISNEY)
+			 	float3 diffuse = diffuseDisney( NdotV, NdotL, LdotH, perceptualRoughness, attenColor) * diffuseColor.rgb;
+#elif defined(_DIFFUSEBRDF_LAMBERT)
+				float3 diffuse = diffuseLambert( NdotL, attenColor) * diffuseColor.rgb;
+#else
+				float3 diffuse = 0;
+#endif
 				
 				/* final Color */
 				fixed4 finalColor = fixed4( diffuse + specular, diffuseColor.a);
@@ -483,10 +569,10 @@ Shader "Zan/Lit/Basic"
 			
 			struct VertexInput
 			{
-			    float4 vertex : POSITION;
-			    float3 normal : NORMAL;
-			    float2 texcoord0 : TEXCOORD0;
-			    UNITY_VERTEX_INPUT_INSTANCE_ID
+				float4 vertex : POSITION;
+				float3 normal : NORMAL;
+				float2 texcoord0 : TEXCOORD0;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 			struct VertexOutput
 			{
@@ -496,12 +582,12 @@ Shader "Zan/Lit/Basic"
 			};
 			VertexOutput vert( VertexInput v, out float4 pos : SV_POSITION)
 			{
-			    VertexOutput o = (VertexOutput)0;
-			    UNITY_SETUP_INSTANCE_ID( v);
+				VertexOutput o = (VertexOutput)0;
+				UNITY_SETUP_INSTANCE_ID( v);
 				UNITY_TRANSFER_INSTANCE_ID( v, o);
 				o.uv0 = TRANSFORM_TEX( v.texcoord0.xy, _MainTex);
-			    TRANSFER_SHADOW_CASTER_NOPOS( o, pos);
-			    return o;
+				TRANSFER_SHADOW_CASTER_NOPOS( o, pos);
+				return o;
 			}
 			float4 frag( VertexOutput i, UNITY_VPOS_TYPE vpos: VPOS) : COLOR
 			{
@@ -511,14 +597,14 @@ Shader "Zan/Lit/Basic"
 				float alpha = baseMap.a * baseColor.a;
 				alpha = tex3D( _DitherMaskLOD, float3( vpos.xy * 0.25, alpha * 0.9375)).a;
 				clip( alpha - 1e-4);
-			    SHADOW_CASTER_FRAGMENT( i);
+				SHADOW_CASTER_FRAGMENT( i);
 			}
 		#else
 			struct VertexInput
 			{
-			    float4 vertex : POSITION;
-			    float3 normal : NORMAL;
-			    UNITY_VERTEX_INPUT_INSTANCE_ID
+				float4 vertex : POSITION;
+				float3 normal : NORMAL;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 			struct VertexOutput
 			{
@@ -527,15 +613,15 @@ Shader "Zan/Lit/Basic"
 			};
 			void vert( VertexInput v, out VertexOutput o)
 			{
-			    o = (VertexOutput)0;
-			    UNITY_SETUP_INSTANCE_ID( v);
+				o = (VertexOutput)0;
+				UNITY_SETUP_INSTANCE_ID( v);
 				UNITY_TRANSFER_INSTANCE_ID( v, o);
-			    TRANSFER_SHADOW_CASTER_NORMALOFFSET( o);
+				TRANSFER_SHADOW_CASTER_NORMALOFFSET( o);
 			}
 			float4 frag( VertexOutput i) : COLOR
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
-			    SHADOW_CASTER_FRAGMENT( i);
+				SHADOW_CASTER_FRAGMENT( i);
 			}
 		#endif
 			ENDCG
