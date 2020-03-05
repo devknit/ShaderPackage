@@ -15,7 +15,7 @@ Shader "Zan/Lit/Basic"
 		[EdgeToggle] _SHADOWTRANSLUCENT( "Shadow Translucent", float) = 0
 		
 		[Caption(Albedo Properties)]
-		[EdgeToggle] _ALBEDOMAP( "Use Albedo Map", float) = 1
+		[EdgeToggle] _ALBEDOMAP( "Use Albedo Map", float) = 0
 		_MainTex( "Albedo Map (RGBA)", 2D) = "white" {}
 		[HDR] _Color( "Color (RGBA)", Color) = (1, 1, 1, 1)
 		
@@ -63,7 +63,7 @@ Shader "Zan/Lit/Basic"
 		_RS_FA_ZTest( "Add ZTest", float) = 4	/* LessEqual */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		[EdgeToggle] _ALPHACLIP( "Alpha Clip", float) = 0
+		_AlphaClip( "Alpha Clip", Range( 0.0, 1.004)) = 0
 		
 		/* Forward Base Blending Status */
 		[Caption(Forward Base Blending Status)]
@@ -123,20 +123,20 @@ Shader "Zan/Lit/Basic"
 			#pragma target 3.0
 			#pragma vertex vertBase
 			#pragma fragment fragBase
-			#pragma shader_feature _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
-			#pragma shader_feature _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
-			#pragma shader_feature _INDIRECTMODE_NONE _INDIRECTMODE_AMBIENTONLY _INDIRECTMODE_FASTGI _INDIRECTMODE_GI _INDIRECTMODE_REFLECTIONFASTGI _INDIRECTMODE_REFLECTIONGI
+			#pragma shader_feature_local _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
+			#pragma shader_feature_local _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
+			#pragma shader_feature_local _INDIRECTMODE_NONE _INDIRECTMODE_AMBIENTONLY _INDIRECTMODE_FASTGI _INDIRECTMODE_GI _INDIRECTMODE_REFLECTIONFASTGI _INDIRECTMODE_REFLECTIONGI
 			
-			#pragma shader_feature _ _ALBEDOMAP_ON
-			#pragma shader_feature _ _METALLICGLOSSMAP_ON
-			#pragma shader_feature _ _EMISSIVEMAP_ON
-			#pragma shader_feature _RIMLIGHT_NONE _RIMLIGHT_NORMAL _RIMLIGHT_NORMALMAP
-			#pragma shader_feature _ _NORMALMAP_ON
-			#pragma shader_feature _ _PARALLAXMAP_ON
-			#pragma shader_feature _ _OCCLUSIONMAP_ON
+			#pragma shader_feature_local _ _ALBEDOMAP_ON
+			#pragma shader_feature_local _ _METALLICGLOSSMAP_ON
+			#pragma shader_feature_local _ _EMISSIVEMAP_ON
+			#pragma shader_feature_local _RIMLIGHT_NONE _RIMLIGHT_NORMAL _RIMLIGHT_NORMALMAP
+			#pragma shader_feature_local _ _NORMALMAP_ON
+			#pragma shader_feature_local _ _PARALLAXMAP_ON
+			#pragma shader_feature_local _ _OCCLUSIONMAP_ON
 			
-			#pragma shader_feature _ _ALPHACLIP_ON
-			#pragma shader_feature _ _FB_BLENDFACTOR_ON
+			#pragma shader_feature_local _ _ALPHACLIP_ON
+			#pragma shader_feature_local _ _FB_BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#pragma multi_compile_fwdbase
 			#pragma multi_compile_fog
@@ -189,6 +189,9 @@ Shader "Zan/Lit/Basic"
 			#endif
 			#if defined(_PARALLAXMAP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _ParallaxScale)
+			#endif
+			#if defined(_ALPHACLIP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClip);
 			#endif
 			#if defined(_BLENDFACTOR_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FB_BlendFactor)
@@ -285,7 +288,7 @@ Shader "Zan/Lit/Basic"
 				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				clip( diffuseColor.a - 1e-4);
+				clip( diffuseColor.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClip));
 			#endif
 			
 				/* emissive */
@@ -500,16 +503,16 @@ Shader "Zan/Lit/Basic"
 			#pragma target 3.0
 			#pragma vertex vertAdd
 			#pragma fragment fragAdd
-			#pragma shader_feature _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
-			#pragma shader_feature _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
+			#pragma shader_feature_local _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
+			#pragma shader_feature_local _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
 			
-			#pragma shader_feature _ _ALBEDOMAP_ON
-			#pragma shader_feature _ _METALLICGLOSSMAP_ON
-			#pragma shader_feature _ _NORMALMAP_ON
-			#pragma shader_feature _ _PARALLAXMAP_ON
+			#pragma shader_feature_local _ _ALBEDOMAP_ON
+			#pragma shader_feature_local _ _METALLICGLOSSMAP_ON
+			#pragma shader_feature_local _ _NORMALMAP_ON
+			#pragma shader_feature_local _ _PARALLAXMAP_ON
 			
-			#pragma shader_feature _ _ALPHACLIP_ON
-			#pragma shader_feature _ _FA_BLENDFACTOR_ON
+			#pragma shader_feature_local _ _ALPHACLIP_ON
+			#pragma shader_feature_local _ _FA_BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#pragma multi_compile_fwdadd
 			#pragma multi_compile_fog
@@ -544,6 +547,9 @@ Shader "Zan/Lit/Basic"
 			#endif
 			#if defined(_PARALLAXMAP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _ParallaxScale)
+			#endif
+			#if defined(_ALPHACLIP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClip);
 			#endif
 			#if defined(_BLENDFACTOR_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FA_BlendFactor)
@@ -630,7 +636,7 @@ Shader "Zan/Lit/Basic"
 				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				clip( diffuseColor.a - 1e-4);
+				clip( diffuseColor.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClip));
 			#endif
 				
 				/* normal */
@@ -771,7 +777,8 @@ Shader "Zan/Lit/Basic"
 			#pragma target 3.0
 			#pragma vertex vert
 			#pragma fragment frag
-			#pragma shader_feature _ _SHADOWTRANSLUCENT_ON
+			#pragma shader_feature_local _ _SHADOWTRANSLUCENT_ON
+			#pragma shader_feature_local _ _ALPHACLIP_ON
 			#pragma fragmentoption ARB_precision_hint_fastest
 			#pragma multi_compile_shadowcaster
 			#pragma multi_compile_instancing
@@ -783,6 +790,9 @@ Shader "Zan/Lit/Basic"
 			uniform sampler3D _DitherMaskLOD;
 			UNITY_INSTANCING_BUFFER_START( Props)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
+			#if defined(_ALPHACLIP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClip);
+			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
 			
 			struct VertexInput
@@ -813,6 +823,9 @@ Shader "Zan/Lit/Basic"
 				float4 baseMap = tex2D( _MainTex, i.uv0);
 				float4 baseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 				float alpha = baseMap.a * baseColor.a;
+			#if defined(_ALPHACLIP_ON)
+				alpha = saturate( alpha - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClip));
+			#endif	
 				alpha = tex3D( _DitherMaskLOD, float3( vpos.xy * 0.25, alpha * 0.9375)).a;
 				clip( alpha - 1e-4);
 				SHADOW_CASTER_FRAGMENT( i);

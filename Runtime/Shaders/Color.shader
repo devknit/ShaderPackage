@@ -11,7 +11,7 @@
 		[KeywordEnum(Value, AlphaBlendOp, OneMinusAlphaBlendOp, BaseAlpha, OneMinusBaseAlpha, BlendAlpha, OneMinusBlendAlpha, BaseColorValue, OneMinusBaseColorValue, BlendColorValue, OneMinusBlendColorValue)]
 		_VERTEXCOLORBLENDSRC( "Vertex Color Blend Ratop Source", float) = 1
 		_VertexColorBlendRatio( "Vertex Color Blend Ratio Value", float) = 1.0
-		[KeywordEnum(None, Override, Multiply, Add, Substract, ReverseSubstract, Offset, Maximum)]
+		[KeywordEnum(None, Override, Multiply, Add, Substract, ReverseSubstract, Maximum)]
 		_VERTEXALPHABLENDOP( "Vertex Alpha Blend Op", float) = 2
 		_VertexAlphaBlendRatio( "Vertex Alpha Blend Ratio Value", float) = 1.0
 		
@@ -25,7 +25,7 @@
 		_RS_ZTest( "ZTest", float) = 8	/* Always */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		[EdgeToggle] _ALPHACLIP( "Alpha Clip", float) = 0
+		_AlphaClip( "Alpha Clip", Range( 0.0, 1.004)) = 0
 		
 		/* Blending Status */
 		[Caption(Blending Status)]
@@ -91,9 +91,9 @@
 			#pragma fragment frag
 			#pragma shader_feature _VERTEXCOLORBLENDOP_NONE _VERTEXCOLORBLENDOP_OVERRIDE _VERTEXCOLORBLENDOP_MULTIPLY _VERTEXCOLORBLENDOP_DARKEN _VERTEXCOLORBLENDOP_COLORBURN _VERTEXCOLORBLENDOP_LINEARBURN _VERTEXCOLORBLENDOP_LIGHTEN _VERTEXCOLORBLENDOP_SCREEN _VERTEXCOLORBLENDOP_COLORDODGE _VERTEXCOLORBLENDOP_LINEARDODGE _VERTEXCOLORBLENDOP_OVERLAY _VERTEXCOLORBLENDOP_HARDLIGHT _VERTEXCOLORBLENDOP_VIVIDLIGHT _VERTEXCOLORBLENDOP_LINEARLIGHT _VERTEXCOLORBLENDOP_PINLIGHT _VERTEXCOLORBLENDOP_HARDMIX _VERTEXCOLORBLENDOP_DIFFERENCE _VERTEXCOLORBLENDOP_EXCLUSION _VERTEXCOLORBLENDOP_SUBSTRACT _VERTEXCOLORBLENDOP_DIVISION
 			#pragma shader_feature _VERTEXCOLORBLENDSRC_VALUE _VERTEXCOLORBLENDSRC_ALPHABLENDOP _VERTEXCOLORBLENDSRC_ONEMINUSALPHABLENDOP _VERTEXCOLORBLENDSRC_BASEALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBASEALPHA _VERTEXCOLORBLENDSRC_BLENDALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBLENDALPHA _VERTEXCOLORBLENDSRC_BASECOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBASECOLORVALUE _VERTEXCOLORBLENDSRC_BLENDCOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBLENDCOLORVALUE
-			#pragma shader_feature _VERTEXALPHABLENDOP_NONE _VERTEXALPHABLENDOP_OVERRIDE _VERTEXALPHABLENDOP_MULTIPLY _VERTEXALPHABLENDOP_ADD _VERTEXALPHABLENDOP_SUBSTRACT _VERTEXALPHABLENDOP_REVERSESUBSTRACT _VERTEXALPHABLENDOP_OFFSET _VERTEXALPHABLENDOP_MAXIMUM
-			#pragma shader_feature _ _ALPHACLIP_ON
-			#pragma shader_feature _ _BLENDFACTOR_ON
+			#pragma shader_feature _VERTEXALPHABLENDOP_NONE _VERTEXALPHABLENDOP_OVERRIDE _VERTEXALPHABLENDOP_MULTIPLY _VERTEXALPHABLENDOP_ADD _VERTEXALPHABLENDOP_SUBSTRACT _VERTEXALPHABLENDOP_REVERSESUBSTRACT _VERTEXALPHABLENDOP_MAXIMUM
+			#pragma shader_feature_local _ _ALPHACLIP_ON
+			#pragma shader_feature_local _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
 			#include "Includes/Blend.cginc"
@@ -105,6 +105,9 @@
 			#endif
 			#if !defined(_VERTEXALPHABLENDOP_NONE)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexAlphaBlendRatio)
+			#endif
+			#if defined(_ALPHACLIP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClip)
 			#endif
 	        #if defined(_BLENDFACTOR_ON)
 	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
@@ -146,7 +149,7 @@
 				color = VertexColorBlending( color, i.vertexColor);
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				clip( color.a - 1e-4);
+				clip( color.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClip));
 			#endif
 			#if defined(_BLENDFACTOR_ON)
 				color.rgb = (color.rgb * color.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _RS_BlendFactor) * (1.0 - color.a));
