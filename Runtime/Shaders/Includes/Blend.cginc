@@ -332,7 +332,7 @@ inline fixed4 Blending1( fixed4 Base, fixed4 Blend, float ColorRatio, float Alph
 #elif _COLORBLENDOP1_DIVISION
 	color = BelndDivision( Base.rgb, Blend.rgb);
 #endif
-	return fixed4( saturate( lerp( Base.rgb, color, ColorRatio)), alpha);
+	return fixed4( max( 0.0, lerp( Base.rgb, color, ColorRatio)), alpha);
 }
 /*
 Shader
@@ -440,7 +440,7 @@ inline fixed4 Blending2( fixed4 Base, fixed4 Blend, float ColorRatio, float Alph
 #elif _COLORBLENDOP2_DIVISION
 	color = BelndDivision( Base.rgb, Blend.rgb);
 #endif
-	return fixed4( saturate( lerp( Base.rgb, color, ColorRatio)), alpha);
+	return fixed4( max( 0.0, lerp( Base.rgb, color, ColorRatio)), alpha);
 }
 /**
 Shader
@@ -548,7 +548,7 @@ inline fixed4 VertexColorBlending( fixed4 Base, fixed4 Blend, float ColorRatio, 
 #elif _VERTEXCOLORBLENDOP_DIVISION
 	color = BelndDivision( Base.rgb, Blend.rgb);
 #endif
-	return fixed4( saturate( lerp( Base.rgb, color, ColorRatio)), alpha);
+	return fixed4( max( 0.0, lerp( Base.rgb, color, ColorRatio)), alpha);
 }
 
 #endif /* __BLEND_CGINC__ */
