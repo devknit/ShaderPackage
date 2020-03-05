@@ -466,18 +466,12 @@ namespace ZanShader.Editor
 						materialEditor.ShaderProperty( rsAlphaClipProp, rsAlphaClipProp.displayName);
 						if( EditorGUI.EndChangeCheck() != false)
 						{
-							if( rsAlphaClipProp.floatValue != 0.0f)
-							{
-								if( EditorUtility.DisplayDialog( "Warning", "Alpha Clip を有効に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映してもよろしいですか？", "はい", "いいえ") == false)
-								{
-									rsAlphaClipProp.floatValue = 0.0f;
-								}
-							}
+							SetKeyword( rsAlphaClipProp, rsAlphaClipProp.floatValue > 0.0f, "_ON");
 						}
 						if( rsAlphaClipProp.floatValue != 0.0f)
 						{
 		                	EditorGUILayout.LabelField( new GUIContent( 
-								"Alpha Clip の設定がモバイルでは高負荷となる状態です\n設定を無効に変更することで解消されます",
+								"Alpha Clip の設定がモバイルでは高負荷となる状態です\n設定を 0 に変更することで解消されます",
 		                    	EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
 						}
 					}
@@ -537,6 +531,21 @@ namespace ZanShader.Editor
             
             CaptionDecorator.enabled = true;
 		}
+		void SetKeyword( MaterialProperty prop, bool on, string defaultKeywordSuffix)
+        {
+            string keyword = prop.name.ToUpperInvariant() + defaultKeywordSuffix;
+            foreach( Material material in prop.targets)
+            {
+                if( on != false)
+                {
+                    material.EnableKeyword( keyword);
+                }
+                else
+                {
+                    material.DisableKeyword( keyword);
+                }
+            }
+        }
 		
 		/* Rendering Status */
 		const string rsCull = "_RS_Cull";
@@ -547,7 +556,7 @@ namespace ZanShader.Editor
 		const string rsZTestB = "_RS_FB_ZTest";
 		const string rsZTestA = "_RS_FA_ZTest";
 		const string rsColorMask = "_RS_ColorMask";
-		const string rsAlphaClip = "_ALPHACLIP";
+		const string rsAlphaClip = "_AlphaClip";
 		
 		/* Blending Status */
 		const string rsColorBlendOp = "_RS_ColorBlendOp";

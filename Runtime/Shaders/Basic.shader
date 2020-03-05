@@ -15,7 +15,7 @@ Shader "Zan/Lit/Basic"
 		[EdgeToggle] _SHADOWTRANSLUCENT( "Shadow Translucent", float) = 0
 		
 		[Caption(Albedo Properties)]
-		[EdgeToggle] _ALBEDOMAP( "Use Albedo Map", float) = 1
+		[EdgeToggle] _ALBEDOMAP( "Use Albedo Map", float) = 0
 		_MainTex( "Albedo Map (RGBA)", 2D) = "white" {}
 		[HDR] _Color( "Color (RGBA)", Color) = (1, 1, 1, 1)
 		
@@ -63,7 +63,7 @@ Shader "Zan/Lit/Basic"
 		_RS_FA_ZTest( "Add ZTest", float) = 4	/* LessEqual */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		[EdgeToggle] _ALPHACLIP( "Alpha Clip", float) = 0
+		_AlphaClip( "Alpha Clip", Range( 0.0, 1.004)) = 0
 		
 		/* Forward Base Blending Status */
 		[Caption(Forward Base Blending Status)]
@@ -190,6 +190,9 @@ Shader "Zan/Lit/Basic"
 			#if defined(_PARALLAXMAP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _ParallaxScale)
 			#endif
+			#if defined(_ALPHACLIP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClip);
+			#endif
 			#if defined(_BLENDFACTOR_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FB_BlendFactor)
 			#endif
@@ -285,7 +288,7 @@ Shader "Zan/Lit/Basic"
 				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				clip( diffuseColor.a - 1e-4);
+				clip( diffuseColor.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClip));
 			#endif
 			
 				/* emissive */
@@ -545,6 +548,9 @@ Shader "Zan/Lit/Basic"
 			#if defined(_PARALLAXMAP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _ParallaxScale)
 			#endif
+			#if defined(_ALPHACLIP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClip);
+			#endif
 			#if defined(_BLENDFACTOR_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FA_BlendFactor)
 			#endif
@@ -630,7 +636,7 @@ Shader "Zan/Lit/Basic"
 				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				clip( diffuseColor.a - 1e-4);
+				clip( diffuseColor.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClip));
 			#endif
 				
 				/* normal */
@@ -772,6 +778,7 @@ Shader "Zan/Lit/Basic"
 			#pragma vertex vert
 			#pragma fragment frag
 			#pragma shader_feature _ _SHADOWTRANSLUCENT_ON
+			#pragma shader_feature _ _ALPHACLIP_ON
 			#pragma fragmentoption ARB_precision_hint_fastest
 			#pragma multi_compile_shadowcaster
 			#pragma multi_compile_instancing
@@ -783,6 +790,9 @@ Shader "Zan/Lit/Basic"
 			uniform sampler3D _DitherMaskLOD;
 			UNITY_INSTANCING_BUFFER_START( Props)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
+			#if defined(_ALPHACLIP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClip);
+			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
 			
 			struct VertexInput
@@ -813,6 +823,9 @@ Shader "Zan/Lit/Basic"
 				float4 baseMap = tex2D( _MainTex, i.uv0);
 				float4 baseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 				float alpha = baseMap.a * baseColor.a;
+			#if defined(_ALPHACLIP_ON)
+				alpha = saturate( alpha - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClip));
+			#endif	
 				alpha = tex3D( _DitherMaskLOD, float3( vpos.xy * 0.25, alpha * 0.9375)).a;
 				clip( alpha - 1e-4);
 				SHADOW_CASTER_FRAGMENT( i);

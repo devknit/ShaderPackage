@@ -25,7 +25,7 @@
 		_RS_ZTest( "ZTest", float) = 8	/* Always */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		[EdgeToggle] _ALPHACLIP( "Alpha Clip", float) = 0
+		_AlphaClip( "Alpha Clip", Range( 0.0, 1.004)) = 0
 		
 		/* Blending Status */
 		[Caption(Blending Status)]
@@ -108,6 +108,9 @@
 			#if !defined(_VERTEXALPHABLENDOP_NONE)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexAlphaBlendRatio)
 			#endif
+			#if defined(_ALPHACLIP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClip)
+			#endif
 			#if defined(_BLENDFACTOR_ON)
 	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
 	        #endif
@@ -152,7 +155,7 @@
 				color = VertexColorBlending( color, i.vertexColor);
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				clip( color.a - 1e-4);
+				clip( color.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClip));
 			#endif
 			#if defined(_BLENDFACTOR_ON)
 				color.rgb = (color.rgb * color.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _RS_BlendFactor) * (1.0 - color.a));
