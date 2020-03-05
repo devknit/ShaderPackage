@@ -24,7 +24,7 @@ Shader "Zan/Lit/Basic"
 		_MetallicGlossTex("Metallic Gloss Map (RA)", 2D) = "white" {}
 		
 		[Caption(Emissive Properties)]
-		[EdgeToggle] _EMISSIVE( "Use Emissive", float) = 0
+		[EdgeToggle] _EMISSIVEMAP( "Use Emissive Map", float) = 0
 		_EmissiveTex("Emissive Map (RGB)", 2D) = "white" {}
 		[HDR] _EmissiveColor("Emissive Color", Color) = (1, 1, 1, 1)
 		
@@ -129,7 +129,7 @@ Shader "Zan/Lit/Basic"
 			
 			#pragma shader_feature _ _ALBEDOMAP_ON
 			#pragma shader_feature _ _METALLICGLOSSMAP_ON
-			#pragma shader_feature _ _EMISSIVE_ON
+			#pragma shader_feature _ _EMISSIVEMAP_ON
 			#pragma shader_feature _RIMLIGHT_NONE _RIMLIGHT_NORMAL _RIMLIGHT_NORMALMAP
 			#pragma shader_feature _ _NORMALMAP_ON
 			#pragma shader_feature _ _PARALLAXMAP_ON
@@ -154,7 +154,7 @@ Shader "Zan/Lit/Basic"
 			uniform sampler2D _MetallicGlossTex;
 			uniform float4 _MetallicGlossTex_ST;
 		#endif
-		#if defined(_EMISSIVE_ON)
+		#if defined(_EMISSIVEMAP_ON)
 			uniform sampler2D _EmissiveTex;
 			uniform float4 _EmissiveTex_ST;
 		#endif
@@ -174,7 +174,7 @@ Shader "Zan/Lit/Basic"
 				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Metallic)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Gloss)
-			#if defined(_EMISSIVE_ON)
+			#if defined(_EMISSIVEMAP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float4,  _EmissiveColor)
 			#endif
 			#if !defined(_RIMLIGHT_NONE)
@@ -289,7 +289,7 @@ Shader "Zan/Lit/Basic"
 			#endif
 			
 				/* emissive */
-			#if defined(_EMISSIVE_ON)
+			#if defined(_EMISSIVEMAP_ON)
 				fixed4 emissiveColor = tex2D( _EmissiveTex, TRANSFORM_TEX( i.uv0.xy, _EmissiveTex));
 				fixed3 emissive = emissiveColor.rgb * emissiveColor.a
 					* UNITY_ACCESS_INSTANCED_PROP( Props, _EmissiveColor);
