@@ -290,8 +290,8 @@ Shader "Zan/Lit/Basic"
 			
 				/* emissive */
 			#if defined(_EMISSIVE_ON)
-				fixed3 emissive = 
-					tex2D( _EmissiveTex, TRANSFORM_TEX( i.uv0.xy, _EmissiveTex)).rgb
+				fixed4 emissiveColor = tex2D( _EmissiveTex, TRANSFORM_TEX( i.uv0.xy, _EmissiveTex));
+				fixed3 emissive = emissiveColor.rgb * emissiveColor.a
 					* UNITY_ACCESS_INSTANCED_PROP( Props, _EmissiveColor);
 			#else
 				fixed3 emissive = 0.0;
