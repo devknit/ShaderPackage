@@ -186,13 +186,13 @@ Shader "Zan/Lit/Basic"
 				UNITY_DEFINE_INSTANCED_PROP( float,  _NormalScale)
 			#endif
 			#if defined(_OCCLUSIONMAP_ON) && (defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI))
-				UNITY_DEFINE_INSTANCED_PROP( float,  _OcclusionStrength);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _OcclusionStrength)
 			#endif
 			#if defined(_PARALLAXMAP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _ParallaxScale)
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
 			#if defined(_FB_BLENDFACTOR_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FB_BlendFactor)
@@ -550,7 +550,7 @@ Shader "Zan/Lit/Basic"
 				UNITY_DEFINE_INSTANCED_PROP( float,  _ParallaxScale)
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
 			#if defined(_FA_BLENDFACTOR_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FA_BlendFactor)
@@ -792,7 +792,7 @@ Shader "Zan/Lit/Basic"
 			UNITY_INSTANCING_BUFFER_START( Props)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
 			#if defined(_ALPHACLIP_ON)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
 			
