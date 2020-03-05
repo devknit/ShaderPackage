@@ -10,27 +10,44 @@ Shader "Zan/Lit/Basic"
 		_SPECULARBRDF( "Specular", float) = 1
 		[KeywordEnum(None, AmbientOnly, FastGI, GI, ReflectionFastGI, ReflectionGI)]
 		_INDIRECTMODE( "Indirect", float) = 4
+		[Gamma] _Metallic( "Metallic", Range( 0.0, 1.0)) = 1.0
+		_Gloss( "Gloss", Range(0, 1)) = 1.0
+		[EdgeToggle] _SHADOWTRANSLUCENT( "Shadow Translucent", float) = 0
 		
-		[Caption(Diffuse Properties)]
-		_MainTex( "Albedo", 2D) = "white" {}
-		[HDR] _Color( "Color", Color) = (1,1,1,1)
+		[Caption(Albedo Properties)]
+		[EdgeToggle] _ALBEDOMAP( "Use Albedo Map", float) = 1
+		_MainTex( "Albedo Map (RGBA)", 2D) = "white" {}
+		[HDR] _Color( "Color (RGBA)", Color) = (1, 1, 1, 1)
 		
-		[Caption(Specular Properties)]
-		_MetallicGlossMap("Metallic Gloss Map", 2D) = "white" {}
-		[Gamma] _Metallic( "Metallic", Range(0, 1)) = 0
-		_Gloss( "Gloss", Range(0, 1)) = 0.0
+		[Caption(Metallic Gloss Map Properties)]
+		[EdgeToggle] _METALLICGLOSSMAP( "Use Metallic Gloss Map", float) = 0
+		_MetallicGlossTex("Metallic Gloss Map (RA)", 2D) = "white" {}
 		
 		[Caption(Emissive Properties)]
-		_EmissiveMap("Emissive Map", 2D) = "white" {}
+		[EdgeToggle] _EMISSIVE( "Use Emissive", float) = 0
+		_EmissiveTex("Emissive Map (RGB)", 2D) = "white" {}
+		[HDR] _EmissiveColor("Emissive Color", Color) = (1, 1, 1, 1)
+		
+		[Caption(Rim Light Properties)]
 		[KeywordEnum(None, Normal, NormalMap)]
-		_RIMLIGHTTYPE( "Rim Light Type", float) = 0
+		_RIMLIGHT( "Rim Light Mode", float) = 0
 		[HDR] _RimColor( "Rim Color", Color) = (1,1,1,1)
 		_RimPower( "Rim Power", Range( 0, 10)) = 2.0
 		
-		[Caption(Bump Map Properties)]
-		_NormalMap( "Normal Map", 2D) = "bump" {}
+		[Caption(Normal Map Properties)]
+		[EdgeToggle] _NORMALMAP( "Use Normal Map", float) = 0
+		_NormalTex( "Normal Map", 2D) = "bump" {}
+		_NormalScale( "Normal Map Scale", float) = 1.0
 		
-		[EdgeToggle] _SHADOWTRANSLUCENT( "Shadow Translucent", float) = 0
+		[Caption(Parallax Map Properties)]
+		[EdgeToggle] _PARALLAXMAP( "Use Parallax Map", float) = 0
+		_ParallaxTex( "Parallax Map (G)", 2D) = "black" {}
+		_ParallaxScale( "Parallax Map Scale", Range( 0.005, 0.08)) = 0.02
+		
+		[Caption(Occlusion Map Properties)]
+		[EdgeToggle] _OCCLUSIONMAP( "Use Occlusion Map", float) = 0
+		_OcclusionTex("Occlusion Map (G)", 2D) = "white" {}
+		_OcclusionStrength( "Occlusion Map Strength", Range( 0.0, 1.0)) = 1.0
 		
 		/* Forward Base Rendering Status */
 		[Caption(Rendering Status)]
@@ -43,7 +60,7 @@ Shader "Zan/Lit/Basic"
 		[Enum(Off, 0, On, 1)]
 		_RS_FA_ZWrite( "Add ZWrite", float) = 0 /* Off */
 		[Enum( UnityEngine.Rendering.CompareFunction)]
-		_RS_FA_ZTest( "Add ZTest", float) = 2	/* Less */
+		_RS_FA_ZTest( "Add ZTest", float) = 4	/* LessEqual */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
 		[EdgeToggle] _ALPHACLIP( "Alpha Clip", float) = 0
@@ -103,12 +120,21 @@ Shader "Zan/Lit/Basic"
 			Blend [_RS_FB_ColorSrcFactor] [_RS_FB_ColorDstFactor], [_RS_FB_AlphaSrcFactor] [_RS_FB_AlphaDstFactor]
 			
 			CGPROGRAM
+			#pragma target 3.0
 			#pragma vertex vertBase
 			#pragma fragment fragBase
 			#pragma shader_feature _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
 			#pragma shader_feature _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
 			#pragma shader_feature _INDIRECTMODE_NONE _INDIRECTMODE_AMBIENTONLY _INDIRECTMODE_FASTGI _INDIRECTMODE_GI _INDIRECTMODE_REFLECTIONFASTGI _INDIRECTMODE_REFLECTIONGI
-			#pragma shader_feature _RIMLIGHTTYPE_NONE _RIMLIGHTTYPE_NORMAL _RIMLIGHTTYPE_NORMALMAP
+			
+			#pragma shader_feature _ _ALBEDOMAP_ON
+			#pragma shader_feature _ _METALLICGLOSSMAP_ON
+			#pragma shader_feature _ _EMISSIVE_ON
+			#pragma shader_feature _RIMLIGHT_NONE _RIMLIGHT_NORMAL _RIMLIGHT_NORMALMAP
+			#pragma shader_feature _ _NORMALMAP_ON
+			#pragma shader_feature _ _PARALLAXMAP_ON
+			#pragma shader_feature _ _OCCLUSIONMAP_ON
+			
 			#pragma shader_feature _ _ALPHACLIP_ON
 			#pragma shader_feature _ _FB_BLENDFACTOR_ON
 			#pragma multi_compile_instancing
@@ -120,17 +146,49 @@ Shader "Zan/Lit/Basic"
 			#include "UnityStandardBRDF.cginc"
 			#include "Includes/Lighting.cginc"
 			
+		#if defined(_ALBEDOMAP_ON)
 			uniform sampler2D _MainTex;
 			uniform float4 _MainTex_ST;
-			uniform sampler2D _NormalMap;
-			uniform float4 _NormalMap_ST;
+		#endif
+		#if defined(_METALLICGLOSSMAP_ON)
+			uniform sampler2D _MetallicGlossTex;
+			uniform float4 _MetallicGlossTex_ST;
+		#endif
+		#if defined(_EMISSIVE_ON)
+			uniform sampler2D _EmissiveTex;
+			uniform float4 _EmissiveTex_ST;
+		#endif
+		#if defined(_NORMALMAP_ON)
+			uniform sampler2D _NormalTex;
+			uniform float4 _NormalTex_ST;
+		#endif
+		#if defined(_PARALLAXMAP_ON)
+			uniform sampler2D _ParallaxTex;
+			uniform float4 _ParallaxTex_ST;
+		#endif
+		#if defined(_OCCLUSIONMAP_ON) && (defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI))
+			uniform sampler2D _OcclusionTex;
+			uniform float4 _OcclusionTex_ST;
+		#endif
 			UNITY_INSTANCING_BUFFER_START( Props)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Metallic)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Gloss)
-			#if !defined(_RIMLIGHTTYPE_NONE)
+			#if defined(_EMISSIVE_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float4,  _EmissiveColor)
+			#endif
+			#if !defined(_RIMLIGHT_NONE)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _RimColor)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _RimPower)
+			#endif
+			#if defined(_NORMALMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _NormalScale)
+			#endif
+			#if defined(_OCCLUSIONMAP_ON) && (defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI))
+				UNITY_DEFINE_INSTANCED_PROP( float,  _OcclusionStrength);
+			#endif
+			#if defined(_PARALLAXMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _ParallaxScale)
 			#endif
 			#if defined(_BLENDFACTOR_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FB_BlendFactor)
@@ -152,11 +210,14 @@ Shader "Zan/Lit/Basic"
 			struct VertexOutputBase
 			{
 				float4 pos : SV_POSITION;
-				float2 uv0 : TEXCOORD0;
+				float4 uv0 : TEXCOORD0;
 				float4 worldPosition : TEXCOORD1;
-				float3 normalDirection : TEXCOORD2;
-				float3 tangentDirection : TEXCOORD3;
-				float3 bitangentDirection : TEXCOORD4;
+				/* [0].xyz : normalDirection
+				 * [1].xyz : tangentDirection
+				 * [2].xyz : bitangentDirection
+				 * [x].www : viewDirForParallax
+				 */
+				float4 tangentToWorldAndPackedData[ 3] : TEXCOORD2;
 				LIGHTING_COORDS( 5, 6)
 				UNITY_FOG_COORDS( 7)
 			#if defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI)
@@ -170,13 +231,30 @@ Shader "Zan/Lit/Basic"
 				UNITY_SETUP_INSTANCE_ID( v);
 				UNITY_TRANSFER_INSTANCE_ID( v, o);
 				o.pos = UnityObjectToClipPos( v.vertex);
-				o.uv0 = TRANSFORM_TEX( v.texcoord0.xy, _MainTex);
+				o.uv0.xy = v.texcoord0.xy;
+				o.uv0.zw = 0.0;
 				o.worldPosition = mul( unity_ObjectToWorld, v.vertex);
-				o.normalDirection = UnityObjectToWorldNormal( v.normal);
-				o.tangentDirection = normalize( mul( unity_ObjectToWorld, float4( v.tangent.xyz, 0.0)).xyz);
-				o.bitangentDirection = normalize( cross( o.normalDirection, o.tangentDirection) * v.tangent.w);
+				float3 normalDirection = UnityObjectToWorldNormal( v.normal);
+			#if defined(_NORMALMAP_ON) || defined(_PARALLAXMAP_ON)
+				float4 tangent = float4( UnityObjectToWorldDir( v.tangent.xyz), v.tangent.w);
+				float3x3 tangentTransform = CreateTangentToWorldPerVertex( normalDirection, tangent.xyz, tangent.w);
+				o.tangentToWorldAndPackedData[ 0].xyz = tangentTransform[ 0];
+		        o.tangentToWorldAndPackedData[ 1].xyz = tangentTransform[ 1];
+		        o.tangentToWorldAndPackedData[ 2].xyz = tangentTransform[ 2];
+			#else
+				o.tangentToWorldAndPackedData[ 0].xyz = 0;
+		        o.tangentToWorldAndPackedData[ 1].xyz = 0;
+		        o.tangentToWorldAndPackedData[ 2].xyz = normalDirection;
+			#endif
+			#if defined(_PARALLAXMAP_ON)
+				TANGENT_SPACE_ROTATION;
+				half3 viewDirForParallax = mul( rotation, ObjSpaceViewDir( v.vertex));
+				o.tangentToWorldAndPackedData[ 0].w = viewDirForParallax.x;
+		        o.tangentToWorldAndPackedData[ 1].w = viewDirForParallax.y;
+		        o.tangentToWorldAndPackedData[ 2].w = viewDirForParallax.z;
+			#endif
 			#if defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI)
-				o.ambientOrLightmapUV = vertGI( v.texcoord1, v.texcoord2, o.worldPosition, o.normalDirection);
+				o.ambientOrLightmapUV = vertGI( v.texcoord1, v.texcoord2, o.worldPosition, normalDirection);
 			#endif
 				UNITY_TRANSFER_FOG( o, o.pos);
 				TRANSFER_VERTEX_TO_FRAGMENT( o);
@@ -186,18 +264,72 @@ Shader "Zan/Lit/Basic"
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
 				
-				float4 baseMap = tex2D( _MainTex, TRANSFORM_TEX( i.uv0, _MainTex));
-				float4 baseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
-				float4 diffuseColor = baseMap * baseColor;
+				/* parallax */
+			#if defined(_PARALLAXMAP_ON)
+				half3 viewDirForParallax = normalize( half3(
+					i.tangentToWorldAndPackedData[ 0].w,
+					i.tangentToWorldAndPackedData[ 1].w,
+					i.tangentToWorldAndPackedData[ 2].w));
+				half parallax = tex2D( _ParallaxTex, TRANSFORM_TEX( i.uv0.xy, _ParallaxTex)).g;
+				half2 offset = ParallaxOffset1Step( parallax, UNITY_ACCESS_INSTANCED_PROP( Props, _ParallaxScale), viewDirForParallax);
+				i.uv0.xy += offset;
+				i.uv0.zw += offset;
+			#endif
+				
+				/* albedo */
+			#if defined(_ALBEDOMAP_ON)
+				float4 diffuseColor = 
+					tex2D( _MainTex, TRANSFORM_TEX( i.uv0.xy, _MainTex))
+					* UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
+			#else
+				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
+			#endif
 			#if defined(_ALPHACLIP_ON)
 				clip( diffuseColor.a - 1e-4);
 			#endif
-				float3 normalMap = UnpackNormal( tex2D( _NormalMap, TRANSFORM_TEX( i.uv0, _NormalMap)));
-				float attenuation = LIGHT_ATTENUATION( i);
-				float3 attenColor = attenuation * _LightColor0.rgb;
+			
+				/* emissive */
+			#if defined(_EMISSIVE_ON)
+				fixed3 emissive = 
+					tex2D( _EmissiveTex, TRANSFORM_TEX( i.uv0.xy, _EmissiveTex)).rgb
+					* UNITY_ACCESS_INSTANCED_PROP( Props, _EmissiveColor);
+			#else
+				fixed3 emissive = 0.0;
+			#endif
+			
+				/* occlusion */
+			#if defined(_OCCLUSIONMAP_ON) && (defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI))
+				half occlusion = tex2D( _OcclusionTex, TRANSFORM_TEX( i.uv0.xy, _OcclusionTex)).g;
+				occlusion = lerpOneTo( occlusion, UNITY_ACCESS_INSTANCED_PROP( Props, _OcclusionStrength));
+			#else
+				half occlusion = 1.0h;
+			#endif
 				
+				/* normal */
+				float3 preNormalDirection = normalize( i.tangentToWorldAndPackedData[ 2].xyz * (facing >= 0 ? 1.0 : -1.0));
+			#if defined(_NORMALMAP_ON)
+				half3 tangent = i.tangentToWorldAndPackedData[ 0].xyz;
+			    half3 binormal = i.tangentToWorldAndPackedData[ 1].xyz;
+			    half3 normal = preNormalDirection;
+				
+				float3 normalTangent = UnpackScaleNormal( 
+					tex2D( _NormalTex, TRANSFORM_TEX( i.uv0.xy, _NormalTex)),
+					UNITY_ACCESS_INSTANCED_PROP( Props, _NormalScale));
+				float3 normalDirection = normalize( (float3)(
+					tangent * normalTangent.x + binormal * normalTangent.y + normal * normalTangent.z));
+			#else
+				float3 normalDirection = preNormalDirection;
+			#endif
+				
+				/* metallic gloss */
+			#if defined(_METALLICGLOSSMAP_ON)
+				half4 metallicGloss = tex2D(_MetallicGlossTex, TRANSFORM_TEX( i.uv0.xy, _MetallicGlossTex));
+				half metallic = metallicGloss.r * UNITY_ACCESS_INSTANCED_PROP( Props, _Metallic);
+				float smoothness = metallicGloss.a * UNITY_ACCESS_INSTANCED_PROP( Props, _Gloss);
+			#else
 				half metallic = UNITY_ACCESS_INSTANCED_PROP( Props, _Metallic);
 				float smoothness = UNITY_ACCESS_INSTANCED_PROP( Props, _Gloss);
+			#endif
 				float perceptualRoughness = 1.0 - smoothness;
 				float roughness = perceptualRoughness * perceptualRoughness;
 				
@@ -207,12 +339,13 @@ Shader "Zan/Lit/Basic"
 				diffuseColor.rgb *= specularMonochrome;
 				specularMonochrome = 1.0 - specularMonochrome;
 				
-				float3 preNormalDirection = normalize( i.normalDirection * (facing >= 0 ? 1.0 : -1.0));
-				float3x3 tangentTransform = float3x3( i.tangentDirection, i.bitangentDirection, preNormalDirection);
-				float3 normalDirection = normalize( mul( normalMap, tangentTransform));
+				/* light */
+				float attenuation = LIGHT_ATTENUATION( i);
+				float3 attenColor = attenuation * _LightColor0.rgb;
+				
+				/* direction */
 				float3 viewDirection = normalize( _WorldSpaceCameraPos.xyz - i.worldPosition.xyz);
 				float3 lightDirection = normalize( _WorldSpaceLightPos0.xyz);
-				
 				float3 halfDirection = normalize( viewDirection + lightDirection);
 				float NdotL = saturate( dot( normalDirection, lightDirection));
 				float NdotV = abs( dot( normalDirection, viewDirection));
@@ -228,9 +361,9 @@ Shader "Zan/Lit/Basic"
 				Unity_GlossyEnvironmentData glossData;
 				glossData.roughness = perceptualRoughness;
 				glossData.reflUVW = reflect( -viewDirection, normalDirection);
-				UnityGI gi = UnityGlobalIllumination( data, 1, normalDirection, glossData);
+				UnityGI gi = UnityGlobalIllumination( data, occlusion, normalDirection, glossData);
 			#else
-				UnityGI gi = UnityGlobalIllumination( data, 1, normalDirection);
+				UnityGI gi = UnityGlobalIllumination( data, occlusion, normalDirection);
 			#endif
 				lightDirection = gi.light.dir;
 				
@@ -328,14 +461,11 @@ Shader "Zan/Lit/Basic"
 #endif
 				float3 diffuse = directDiffuse + indirectDiffuse;
 
-/* emissive */
-				fixed4 emissive = 0;
-				
 				/* rim */
-#if !defined(_RIMLIGHTTYPE_NONE)
+#if !defined(_RIMLIGHT_NONE)
 				fixed4 rimColor = UNITY_ACCESS_INSTANCED_PROP( Props, _RimColor);
 				float rimPower = UNITY_ACCESS_INSTANCED_PROP( Props, _RimPower);
-			#if defined(_RIMLIGHTTYPE_NORMAL)
+			#if defined(_RIMLIGHT_NORMAL)
 				float VdotN = saturate( dot( viewDirection, preNormalDirection));
 			#else
 				float VdotN = saturate( dot( viewDirection, normalDirection));
@@ -367,10 +497,17 @@ Shader "Zan/Lit/Basic"
 			Blend [_RS_FA_ColorSrcFactor] [_RS_FA_ColorDstFactor], [_RS_FA_AlphaSrcFactor] [_RS_FA_AlphaDstFactor]
 			
 			CGPROGRAM
+			#pragma target 3.0
 			#pragma vertex vertAdd
 			#pragma fragment fragAdd
 			#pragma shader_feature _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
 			#pragma shader_feature _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
+			
+			#pragma shader_feature _ _ALBEDOMAP_ON
+			#pragma shader_feature _ _METALLICGLOSSMAP_ON
+			#pragma shader_feature _ _NORMALMAP_ON
+			#pragma shader_feature _ _PARALLAXMAP_ON
+			
 			#pragma shader_feature _ _ALPHACLIP_ON
 			#pragma shader_feature _ _FA_BLENDFACTOR_ON
 			#pragma multi_compile_instancing
@@ -382,14 +519,32 @@ Shader "Zan/Lit/Basic"
 			#include "UnityStandardBRDF.cginc"
 			#include "Includes/Lighting.cginc"
 			
+		#if defined(_ALBEDOMAP_ON)
 			uniform sampler2D _MainTex;
 			uniform float4 _MainTex_ST;
-			uniform sampler2D _NormalMap;
-			uniform float4 _NormalMap_ST;
+		#endif
+		#if defined(_METALLICGLOSSMAP_ON)
+			uniform sampler2D _MetallicGlossTex;
+			uniform float4 _MetallicGlossTex_ST;
+		#endif
+		#if defined(_NORMALMAP_ON)
+			uniform sampler2D _NormalTex;
+			uniform float4 _NormalTex_ST;
+		#endif
+		#if defined(_PARALLAXMAP_ON)
+			uniform sampler2D _ParallaxTex;
+			uniform float4 _ParallaxTex_ST;
+		#endif
 			UNITY_INSTANCING_BUFFER_START( Props)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Metallic)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Gloss)
+			#if defined(_NORMALMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _NormalScale)
+			#endif
+			#if defined(_PARALLAXMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _ParallaxScale)
+			#endif
 			#if defined(_BLENDFACTOR_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FA_BlendFactor)
 			#endif
@@ -406,13 +561,19 @@ Shader "Zan/Lit/Basic"
 			struct VertexOutputAdd
 			{
 				float4 pos : SV_POSITION;
-				float2 uv0 : TEXCOORD0;
+				float4 uv0 : TEXCOORD0;
 				float4 worldPosition : TEXCOORD1;
-				float3 normalDirection : TEXCOORD2;
-				float3 tangentDirection : TEXCOORD3;
-				float3 bitangentDirection : TEXCOORD4;
+				/* [0].xyz : normalDirection
+				 * [1].xyz : tangentDirection
+				 * [2].xyz : bitangentDirection
+				 * [x].www : lightDirection
+				 */
+				float4 tangentToWorldAndLightDir[ 3] : TEXCOORD2;
 				LIGHTING_COORDS( 5, 6)
 				UNITY_FOG_COORDS( 7)
+			#if defined(_PARALLAXMAP_ON)
+				half3 viewDirForParallax : TEXCOORD8;
+			#endif
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 			void vertAdd( VertexInput v, out VertexOutputAdd o)
@@ -421,11 +582,30 @@ Shader "Zan/Lit/Basic"
 				UNITY_SETUP_INSTANCE_ID( v);
 				UNITY_TRANSFER_INSTANCE_ID( v, o);
 				o.pos = UnityObjectToClipPos( v.vertex);
-				o.uv0 = v.texcoord0.xy;
+				o.uv0.xy = v.texcoord0.xy;
+				o.uv0.zw = 0.0;
 				o.worldPosition = mul( unity_ObjectToWorld, v.vertex);
-				o.normalDirection = UnityObjectToWorldNormal( v.normal);
-				o.tangentDirection = normalize( mul( unity_ObjectToWorld, float4( v.tangent.xyz, 0.0)).xyz);
-				o.bitangentDirection = normalize( cross( o.normalDirection, o.tangentDirection) * v.tangent.w);
+				float3 normalDirection = UnityObjectToWorldNormal( v.normal);
+			#if defined(_NORMALMAP_ON) || defined(_PARALLAXMAP_ON)
+				float4 tangent = float4( UnityObjectToWorldDir( v.tangent.xyz), v.tangent.w);
+				float3x3 tangentTransform = CreateTangentToWorldPerVertex( normalDirection, tangent.xyz, tangent.w);
+				o.tangentToWorldAndLightDir[ 0].xyz = tangentTransform[ 0];
+		        o.tangentToWorldAndLightDir[ 1].xyz = tangentTransform[ 1];
+		        o.tangentToWorldAndLightDir[ 2].xyz = tangentTransform[ 2];
+			#else
+				o.tangentToWorldAndLightDir[ 0].xyz = 0;
+		        o.tangentToWorldAndLightDir[ 1].xyz = 0;
+		        o.tangentToWorldAndLightDir[ 2].xyz = normalDirection;
+			#endif
+				float3 lightDirection = _WorldSpaceLightPos0.xyz - o.worldPosition.xyz * _WorldSpaceLightPos0.w;
+				o.tangentToWorldAndLightDir[ 0].w = lightDirection.x;
+			    o.tangentToWorldAndLightDir[ 1].w = lightDirection.y;
+			    o.tangentToWorldAndLightDir[ 2].w = lightDirection.z;
+			    
+			#if defined(_PARALLAXMAP_ON)
+				TANGENT_SPACE_ROTATION;
+				o.viewDirForParallax = mul( rotation, ObjSpaceViewDir( v.vertex));
+			#endif
 				UNITY_TRANSFER_FOG( o, o.pos);
 				TRANSFER_VERTEX_TO_FRAGMENT( o)
 			}
@@ -433,18 +613,51 @@ Shader "Zan/Lit/Basic"
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
 				
-				float4 baseMap = tex2D( _MainTex, TRANSFORM_TEX( i.uv0, _MainTex));
-				float4 baseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
-				float4 diffuseColor = baseMap * baseColor;
+				/* parallax */
+			#if defined(_PARALLAXMAP_ON)
+				half parallax = tex2D( _ParallaxTex, TRANSFORM_TEX( i.uv0.xy, _ParallaxTex)).g;
+				half2 offset = ParallaxOffset1Step( parallax, UNITY_ACCESS_INSTANCED_PROP( Props, _ParallaxScale), i.viewDirForParallax);
+				i.uv0.xy += offset;
+				i.uv0.zw += offset;
+			#endif
+				
+				/* albedo */
+			#if defined(_ALBEDOMAP_ON)
+				float4 diffuseColor = 
+					tex2D( _MainTex, TRANSFORM_TEX( i.uv0.xy, _MainTex))
+					* UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
+			#else
+				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
+			#endif
 			#if defined(_ALPHACLIP_ON)
 				clip( diffuseColor.a - 1e-4);
 			#endif
-				float3 normalMap = UnpackNormal( tex2D( _NormalMap, TRANSFORM_TEX( i.uv0, _NormalMap)));
-				float attenuation = LIGHT_ATTENUATION( i);
-				float3 attenColor = attenuation * _LightColor0.rgb;
 				
+				/* normal */
+				float3 preNormalDirection = normalize( i.tangentToWorldAndLightDir[ 2].xyz * (facing >= 0 ? 1.0 : -1.0));
+			#if defined(_NORMALMAP_ON)
+				half3 tangent = i.tangentToWorldAndLightDir[ 0].xyz;
+			    half3 binormal = i.tangentToWorldAndLightDir[ 1].xyz;
+			    half3 normal = preNormalDirection;
+				
+				float3 normalTangent = UnpackScaleNormal( 
+					tex2D( _NormalTex, TRANSFORM_TEX( i.uv0.xy, _NormalTex)),
+					UNITY_ACCESS_INSTANCED_PROP( Props, _NormalScale));
+				float3 normalDirection = normalize( (float3)(
+					tangent * normalTangent.x + binormal * normalTangent.y + normal * normalTangent.z));
+			#else
+				float3 normalDirection = preNormalDirection;
+			#endif
+				
+				/* metallic gloss */
+			#if defined(_METALLICGLOSSMAP_ON)
+				half4 metallicGloss = tex2D(_MetallicGlossTex, TRANSFORM_TEX( i.uv0.xy, _MetallicGlossTex));
+				half metallic = metallicGloss.r * UNITY_ACCESS_INSTANCED_PROP( Props, _Metallic);
+				float smoothness = metallicGloss.a * UNITY_ACCESS_INSTANCED_PROP( Props, _Gloss);
+			#else
 				half metallic = UNITY_ACCESS_INSTANCED_PROP( Props, _Metallic);
 				float smoothness = UNITY_ACCESS_INSTANCED_PROP( Props, _Gloss);
+			#endif
 				float perceptualRoughness = 1.0 - smoothness;
 				float roughness = perceptualRoughness * perceptualRoughness;
 				
@@ -454,13 +667,16 @@ Shader "Zan/Lit/Basic"
 				diffuseColor.rgb *= specularMonochrome;
 				specularMonochrome = 1.0 - specularMonochrome;
 				
-				float3 preNormalDirection = normalize( i.normalDirection * (facing >= 0 ? 1.0 : -1.0));
-				float3x3 tangentTransform = float3x3( i.tangentDirection, i.bitangentDirection, preNormalDirection);
-				float3 normalDirection = normalize( mul( normalMap, tangentTransform));
-				float3 viewDirection = normalize( _WorldSpaceCameraPos.xyz - i.worldPosition.xyz);
-				float3 lightDirection = normalize( lerp( _WorldSpaceLightPos0.xyz, 
-					_WorldSpaceLightPos0.xyz - i.worldPosition.xyz, _WorldSpaceLightPos0.w));
+				/* light */
+				float attenuation = LIGHT_ATTENUATION( i);
+				float3 attenColor = attenuation * _LightColor0.rgb;
 				
+				/* direction */
+				float3 viewDirection = normalize( _WorldSpaceCameraPos.xyz - i.worldPosition.xyz);
+				float3 lightDirection = normalize( float3(
+					i.tangentToWorldAndLightDir[ 0].w,
+					i.tangentToWorldAndLightDir[ 1].w,
+					i.tangentToWorldAndLightDir[ 2].w));
 				float3 halfDirection = normalize( viewDirection + lightDirection);
 				float NdotL = saturate( dot( normalDirection, lightDirection));
 				float NdotV = abs( dot( normalDirection, viewDirection));
@@ -552,6 +768,7 @@ Shader "Zan/Lit/Basic"
 			Cull [_RS_Cull]
 			
 			CGPROGRAM
+			#pragma target 3.0
 			#pragma vertex vert
 			#pragma fragment frag
 			#pragma shader_feature _ _SHADOWTRANSLUCENT_ON

@@ -21,6 +21,12 @@ inline half4 pow5( half4 x)
     return x * x * x * x * x;
 }
 
+inline half lerpOneTo( half b, half t)
+{
+	half oneMinusT = 1 - t;
+    return oneMinusT + b * t;
+}
+
 inline half3 shadeSHPerVertex( half3 normal, half3 ambient)
 {
 #if defined(LIGHTMAP_ON) && defined(LIGHTPROBE_SH)
@@ -108,7 +114,7 @@ inline half schlickFresnel( half f0, half f90, half cos0)
 {
 	return f0 + (f90 - f0) * pow5( 1.0h - cos0);
 }
-inline half diffuseDisney( half NdotV, half NdotL, half LdotH, half perceptualRoughness, float3 attenColor)
+inline float3 diffuseDisney( half NdotV, half NdotL, half LdotH, half perceptualRoughness, float3 attenColor)
 {
     half fd90 = 0.5h + 2.0h * LdotH * LdotH * perceptualRoughness;
     half lightScatter = schlickFresnel( 1.0h, fd90, NdotL);
