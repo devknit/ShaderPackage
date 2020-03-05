@@ -44,7 +44,8 @@
 		_RS_ZTest( "ZTest", float) = 8	/* Always */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		_AlphaClip( "Alpha Clip", Range( 0.0, 1.004)) = 0
+		[EdgeToggle] _ALPHACLIP( "Alpha Clip", float) = 0
+		_AlphaClipThreshold( "Alpha Clip Threshold", Range( 0.0, 1.0)) = 0
 		
 		/* Blending Status */
 		[Caption(Blending Status)]
@@ -139,7 +140,7 @@
 				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexAlphaBlendRatio)
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClip)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
 			#if defined(_BLENDFACTOR_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
@@ -203,7 +204,7 @@
 				uv = step( halftoneThreshold, 1.0 - pow( uv, color.a));
 				color.a = uv.x * uv.y;
 			#if defined(_ALPHACLIP_ON)
-				clip( color.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClip));
+				clip( color.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
 			#endif
 			#if defined(_BLENDFACTOR_ON)
 				color.rgb = (color.rgb * color.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _RS_BlendFactor) * (1.0 - color.a));

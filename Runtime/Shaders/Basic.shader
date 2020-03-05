@@ -3,7 +3,7 @@ Shader "Zan/Lit/Basic"
 {
 	Properties
 	{
-		[Caption(Bidirectional Reflectance Distribution Function)]
+		[Caption(Function Properties)]
 		[KeywordEnum(None, Lambert, Disney)]
 		_DIFFUSEBRDF( "Diffuse", float) = 1
 		[KeywordEnum(None, BlinnPhong, Phong, CookTorrance, CookTorranceGGX, TorranceSparrow, TorranceSparrowGGX)]
@@ -63,7 +63,8 @@ Shader "Zan/Lit/Basic"
 		_RS_FA_ZTest( "Add ZTest", float) = 4	/* LessEqual */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		_AlphaClip( "Alpha Clip", Range( 0.0, 1.004)) = 0
+		[EdgeToggle] _ALPHACLIP( "Alpha Clip", float) = 0
+		_AlphaClipThreshold( "Alpha Clip Threshold", Range( 0.0, 1.0)) = 0
 		
 		/* Forward Base Blending Status */
 		[Caption(Forward Base Blending Status)]
@@ -191,9 +192,9 @@ Shader "Zan/Lit/Basic"
 				UNITY_DEFINE_INSTANCED_PROP( float,  _ParallaxScale)
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClip);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold);
 			#endif
-			#if defined(_BLENDFACTOR_ON)
+			#if defined(_FB_BLENDFACTOR_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FB_BlendFactor)
 			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
@@ -288,7 +289,7 @@ Shader "Zan/Lit/Basic"
 				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				clip( diffuseColor.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClip));
+				clip( diffuseColor.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
 			#endif
 			
 				/* emissive */
@@ -549,9 +550,9 @@ Shader "Zan/Lit/Basic"
 				UNITY_DEFINE_INSTANCED_PROP( float,  _ParallaxScale)
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClip);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold);
 			#endif
-			#if defined(_BLENDFACTOR_ON)
+			#if defined(_FA_BLENDFACTOR_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FA_BlendFactor)
 			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
@@ -636,7 +637,7 @@ Shader "Zan/Lit/Basic"
 				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 			#endif
 			#if defined(_ALPHACLIP_ON)
-				clip( diffuseColor.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClip));
+				clip( diffuseColor.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
 			#endif
 				
 				/* normal */
@@ -791,7 +792,7 @@ Shader "Zan/Lit/Basic"
 			UNITY_INSTANCING_BUFFER_START( Props)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
 			#if defined(_ALPHACLIP_ON)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClip);
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold);
 			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
 			
@@ -824,7 +825,7 @@ Shader "Zan/Lit/Basic"
 				float4 baseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 				float alpha = baseMap.a * baseColor.a;
 			#if defined(_ALPHACLIP_ON)
-				alpha = saturate( alpha - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClip));
+				alpha = saturate( alpha - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
 			#endif	
 				alpha = tex3D( _DitherMaskLOD, float3( vpos.xy * 0.25, alpha * 0.9375)).a;
 				clip( alpha - 1e-4);

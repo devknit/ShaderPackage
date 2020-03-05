@@ -20,6 +20,7 @@ namespace ZanShader.Editor
 			MaterialProperty rsZTestAProp = null;
 			MaterialProperty rsColorMaskProp = null;
 			MaterialProperty rsAlphaClipProp = null;
+			MaterialProperty rsAlphaClipThresholdProp = null;
 			
 			BlendState rsBlendState = null;
 			BlendState rsBlendStateB = null;
@@ -86,7 +87,12 @@ namespace ZanShader.Editor
 					{
 						rsAlphaClipProp = property;
 						break;
-					} 
+					}
+					case rsAlphaClipThreshold:
+					{
+						rsAlphaClipThresholdProp = property;
+						break;
+					}
 					
 					/* Blending Status */
 					case rsColorBlendOp:
@@ -404,7 +410,8 @@ namespace ZanShader.Editor
 			||	rsZTestBProp != null
 			||	rsZTestAProp != null
 			||	rsColorMaskProp != null
-			||	rsAlphaClipProp != null)
+			||	rsAlphaClipProp != null
+			||	rsAlphaClipThreshold != null)
 			{
 				EditorGUILayout.Space();
 				EditorGUILayout.BeginVertical( GUI.skin.box);
@@ -466,12 +473,22 @@ namespace ZanShader.Editor
 						materialEditor.ShaderProperty( rsAlphaClipProp, rsAlphaClipProp.displayName);
 						if( EditorGUI.EndChangeCheck() != false)
 						{
-							SetKeyword( rsAlphaClipProp, rsAlphaClipProp.floatValue > 0.0f, "_ON");
+							if( rsAlphaClipProp.floatValue != 0.0f)
+							{
+								if( EditorUtility.DisplayDialog( "Warning", "Alpha Clip を有効に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映してもよろしいですか？", "はい", "いいえ") == false)
+								{
+									rsAlphaClipProp.floatValue = 0.0f;
+								}
+							}
 						}
 						if( rsAlphaClipProp.floatValue != 0.0f)
 						{
+							if( rsAlphaClipThresholdProp != null)
+							{
+								materialEditor.ShaderProperty( rsAlphaClipThresholdProp, rsAlphaClipThresholdProp.displayName);
+							}
 		                	EditorGUILayout.LabelField( new GUIContent( 
-								"Alpha Clip の設定がモバイルでは高負荷となる状態です\n設定を 0 に変更することで解消されます",
+								"Alpha Clip の設定がモバイルでは高負荷となる状態です\n設定を無効に変更することで解消されます",
 		                    	EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
 						}
 					}
@@ -556,7 +573,8 @@ namespace ZanShader.Editor
 		const string rsZTestB = "_RS_FB_ZTest";
 		const string rsZTestA = "_RS_FA_ZTest";
 		const string rsColorMask = "_RS_ColorMask";
-		const string rsAlphaClip = "_AlphaClip";
+		const string rsAlphaClip = "_ALPHACLIP";
+		const string rsAlphaClipThreshold = "_AlphaClipThreshold";
 		
 		/* Blending Status */
 		const string rsColorBlendOp = "_RS_ColorBlendOp";
