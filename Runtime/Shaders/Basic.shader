@@ -123,20 +123,20 @@ Shader "Zan/Lit/Basic"
 			#pragma target 3.0
 			#pragma vertex vertBase
 			#pragma fragment fragBase
-			#pragma shader_feature _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
-			#pragma shader_feature _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
-			#pragma shader_feature _INDIRECTMODE_NONE _INDIRECTMODE_AMBIENTONLY _INDIRECTMODE_FASTGI _INDIRECTMODE_GI _INDIRECTMODE_REFLECTIONFASTGI _INDIRECTMODE_REFLECTIONGI
+			#pragma shader_feature_local _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
+			#pragma shader_feature_local _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
+			#pragma shader_feature_local _INDIRECTMODE_NONE _INDIRECTMODE_AMBIENTONLY _INDIRECTMODE_FASTGI _INDIRECTMODE_GI _INDIRECTMODE_REFLECTIONFASTGI _INDIRECTMODE_REFLECTIONGI
 			
-			#pragma shader_feature _ _ALBEDOMAP_ON
-			#pragma shader_feature _ _METALLICGLOSSMAP_ON
-			#pragma shader_feature _ _EMISSIVEMAP_ON
-			#pragma shader_feature _RIMLIGHT_NONE _RIMLIGHT_NORMAL _RIMLIGHT_NORMALMAP
-			#pragma shader_feature _ _NORMALMAP_ON
-			#pragma shader_feature _ _PARALLAXMAP_ON
-			#pragma shader_feature _ _OCCLUSIONMAP_ON
+			#pragma shader_feature_local _ _ALBEDOMAP_ON
+			#pragma shader_feature_local _ _METALLICGLOSSMAP_ON
+			#pragma shader_feature_local _ _EMISSIVEMAP_ON
+			#pragma shader_feature_local _RIMLIGHT_NONE _RIMLIGHT_NORMAL _RIMLIGHT_NORMALMAP
+			#pragma shader_feature_local _ _NORMALMAP_ON
+			#pragma shader_feature_local _ _PARALLAXMAP_ON
+			#pragma shader_feature_local _ _OCCLUSIONMAP_ON
 			
-			#pragma shader_feature _ _ALPHACLIP_ON
-			#pragma shader_feature _ _FB_BLENDFACTOR_ON
+			#pragma shader_feature_local _ _ALPHACLIP_ON
+			#pragma shader_feature_local _ _FB_BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#pragma multi_compile_fwdbase
 			#pragma multi_compile_fog
@@ -503,16 +503,16 @@ Shader "Zan/Lit/Basic"
 			#pragma target 3.0
 			#pragma vertex vertAdd
 			#pragma fragment fragAdd
-			#pragma shader_feature _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
-			#pragma shader_feature _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
+			#pragma shader_feature_local _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
+			#pragma shader_feature_local _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
 			
-			#pragma shader_feature _ _ALBEDOMAP_ON
-			#pragma shader_feature _ _METALLICGLOSSMAP_ON
-			#pragma shader_feature _ _NORMALMAP_ON
-			#pragma shader_feature _ _PARALLAXMAP_ON
+			#pragma shader_feature_local _ _ALBEDOMAP_ON
+			#pragma shader_feature_local _ _METALLICGLOSSMAP_ON
+			#pragma shader_feature_local _ _NORMALMAP_ON
+			#pragma shader_feature_local _ _PARALLAXMAP_ON
 			
-			#pragma shader_feature _ _ALPHACLIP_ON
-			#pragma shader_feature _ _FA_BLENDFACTOR_ON
+			#pragma shader_feature_local _ _ALPHACLIP_ON
+			#pragma shader_feature_local _ _FA_BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#pragma multi_compile_fwdadd
 			#pragma multi_compile_fog
@@ -777,8 +777,8 @@ Shader "Zan/Lit/Basic"
 			#pragma target 3.0
 			#pragma vertex vert
 			#pragma fragment frag
-			#pragma shader_feature _ _SHADOWTRANSLUCENT_ON
-			#pragma shader_feature _ _ALPHACLIP_ON
+			#pragma shader_feature_local _ _SHADOWTRANSLUCENT_ON
+			#pragma shader_feature_local _ _ALPHACLIP_ON
 			#pragma fragmentoption ARB_precision_hint_fastest
 			#pragma multi_compile_shadowcaster
 			#pragma multi_compile_instancing
