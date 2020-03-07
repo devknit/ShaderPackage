@@ -1,28 +1,47 @@
-﻿Shader "Zan/Unlit/Map"
+﻿Shader "Zan/Unlit/Decal/MapColor"
 {
 	Properties
 	{
+		[Caption(Decal Properties)]
+		_DecalSmoothEdges( "Smooth Edges", Range( 0.0, 1.0)) = 0.1
+		
 		[Caption(Base Map Properties)]
 		_MainTex( "Base Map", 2D) = "white" {}
 		
+		[Caption(Color Blending Properties)]
+		_Color( "Blend Color", Color) = ( 1,1,1,1)
+		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
+		_COLORBLENDOP2( "Color Blend Op", float) = 2
+		[KeywordEnum(Value, AlphaBlendOp, OneMinusAlphaBlendOp, BaseAlpha, OneMinusBaseAlpha, BlendAlpha, OneMinusBlendAlpha, BaseColorValue, OneMinusBaseColorValue, BlendColorValue, OneMinusBlendColorValue)]
+		_COLORBLENDSRC2( "Color Blend Ratop Source", float) = 0
+		_ColorBlendRatio2( "Color Blend Ratio Value", float) = 1.0
+		[KeywordEnum(None, Override, Multiply, Add, Substract, ReverseSubstract, Maximum)]
+		_ALPHABLENDOP2( "Alpha Blend Op", float) = 2
+		_AlphaBlendRatio2( "Alpha Blend Ratio Value", float) = 1.0
+		
 		[Caption(Vertex Color Blending Properties)]
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
-		_VERTEXCOLORBLENDOP( "Vertex Color Blend Op", float) = 2
+		_VERTEXCOLORBLENDOP( "Vertex Color Blend Op", float) = 0
 		[KeywordEnum(Value, AlphaBlendOp, OneMinusAlphaBlendOp, BaseAlpha, OneMinusBaseAlpha, BlendAlpha, OneMinusBlendAlpha, BaseColorValue, OneMinusBaseColorValue, BlendColorValue, OneMinusBlendColorValue)]
-		_VERTEXCOLORBLENDSRC( "Vertex Color Blend Ratop Source", float) = 1
+		_VERTEXCOLORBLENDSRC( "Vertex Color Blend Ratop Source", float) = 0
 		_VertexColorBlendRatio( "Vertex Color Blend Ratio Value", float) = 1.0
 		[KeywordEnum(None, Override, Multiply, Add, Substract, ReverseSubstract, Maximum)]
-		_VERTEXALPHABLENDOP( "Vertex Alpha Blend Op", float) = 2
+		_VERTEXALPHABLENDOP( "Vertex Alpha Blend Op", float) = 0
 		_VertexAlphaBlendRatio( "Vertex Alpha Blend Ratio Value", float) = 1.0
+		
+		/* Use Custom Data */
+		[Caption(Use Custom Data)]
+		[EdgeToggle] _CD_COLORBLENDRATIO2( "Color Blend Ratio Value *= (TEXCORD0.z)", float) = 0
+		[EdgeToggle] _CD_ALPHABLENDRATIO2( "Alpha Blend Ratio Value *= (TEXCORD0.w)", float) = 0
 		
 		/* Rendering Status */
 		[Caption(Rendering Status)]
 		[Enum( UnityEngine.Rendering.CullMode)]
-		_RS_Cull( "Cull", float) = 0 /* Off */
+		_RS_Cull( "Cull", float) = 2 /* Back */
 		[Enum(Off, 0, On, 1)]
 		_RS_ZWrite( "ZWrite", float) = 0 /* Off */
 		[Enum( UnityEngine.Rendering.CompareFunction)]
-		_RS_ZTest( "ZTest", float) = 8	/* Always */
+		_RS_ZTest( "ZTest", float) = 4	/* LessEqual */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
 		[EdgeToggle] _ALPHACLIP( "Alpha Clip", float) = 0
@@ -60,11 +79,10 @@
 		_StencilZFail( "Stencil ZFail Operation", float) = 0 /* Keep */
 	}
 	SubShader
-	{ 
+	{
 		Tags
 		{
-			"Queue" = "Transparent"
-			"IgnoreProjector" = "True"
+			"Queue" = "Transparent-1"
 			"RenderType" = "Transparent"
 		}
 		Lighting Off
@@ -86,23 +104,33 @@
 			ZFail [_StencilZFail]
 		}
 		Pass
-		{ 
+		{
 			CGPROGRAM
+			#pragma target 3.0
 			#pragma vertex vert
 			#pragma fragment frag
+			#pragma shader_feature_local _COLORBLENDOP2_NONE _COLORBLENDOP2_OVERRIDE _COLORBLENDOP2_MULTIPLY _COLORBLENDOP2_DARKEN _COLORBLENDOP2_COLORBURN _COLORBLENDOP2_LINEARBURN _COLORBLENDOP2_LIGHTEN _COLORBLENDOP2_SCREEN _COLORBLENDOP2_COLORDODGE _COLORBLENDOP2_LINEARDODGE _COLORBLENDOP2_OVERLAY _COLORBLENDOP2_HARDLIGHT _COLORBLENDOP2_VIVIDLIGHT _COLORBLENDOP2_LINEARLIGHT _COLORBLENDOP2_PINLIGHT _COLORBLENDOP2_HARDMIX _COLORBLENDOP2_DIFFERENCE _COLORBLENDOP2_EXCLUSION _COLORBLENDOP2_SUBSTRACT _COLORBLENDOP2_DIVISION
+			#pragma shader_feature_local _COLORBLENDSRC2_VALUE _COLORBLENDSRC2_ALPHABLENDOP _COLORBLENDSRC2_ONEMINUSALPHABLENDOP _COLORBLENDSRC2_BASEALPHA _COLORBLENDSRC2_ONEMINUSBASEALPHA _COLORBLENDSRC2_BLENDALPHA _COLORBLENDSRC2_ONEMINUSBLENDALPHA _COLORBLENDSRC2_BASECOLORVALUE _COLORBLENDSRC2_ONEMINUSBASECOLORVALUE _COLORBLENDSRC2_BLENDCOLORVALUE _COLORBLENDSRC2_ONEMINUSBLENDCOLORVALUE
+			#pragma shader_feature_local _ALPHABLENDOP2_NONE _ALPHABLENDOP2_OVERRIDE _ALPHABLENDOP2_MULTIPLY _ALPHABLENDOP2_ADD _ALPHABLENDOP2_SUBSTRACT _ALPHABLENDOP2_REVERSESUBSTRACT _ALPHABLENDOP2_MAXIMUM
 			#pragma shader_feature _VERTEXCOLORBLENDOP_NONE _VERTEXCOLORBLENDOP_OVERRIDE _VERTEXCOLORBLENDOP_MULTIPLY _VERTEXCOLORBLENDOP_DARKEN _VERTEXCOLORBLENDOP_COLORBURN _VERTEXCOLORBLENDOP_LINEARBURN _VERTEXCOLORBLENDOP_LIGHTEN _VERTEXCOLORBLENDOP_SCREEN _VERTEXCOLORBLENDOP_COLORDODGE _VERTEXCOLORBLENDOP_LINEARDODGE _VERTEXCOLORBLENDOP_OVERLAY _VERTEXCOLORBLENDOP_HARDLIGHT _VERTEXCOLORBLENDOP_VIVIDLIGHT _VERTEXCOLORBLENDOP_LINEARLIGHT _VERTEXCOLORBLENDOP_PINLIGHT _VERTEXCOLORBLENDOP_HARDMIX _VERTEXCOLORBLENDOP_DIFFERENCE _VERTEXCOLORBLENDOP_EXCLUSION _VERTEXCOLORBLENDOP_SUBSTRACT _VERTEXCOLORBLENDOP_DIVISION
 			#pragma shader_feature _VERTEXCOLORBLENDSRC_VALUE _VERTEXCOLORBLENDSRC_ALPHABLENDOP _VERTEXCOLORBLENDSRC_ONEMINUSALPHABLENDOP _VERTEXCOLORBLENDSRC_BASEALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBASEALPHA _VERTEXCOLORBLENDSRC_BLENDALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBLENDALPHA _VERTEXCOLORBLENDSRC_BASECOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBASECOLORVALUE _VERTEXCOLORBLENDSRC_BLENDCOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBLENDCOLORVALUE
 			#pragma shader_feature _VERTEXALPHABLENDOP_NONE _VERTEXALPHABLENDOP_OVERRIDE _VERTEXALPHABLENDOP_MULTIPLY _VERTEXALPHABLENDOP_ADD _VERTEXALPHABLENDOP_SUBSTRACT _VERTEXALPHABLENDOP_REVERSESUBSTRACT _VERTEXALPHABLENDOP_MAXIMUM
+			#pragma shader_feature_local _ _CD_COLORBLENDRATIO2_ON
+			#pragma shader_feature_local _ _CD_ALPHABLENDRATIO2_ON
 			#pragma shader_feature_local _ _ALPHACLIP_ON
 			#pragma shader_feature_local _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
-			#include "Includes/Blend.cginc"
+			#include "../Includes/Decal.cginc"
+			#include "../Includes/Blend.cginc"
 			
 			uniform sampler2D _MainTex;
 			uniform float4 _MainTex_ST;
-		#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE) || defined(_ALPHACLIP_ON) || defined(_BLENDFACTOR_ON)
 			UNITY_INSTANCING_BUFFER_START( Props)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _DecalSmoothEdges)
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _Color)
+                UNITY_DEFINE_INSTANCED_PROP( float,  _ColorBlendRatio2)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaBlendRatio2)
 			#if !defined(_VERTEXCOLORBLENDOP_NONE)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio)
 			#endif
@@ -113,17 +141,16 @@
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
 			#if defined(_BLENDFACTOR_ON)
-	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
-	        #endif
-            UNITY_INSTANCING_BUFFER_END( Props)
-		#endif
-			#include "Includes/BlendMacro.cginc"
-        	
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
+			#endif
+			UNITY_INSTANCING_BUFFER_END( Props)
+			#include "../Includes/BlendMacro.cginc"
+			
 			struct VertexInput
 			{
 				float4 vertex : POSITION;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
-				float2 uv0 : TEXCOORD0;
+				float2 texcoord0 : TEXCOORD0;
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				fixed4 vertexColor : COLOR;
 			#endif
@@ -132,7 +159,8 @@
 			{
 				float4 position : SV_POSITION;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
-				float2 uv0 : TEXCOORD0;
+				float4 screenUV : TEXCOORD0;
+				float3 ray : TEXCOORD1;
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				fixed4 vertexColor : COLOR;
 			#endif
@@ -141,9 +169,10 @@
 			{
 				o = (VertexOutput)0;
 				UNITY_SETUP_INSTANCE_ID( v);
-                UNITY_TRANSFER_INSTANCE_ID( v, o);
+				UNITY_TRANSFER_INSTANCE_ID( v, o);
 				o.position = UnityObjectToClipPos( v.vertex);
-				o.uv0 = TRANSFORM_TEX( v.uv0, _MainTex);
+				o.screenUV = ComputeScreenPos( o.position);
+				o.ray = ViewSpaceRay( v.vertex);
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				o.vertexColor = v.vertexColor;
 			#endif
@@ -151,10 +180,28 @@
 			fixed4 frag( VertexOutput i) : COLOR
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
-				fixed4 color = tex2D( _MainTex, i.uv0);
+				
+				float3 opos = DecalObjectPosition( i.screenUV, i.ray);
+				float2 uv = opos.xz + 0.5;
+				
+				fixed4 color = tex2D( _MainTex, TRANSFORM_TEX( uv, _MainTex));
+				float3 decalAlpha = smoothstep( 0.0, 
+					UNITY_ACCESS_INSTANCED_PROP( Props, _DecalSmoothEdges), 0.5 - abs( opos.xyz));
+				
+				fixed4 value = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
+				float colorBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _ColorBlendRatio2);
+				float alphaBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaBlendRatio2);
+			#if defined(_CD_COLORBLENDRATIO2_ON)
+				colorBlendRatio *= i.uv0.z;
+			#endif
+			#if defined(_CD_ALPHABLENDRATIO2_ON)
+				alphaBlendRatio *= i.uv0.w;
+			#endif
+				color = Blending2( color, value, colorBlendRatio, alphaBlendRatio);
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				color = VertexColorBlending( color, i.vertexColor);
 			#endif
+				color.a *= min( min( decalAlpha.x, decalAlpha.y), decalAlpha.z);
 			#if defined(_ALPHACLIP_ON)
 				clip( color.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
 			#endif
