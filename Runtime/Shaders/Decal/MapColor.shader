@@ -150,7 +150,9 @@
 			{
 				float4 vertex : POSITION;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
-				float2 texcoord0 : TEXCOORD0;
+			#if defined(_CD_COLORBLENDRATIO2_ON) || defined(_CD_ALPHABLENDRATIO2_ON)
+				float4 texcoord0 : TEXCOORD0;
+			#endif
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				fixed4 vertexColor : COLOR;
 			#endif
@@ -161,6 +163,9 @@
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				float4 screenUV : TEXCOORD0;
 				float3 ray : TEXCOORD1;
+			#if defined(_CD_COLORBLENDRATIO2_ON) || defined(_CD_ALPHABLENDRATIO2_ON)
+				float2 uv0 : TEXCOORD2;
+			#endif
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				fixed4 vertexColor : COLOR;
 			#endif
@@ -173,6 +178,9 @@
 				o.position = UnityObjectToClipPos( v.vertex);
 				o.screenUV = ComputeScreenPos( o.position);
 				o.ray = ViewSpaceRay( v.vertex);
+			#if defined(_CD_COLORBLENDRATIO2_ON) || defined(_CD_ALPHABLENDRATIO2_ON)
+				o.uv0 = v.texcoord0.zw;
+			#endif
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				o.vertexColor = v.vertexColor;
 			#endif
@@ -192,10 +200,10 @@
 				float colorBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _ColorBlendRatio2);
 				float alphaBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaBlendRatio2);
 			#if defined(_CD_COLORBLENDRATIO2_ON)
-				colorBlendRatio *= i.uv0.z;
+				colorBlendRatio *= i.uv0.x;
 			#endif
 			#if defined(_CD_ALPHABLENDRATIO2_ON)
-				alphaBlendRatio *= i.uv0.w;
+				alphaBlendRatio *= i.uv0.y;
 			#endif
 				color = Blending2( color, value, colorBlendRatio, alphaBlendRatio);
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)

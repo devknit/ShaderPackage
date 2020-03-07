@@ -177,7 +177,7 @@
 			fixed4 frag( VertexOutput i) : COLOR
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
-				fixed4 color = tex2D( _MainTex, i.uv0);
+				fixed4 color = tex2D( _MainTex, i.uv0.xy);
 				fixed4 value = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 				float colorBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _ColorBlendRatio2);
 				float alphaBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaBlendRatio2);
