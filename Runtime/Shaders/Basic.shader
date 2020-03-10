@@ -474,7 +474,7 @@ Shader "Zan/Lit/Basic"
 			#else
 				float VdotN = saturate( dot( viewDirection, normalDirection));
 			#endif
-				emissive += rimColor *	pow( 1.0 - VdotN, rimPower) * rimColor.a;
+				emissive += rimColor * pow( 1.0 - VdotN, rimPower) * rimColor.a;
 #endif
 				
 				/* final Color */

@@ -19,7 +19,7 @@
 		_AlphaBlendRatio1( "Multi Map Alpha Blend Ratio Value", float) = 1.0
 		
 		[Caption(Color Blending Properties)]
-		_Color( "Blend Color", Color) = ( 1,1,1,1)
+		[HDR] _Color( "Blend Color", Color) = ( 1,1,1,1)
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
 		_VERTEXCOLORBLENDOP( "Color Blend Op", float) = 2
 		[KeywordEnum(Value, AlphaBlendOp, OneMinusAlphaBlendOp, BaseAlpha, OneMinusBaseAlpha, BlendAlpha, OneMinusBlendAlpha, BaseColorValue, OneMinusBaseColorValue, BlendColorValue, OneMinusBlendColorValue)]

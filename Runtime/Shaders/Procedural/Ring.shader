@@ -3,7 +3,7 @@
 	Properties
 	{
 		[Caption(Color Blending Properties)]
-		_Color( "Base Color", Color) = ( 1,1,1,1)
+		[HDR] _Color( "Base Color", Color) = ( 1,1,1,1)
 		
 		[Caption(Vertex Color Blending Properties)]
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
