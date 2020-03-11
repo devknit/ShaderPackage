@@ -193,9 +193,6 @@
 				float2 uv = opos.xz + 0.5;
 				
 				fixed4 color = tex2D( _MainTex, TRANSFORM_TEX( uv, _MainTex));
-				float3 decalAlpha = smoothstep( 0.0, 
-					UNITY_ACCESS_INSTANCED_PROP( Props, _DecalSmoothEdges), 0.5 - abs( opos.xyz));
-				
 				fixed4 value = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 				float colorBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _ColorBlendRatio2);
 				float alphaBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaBlendRatio2);
@@ -209,7 +206,11 @@
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				color = VertexColorBlending( color, i.vertexColor);
 			#endif
+				
+				float3 decalAlpha = smoothstep( 0.0, 
+					UNITY_ACCESS_INSTANCED_PROP( Props, _DecalSmoothEdges), 0.5 - abs( opos.xyz));
 				color.a *= min( min( decalAlpha.x, decalAlpha.y), decalAlpha.z);
+				
 			#if defined(_ALPHACLIP_ON)
 				clip( color.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
 			#endif
