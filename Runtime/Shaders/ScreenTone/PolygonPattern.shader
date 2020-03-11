@@ -203,7 +203,7 @@
 				uv = frac( uv) - 0.5;
 				
 				float a = atan2(uv.x,uv.y) + 3.141592653589793;
-				float r = 6.283185307179586 / _HalftonePolygon;
+				float r = 6.283185307179586 / halftonePolygon;
 				color.a = 1.0 - step( halftoneThreshold, pow( cos( floor( 0.5 + a / r) * r - a) * length( uv), color.a));
 			#if defined(_ALPHACLIP_ON)
 				clip( color.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);

@@ -195,8 +195,8 @@
 				UNITY_SETUP_INSTANCE_ID( v);
                 UNITY_TRANSFER_INSTANCE_ID( v, o);
 				o.position = UnityObjectToClipPos( v.vertex);
-				o.uv0.xy = TRANSFORM_TEX( v.uv0.xy, _MainTex);
-				o.uv0.zw = TRANSFORM_TEX( v.uv0.xy, _DistortionTex);
+				o.uv0.xy = TRANSFORM_TEX_INSTANCED_PROP( v.uv0.xy, _MainTex);
+				o.uv0.zw = TRANSFORM_TEX_INSTANCED_PROP( v.uv0.xy, _DistortionTex);
 				o.uv1 = ComputeGrabScreenPos( o.position);
 			#if defined(_CD_BASEDISTORTION_ON) || defined(_CD_MULTIDISTORTION_ON)
 				o.uv2.xy = v.uv0.zw;
