@@ -135,15 +135,15 @@
 			#pragma shader_feature_local _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
+			#include "Includes/Macro.cginc"
 			#include "Includes/Blend.cginc"
 			
 			uniform sampler2D _MainTex;
-			uniform float4 _MainTex_ST;
 			uniform sampler2D _DistortionTex;
-			uniform float4 _DistortionTex_ST;
 			uniform sampler2D _GrabPassTexture;
-		
 			UNITY_INSTANCING_BUFFER_START( Props)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _MainTex_ST)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _DistortionTex_ST)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _MainTexAlphaRemap)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _ColorBlendRatio1)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaBlendRatio1)

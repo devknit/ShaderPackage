@@ -97,12 +97,12 @@
 			#pragma shader_feature_local _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
+			#include "Includes/Macro.cginc"
 			#include "Includes/Blend.cginc"
 			
 			uniform sampler2D _MainTex;
-			uniform float4 _MainTex_ST;
-		#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE) || defined(_ALPHACLIP_ON) || defined(_BLENDFACTOR_ON)
 			UNITY_INSTANCING_BUFFER_START( Props)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _MainTex_ST)
 			#if !defined(_VERTEXCOLORBLENDOP_NONE)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio)
 			#endif
@@ -116,7 +116,6 @@
 	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
 	        #endif
             UNITY_INSTANCING_BUFFER_END( Props)
-		#endif
 			#include "Includes/BlendMacro.cginc"
         	
 			struct VertexInput
@@ -143,7 +142,7 @@
 				UNITY_SETUP_INSTANCE_ID( v);
                 UNITY_TRANSFER_INSTANCE_ID( v, o);
 				o.position = UnityObjectToClipPos( v.vertex);
-				o.uv0 = TRANSFORM_TEX( v.uv0, _MainTex);
+				o.uv0 = TRANSFORM_TEX_INSTANCED_PROP( v.uv0, _MainTex);
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
 				o.vertexColor = v.vertexColor;
 			#endif

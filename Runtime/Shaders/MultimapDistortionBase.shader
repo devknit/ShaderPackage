@@ -128,13 +128,14 @@
 			#pragma shader_feature_local _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
+			#include "Includes/Macro.cginc"
 			#include "Includes/Blend.cginc"
 			
 			uniform sampler2D _MainTex;
-			uniform float4 _MainTex_ST;
 			uniform sampler2D _MultiTex;
-			uniform float4 _MultiTex_ST;
 			UNITY_INSTANCING_BUFFER_START( Props)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _MainTex_ST)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _MultiTex_ST)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _MultiTexAlphaRemap)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _ColorBlendRatio1)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaBlendRatio1)
@@ -184,8 +185,8 @@
 				UNITY_SETUP_INSTANCE_ID( v);
                 UNITY_TRANSFER_INSTANCE_ID( v, o);
 				o.position = UnityObjectToClipPos( v.vertex);
-				o.uv0.xy = TRANSFORM_TEX( v.uv0, _MainTex);
-				o.uv0.zw = TRANSFORM_TEX( v.uv0, _MultiTex);
+				o.uv0.xy = TRANSFORM_TEX_INSTANCED_PROP( v.uv0, _MainTex);
+				o.uv0.zw = TRANSFORM_TEX_INSTANCED_PROP( v.uv0, _MultiTex);
 			#if defined(_CD_COLORBLENDRATIO1_ON) || defined(_CD_ALPHABLENDRATIO1_ON)
 				o.uv1.xy = v.uv0.zw;
 			#endif

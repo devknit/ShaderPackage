@@ -100,12 +100,13 @@
 			#pragma shader_feature_local _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
+			#include "../../Includes/Macro.cginc"
 			#include "../../Includes/Decal.cginc"
 			#include "../../Includes/Blend.cginc"
 			
 			uniform sampler2D _MainTex;
-			uniform float4 _MainTex_ST;
 			UNITY_INSTANCING_BUFFER_START( Props)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _MainTex_ST)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _DecalSmoothEdges)
 			#if !defined(_VERTEXCOLORBLENDOP_NONE)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio)
@@ -160,7 +161,7 @@
 				float3 opos = DecalObjectPosition( i.screenUV, i.ray);
 				float2 uv = opos.xz + 0.5;
 				
-				fixed4 color = tex2D( _MainTex, TRANSFORM_TEX( uv, _MainTex));
+				fixed4 color = tex2D( _MainTex, TRANSFORM_TEX_INSTANCED_PROP( uv, _MainTex));
 				float3 decalAlpha = smoothstep( 0.0, 
 					UNITY_ACCESS_INSTANCED_PROP( Props, _DecalSmoothEdges), 0.5 - abs( opos.xyz));
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)

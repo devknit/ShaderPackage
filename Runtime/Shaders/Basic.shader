@@ -145,37 +145,40 @@ Shader "Zan/Lit/Basic"
 			#include "AutoLight.cginc"
 			#include "Lighting.cginc"
 			#include "UnityStandardBRDF.cginc"
+			#include "Includes/Macro.cginc"
 			#include "Includes/Lighting.cginc"
 			
 		#if defined(_ALBEDOMAP_ON)
 			uniform sampler2D _MainTex;
-			uniform float4 _MainTex_ST;
 		#endif
 		#if defined(_METALLICGLOSSMAP_ON)
 			uniform sampler2D _MetallicGlossTex;
-			uniform float4 _MetallicGlossTex_ST;
 		#endif
 		#if defined(_EMISSIVEMAP_ON)
 			uniform sampler2D _EmissiveTex;
-			uniform float4 _EmissiveTex_ST;
 		#endif
 		#if defined(_NORMALMAP_ON)
 			uniform sampler2D _NormalTex;
-			uniform float4 _NormalTex_ST;
 		#endif
 		#if defined(_PARALLAXMAP_ON)
 			uniform sampler2D _ParallaxTex;
-			uniform float4 _ParallaxTex_ST;
 		#endif
 		#if defined(_OCCLUSIONMAP_ON) && (defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI))
 			uniform sampler2D _OcclusionTex;
 			uniform float4 _OcclusionTex_ST;
 		#endif
 			UNITY_INSTANCING_BUFFER_START( Props)
-				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Metallic)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Gloss)
+			#if defined(_ALBEDOMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _MainTex_ST)
+			#endif
+				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
+			#if defined(_METALLICGLOSSMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _MetallicGlossTex_ST)
+			#endif
 			#if defined(_EMISSIVEMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _EmissiveTex_ST)
 				UNITY_DEFINE_INSTANCED_PROP( float4,  _EmissiveColor)
 			#endif
 			#if !defined(_RIMLIGHT_NONE)
@@ -183,13 +186,16 @@ Shader "Zan/Lit/Basic"
 				UNITY_DEFINE_INSTANCED_PROP( float,  _RimPower)
 			#endif
 			#if defined(_NORMALMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _NormalTex_ST)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _NormalScale)
 			#endif
-			#if defined(_OCCLUSIONMAP_ON) && (defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI))
-				UNITY_DEFINE_INSTANCED_PROP( float,  _OcclusionStrength)
-			#endif
 			#if defined(_PARALLAXMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _ParallaxTex_ST)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _ParallaxScale)
+			#endif
+			#if defined(_OCCLUSIONMAP_ON) && (defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI))
+				UNITY_DEFINE_INSTANCED_PROP( float4, _OcclusionTex_ST)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _OcclusionStrength)
 			#endif
 			#if defined(_ALPHACLIP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
@@ -274,7 +280,7 @@ Shader "Zan/Lit/Basic"
 					i.tangentToWorldAndPackedData[ 0].w,
 					i.tangentToWorldAndPackedData[ 1].w,
 					i.tangentToWorldAndPackedData[ 2].w));
-				half parallax = tex2D( _ParallaxTex, TRANSFORM_TEX( i.uv0.xy, _ParallaxTex)).g;
+				half parallax = tex2D( _ParallaxTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _ParallaxTex)).g;
 				half2 offset = ParallaxOffset1Step( parallax, UNITY_ACCESS_INSTANCED_PROP( Props, _ParallaxScale), viewDirForParallax);
 				i.uv0.xy += offset;
 				i.uv0.zw += offset;
@@ -283,7 +289,7 @@ Shader "Zan/Lit/Basic"
 				/* albedo */
 			#if defined(_ALBEDOMAP_ON)
 				float4 diffuseColor = 
-					tex2D( _MainTex, TRANSFORM_TEX( i.uv0.xy, _MainTex))
+					tex2D( _MainTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _MainTex))
 					* UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 			#else
 				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
@@ -294,7 +300,7 @@ Shader "Zan/Lit/Basic"
 			
 				/* emissive */
 			#if defined(_EMISSIVEMAP_ON)
-				fixed4 emissiveColor = tex2D( _EmissiveTex, TRANSFORM_TEX( i.uv0.xy, _EmissiveTex));
+				fixed4 emissiveColor = tex2D( _EmissiveTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _EmissiveTex));
 				fixed3 emissive = emissiveColor.rgb * emissiveColor.a
 					* UNITY_ACCESS_INSTANCED_PROP( Props, _EmissiveColor);
 			#else
@@ -303,7 +309,7 @@ Shader "Zan/Lit/Basic"
 			
 				/* occlusion */
 			#if defined(_OCCLUSIONMAP_ON) && (defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI))
-				half occlusion = tex2D( _OcclusionTex, TRANSFORM_TEX( i.uv0.xy, _OcclusionTex)).g;
+				half occlusion = tex2D( _OcclusionTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _OcclusionTex)).g;
 				occlusion = lerpOneTo( occlusion, UNITY_ACCESS_INSTANCED_PROP( Props, _OcclusionStrength));
 			#else
 				half occlusion = 1.0h;
@@ -317,7 +323,7 @@ Shader "Zan/Lit/Basic"
 			    half3 normal = preNormalDirection;
 				
 				float3 normalTangent = UnpackScaleNormal( 
-					tex2D( _NormalTex, TRANSFORM_TEX( i.uv0.xy, _NormalTex)),
+					tex2D( _NormalTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _NormalTex)),
 					UNITY_ACCESS_INSTANCED_PROP( Props, _NormalScale));
 				float3 normalDirection = normalize( (float3)(
 					tangent * normalTangent.x + binormal * normalTangent.y + normal * normalTangent.z));
@@ -327,7 +333,7 @@ Shader "Zan/Lit/Basic"
 				
 				/* metallic gloss */
 			#if defined(_METALLICGLOSSMAP_ON)
-				half4 metallicGloss = tex2D(_MetallicGlossTex, TRANSFORM_TEX( i.uv0.xy, _MetallicGlossTex));
+				half4 metallicGloss = tex2D(_MetallicGlossTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _MetallicGlossTex));
 				half metallic = metallicGloss.r * UNITY_ACCESS_INSTANCED_PROP( Props, _Metallic);
 				float smoothness = metallicGloss.a * UNITY_ACCESS_INSTANCED_PROP( Props, _Gloss);
 			#else
@@ -521,32 +527,37 @@ Shader "Zan/Lit/Basic"
 			#include "AutoLight.cginc"
 			#include "Lighting.cginc"
 			#include "UnityStandardBRDF.cginc"
+			#include "Includes/Macro.cginc"
 			#include "Includes/Lighting.cginc"
 			
 		#if defined(_ALBEDOMAP_ON)
 			uniform sampler2D _MainTex;
-			uniform float4 _MainTex_ST;
 		#endif
 		#if defined(_METALLICGLOSSMAP_ON)
 			uniform sampler2D _MetallicGlossTex;
-			uniform float4 _MetallicGlossTex_ST;
 		#endif
 		#if defined(_NORMALMAP_ON)
 			uniform sampler2D _NormalTex;
-			uniform float4 _NormalTex_ST;
 		#endif
 		#if defined(_PARALLAXMAP_ON)
 			uniform sampler2D _ParallaxTex;
-			uniform float4 _ParallaxTex_ST;
 		#endif
 			UNITY_INSTANCING_BUFFER_START( Props)
-				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Metallic)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Gloss)
+			#if defined(_ALBEDOMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _MainTex_ST)
+			#endif
+				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
+			#if defined(_METALLICGLOSSMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _MetallicGlossTex_ST)
+			#endif
 			#if defined(_NORMALMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _NormalTex_ST)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _NormalScale)
 			#endif
 			#if defined(_PARALLAXMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _ParallaxTex_ST)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _ParallaxScale)
 			#endif
 			#if defined(_ALPHACLIP_ON)
@@ -622,7 +633,7 @@ Shader "Zan/Lit/Basic"
 				
 				/* parallax */
 			#if defined(_PARALLAXMAP_ON)
-				half parallax = tex2D( _ParallaxTex, TRANSFORM_TEX( i.uv0.xy, _ParallaxTex)).g;
+				half parallax = tex2D( _ParallaxTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _ParallaxTex)).g;
 				half2 offset = ParallaxOffset1Step( parallax, UNITY_ACCESS_INSTANCED_PROP( Props, _ParallaxScale), i.viewDirForParallax);
 				i.uv0.xy += offset;
 				i.uv0.zw += offset;
@@ -631,7 +642,7 @@ Shader "Zan/Lit/Basic"
 				/* albedo */
 			#if defined(_ALBEDOMAP_ON)
 				float4 diffuseColor = 
-					tex2D( _MainTex, TRANSFORM_TEX( i.uv0.xy, _MainTex))
+					tex2D( _MainTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _MainTex))
 					* UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 			#else
 				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
@@ -648,7 +659,7 @@ Shader "Zan/Lit/Basic"
 			    half3 normal = preNormalDirection;
 				
 				float3 normalTangent = UnpackScaleNormal( 
-					tex2D( _NormalTex, TRANSFORM_TEX( i.uv0.xy, _NormalTex)),
+					tex2D( _NormalTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _NormalTex)),
 					UNITY_ACCESS_INSTANCED_PROP( Props, _NormalScale));
 				float3 normalDirection = normalize( (float3)(
 					tangent * normalTangent.x + binormal * normalTangent.y + normal * normalTangent.z));
@@ -658,7 +669,7 @@ Shader "Zan/Lit/Basic"
 				
 				/* metallic gloss */
 			#if defined(_METALLICGLOSSMAP_ON)
-				half4 metallicGloss = tex2D(_MetallicGlossTex, TRANSFORM_TEX( i.uv0.xy, _MetallicGlossTex));
+				half4 metallicGloss = tex2D(_MetallicGlossTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _MetallicGlossTex));
 				half metallic = metallicGloss.r * UNITY_ACCESS_INSTANCED_PROP( Props, _Metallic);
 				float smoothness = metallicGloss.a * UNITY_ACCESS_INSTANCED_PROP( Props, _Gloss);
 			#else
@@ -785,11 +796,15 @@ Shader "Zan/Lit/Basic"
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
 			
-		#if defined(_SHADOWTRANSLUCENT_ON)
+#if defined(_SHADOWTRANSLUCENT_ON)
+			#include "Includes/Macro.cginc"
+			
 			uniform sampler2D _MainTex;
-			uniform float4 _MainTex_ST;
 			uniform sampler3D _DitherMaskLOD;
 			UNITY_INSTANCING_BUFFER_START( Props)
+			#if defined(_ALBEDOMAP_ON)
+				UNITY_DEFINE_INSTANCED_PROP( float4, _MainTex_ST)
+			#endif
 				UNITY_DEFINE_INSTANCED_PROP( float4, _Color)
 			#if defined(_ALPHACLIP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
@@ -806,7 +821,9 @@ Shader "Zan/Lit/Basic"
 			struct VertexOutput
 			{
 				V2F_SHADOW_CASTER_NOPOS
+			#if defined(_ALBEDOMAP_ON)
 				float2 uv0 : TEXCOORD1;
+			#endif
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 			VertexOutput vert( VertexInput v, out float4 pos : SV_POSITION)
@@ -814,16 +831,20 @@ Shader "Zan/Lit/Basic"
 				VertexOutput o = (VertexOutput)0;
 				UNITY_SETUP_INSTANCE_ID( v);
 				UNITY_TRANSFER_INSTANCE_ID( v, o);
-				o.uv0 = TRANSFORM_TEX( v.texcoord0.xy, _MainTex);
+			#if defined(_ALBEDOMAP_ON)
+				o.uv0 = TRANSFORM_TEX_INSTANCED_PROP( v.texcoord0, _MainTex);
+			#endif
 				TRANSFER_SHADOW_CASTER_NOPOS( o, pos);
 				return o;
 			}
 			float4 frag( VertexOutput i, UNITY_VPOS_TYPE vpos: VPOS) : COLOR
 			{
 				UNITY_SETUP_INSTANCE_ID( i);
-				float4 baseMap = tex2D( _MainTex, i.uv0);
-				float4 baseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
-				float alpha = baseMap.a * baseColor.a;
+			#if defined(_ALBEDOMAP_ON)
+				float alpha = tex2D( _MainTex, i.uv0).a * UNITY_ACCESS_INSTANCED_PROP( Props, _Color).a;
+			#else
+				float alpha = UNITY_ACCESS_INSTANCED_PROP( Props, _Color).a;
+			#endif
 			#if defined(_ALPHACLIP_ON)
 				alpha = saturate( alpha - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
 			#endif	
@@ -831,7 +852,7 @@ Shader "Zan/Lit/Basic"
 				clip( alpha - 1e-4);
 				SHADOW_CASTER_FRAGMENT( i);
 			}
-		#else
+#else
 			struct VertexInput
 			{
 				float4 vertex : POSITION;
@@ -855,7 +876,7 @@ Shader "Zan/Lit/Basic"
 				UNITY_SETUP_INSTANCE_ID( i);
 				SHADOW_CASTER_FRAGMENT( i);
 			}
-		#endif
+#endif
 			ENDCG
 		}
 	}
