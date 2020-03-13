@@ -21,6 +21,7 @@ namespace ZanShader.Editor
 			MaterialProperty rsColorMaskProp = null;
 			MaterialProperty rsAlphaClipProp = null;
 			MaterialProperty rsAlphaClipThresholdProp = null;
+			MaterialProperty rsDitheringProp = null;
 			
 			BlendState rsBlendState = null;
 			BlendState rsBlendStateB = null;
@@ -91,6 +92,11 @@ namespace ZanShader.Editor
 					case rsAlphaClipThreshold:
 					{
 						rsAlphaClipThresholdProp = property;
+						break;
+					}
+					case rsDithering:
+					{
+						rsDitheringProp = property;
 						break;
 					}
 					
@@ -411,7 +417,8 @@ namespace ZanShader.Editor
 			||	rsZTestAProp != null
 			||	rsColorMaskProp != null
 			||	rsAlphaClipProp != null
-			||	rsAlphaClipThreshold != null)
+			||	rsAlphaClipThreshold != null
+			||	rsDithering != null)
 			{
 				EditorGUILayout.Space();
 				EditorGUILayout.BeginVertical( GUI.skin.box);
@@ -491,6 +498,18 @@ namespace ZanShader.Editor
 								"Alpha Clip の設定がモバイルでは高負荷となる状態です\n設定を無効に変更することで解消されます",
 		                    	EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
 						}
+					}
+					if( rsDitheringProp != null)
+					{
+						materialEditor.ShaderProperty( rsDitheringProp, rsDitheringProp.displayName);
+						
+						if( rsDitheringProp.floatValue != 0.0f
+						&&	rsAlphaClipProp != null && rsAlphaClipProp.floatValue == 0.0f)
+						{
+							EditorGUILayout.LabelField( new GUIContent( 
+									"Alpha Clip の設定を有効にすることで擬似的な半透明として描画されます",
+			                    	EditorGUIUtility.Load( "console.infoicon.sml") as Texture2D), EditorStyles.helpBox);
+			            }
 					}
 					--EditorGUI.indentLevel;
 				}
@@ -575,6 +594,7 @@ namespace ZanShader.Editor
 		const string rsColorMask = "_RS_ColorMask";
 		const string rsAlphaClip = "_ALPHACLIP";
 		const string rsAlphaClipThreshold = "_AlphaClipThreshold";
+		const string rsDithering = "_DITHERING";
 		
 		/* Blending Status */
 		const string rsColorBlendOp = "_RS_ColorBlendOp";

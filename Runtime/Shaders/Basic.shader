@@ -65,6 +65,7 @@ Shader "Zan/Lit/Basic"
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
 		[EdgeToggle] _ALPHACLIP( "Alpha Clip", float) = 0
 		_AlphaClipThreshold( "Alpha Clip Threshold", Range( 0.0, 1.0)) = 0
+		[EdgeToggle] _DITHERING( "Dithering", float) = 0
 		
 		/* Forward Base Blending Status */
 		[Caption(Forward Base Blending Status)]
@@ -137,6 +138,7 @@ Shader "Zan/Lit/Basic"
 			#pragma shader_feature_local _ _OCCLUSIONMAP_ON
 			
 			#pragma shader_feature_local _ _ALPHACLIP_ON
+			#pragma shader_feature_local _ _DITHERING_ON
 			#pragma shader_feature_local _ _FB_BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#pragma multi_compile_fwdbase
@@ -148,6 +150,9 @@ Shader "Zan/Lit/Basic"
 			#include "Includes/Macro.cginc"
 			#include "Includes/Lighting.cginc"
 			
+		#if defined(_DITHERING_ON)
+			uniform sampler3D _DitherMaskLOD;
+		#endif
 		#if defined(_ALBEDOMAP_ON)
 			uniform sampler2D _MainTex;
 		#endif
@@ -231,7 +236,10 @@ Shader "Zan/Lit/Basic"
 				LIGHTING_COORDS( 5, 6)
 				UNITY_FOG_COORDS( 7)
 			#if defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI)
-				float4 ambientOrLightmapUV : TEXCOORD10;
+				float4 ambientOrLightmapUV : TEXCOORD8;
+			#endif
+			#if defined(_DITHERING_ON)
+				half4 screenPosition : TEXCOORD9;
 			#endif
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -266,6 +274,9 @@ Shader "Zan/Lit/Basic"
 			#if defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI)
 				o.ambientOrLightmapUV = vertGI( v.texcoord1, v.texcoord2, o.worldPosition, normalDirection);
 			#endif
+			#if defined(_DITHERING_ON)
+				o.screenPosition = ComputeScreenPos( o.pos);
+			#endif
 				UNITY_TRANSFER_FOG( o, o.pos);
 				TRANSFER_VERTEX_TO_FRAGMENT( o);
 				TRANSFER_SHADOW( o);
@@ -289,10 +300,14 @@ Shader "Zan/Lit/Basic"
 				/* albedo */
 			#if defined(_ALBEDOMAP_ON)
 				float4 diffuseColor = 
-					tex2D( _MainTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _MainTex))
+					tex2D( _MainTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0, _MainTex))
 					* UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 			#else
 				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
+			#endif
+			#if defined(_DITHERING_ON)
+				diffuseColor.a = tex3D( _DitherMaskLOD, float3( 
+					i.screenPosition.xy / i.screenPosition.w * _ScreenParams.xy * 0.25, diffuseColor.a * 0.98)).a;
 			#endif
 			#if defined(_ALPHACLIP_ON)
 				clip( diffuseColor.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
@@ -519,6 +534,7 @@ Shader "Zan/Lit/Basic"
 			#pragma shader_feature_local _ _PARALLAXMAP_ON
 			
 			#pragma shader_feature_local _ _ALPHACLIP_ON
+			#pragma shader_feature_local _ _DITHERING_ON
 			#pragma shader_feature_local _ _FA_BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#pragma multi_compile_fwdadd
@@ -530,6 +546,9 @@ Shader "Zan/Lit/Basic"
 			#include "Includes/Macro.cginc"
 			#include "Includes/Lighting.cginc"
 			
+		#if defined(_DITHERING_ON)
+			uniform sampler3D _DitherMaskLOD;
+		#endif
 		#if defined(_ALBEDOMAP_ON)
 			uniform sampler2D _MainTex;
 		#endif
@@ -592,6 +611,9 @@ Shader "Zan/Lit/Basic"
 			#if defined(_PARALLAXMAP_ON)
 				half3 viewDirForParallax : TEXCOORD8;
 			#endif
+			#if defined(_DITHERING_ON)
+				half4 screenPosition : TEXCOORD9;
+			#endif
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 			void vertAdd( VertexInput v, out VertexOutputAdd o)
@@ -624,6 +646,9 @@ Shader "Zan/Lit/Basic"
 				TANGENT_SPACE_ROTATION;
 				o.viewDirForParallax = mul( rotation, ObjSpaceViewDir( v.vertex));
 			#endif
+			#if defined(_DITHERING_ON)
+				o.screenPosition = ComputeScreenPos( o.pos);
+			#endif
 				UNITY_TRANSFER_FOG( o, o.pos);
 				TRANSFER_VERTEX_TO_FRAGMENT( o)
 			}
@@ -642,10 +667,14 @@ Shader "Zan/Lit/Basic"
 				/* albedo */
 			#if defined(_ALBEDOMAP_ON)
 				float4 diffuseColor = 
-					tex2D( _MainTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _MainTex))
+					tex2D( _MainTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0, _MainTex))
 					* UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 			#else
 				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
+			#endif
+			#if defined(_DITHERING_ON)
+				diffuseColor.a = tex3D( _DitherMaskLOD, float3( 
+					i.screenPosition.xy / i.screenPosition.w * _ScreenParams.xy * 0.25, diffuseColor.a * 0.98)).a;
 			#endif
 			#if defined(_ALPHACLIP_ON)
 				clip( diffuseColor.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
