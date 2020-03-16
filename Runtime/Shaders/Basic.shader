@@ -307,7 +307,7 @@ Shader "Zan/Lit/Basic"
 			#endif
 			#if defined(_DITHERING_ON)
 				diffuseColor.a = tex3D( _DitherMaskLOD, float3( 
-					i.screenPosition.xy / i.screenPosition.w * _ScreenParams.xy * 0.25, diffuseColor.a * 0.98)).a;
+					i.screenPosition.xy / i.screenPosition.w * _ScreenParams.xy * 0.25, diffuseColor.a * 0.9375)).a;
 			#endif
 			#if defined(_ALPHACLIP_ON)
 				clip( diffuseColor.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
@@ -674,7 +674,7 @@ Shader "Zan/Lit/Basic"
 			#endif
 			#if defined(_DITHERING_ON)
 				diffuseColor.a = tex3D( _DitherMaskLOD, float3( 
-					i.screenPosition.xy / i.screenPosition.w * _ScreenParams.xy * 0.25, diffuseColor.a * 0.98)).a;
+					i.screenPosition.xy / i.screenPosition.w * _ScreenParams.xy * 0.25, diffuseColor.a * 0.9375)).a;
 			#endif
 			#if defined(_ALPHACLIP_ON)
 				clip( diffuseColor.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
