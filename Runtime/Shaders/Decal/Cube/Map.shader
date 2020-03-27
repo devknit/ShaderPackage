@@ -68,6 +68,7 @@
 		{
 			"Queue" = "Transparent-1"
 			"RenderType" = "Transparent"
+			"DisableBatching" = "True"
 		}
 		Lighting Off
 		Cull [_RS_Cull]
