@@ -1,4 +1,4 @@
-//#define WITH_EXPERIMENT
+ï»¿//#define WITH_EXPERIMENT
 
 using UnityEditor;
 using UnityEngine;
@@ -37,30 +37,30 @@ namespace ZanShader.Editor
 	{
 		public static string[] kBlendColorPresetNames = new string[]
 		{
-			"‘OŒi‚ðã‘‚«",
-			"‘OŒi‚ÌƒAƒ‹ƒtƒ@‚Å‡¬",
-			"”wŒi‚ÌƒAƒ‹ƒtƒ@‚Å‡¬",
-			"‰ÁŽZ‡¬",
-			"‰ÁŽZ“§‰ß‡¬",
-			"‰ÁŽZŽ–‘O“§‰ß‡¬",
-			"Œ¸ŽZ‡¬",
-			"Œ¸ŽZ“§‰ß‡¬",
-			"Œ¸ŽZŽ–‘O“§‰ß‡¬",
-			"æŽZ‡¬",
-			"æŽZŽ–‘O“§‰ß‡¬",
-			"ƒXƒNƒŠ[ƒ“‡¬",
-			"ƒXƒNƒŠ[ƒ“Ž–‘O“§‰ß‡¬",
-			"œŠO‡¬",
-			"œŠOŽ–‘O“§‰ß‡¬",
-			"”äŠr(–¾)‡¬",
-			"”äŠr(–¾)Ž–‘O“§‰ß‡¬",
-			"”äŠr(ˆÃ)‡¬",
-			"”äŠr(ˆÃ)Ž–‘O“§‰ß‡¬",
+			"å‰æ™¯ã‚’ä¸Šæ›¸ã",
+			"å‰æ™¯ã®ã‚¢ãƒ«ãƒ•ã‚¡ã§åˆæˆ",
+			"èƒŒæ™¯ã®ã‚¢ãƒ«ãƒ•ã‚¡ã§åˆæˆ",
+			"åŠ ç®—åˆæˆ",
+			"åŠ ç®—é€éŽåˆæˆ",
+			"åŠ ç®—äº‹å‰é€éŽåˆæˆ",
+			"æ¸›ç®—åˆæˆ",
+			"æ¸›ç®—é€éŽåˆæˆ",
+			"æ¸›ç®—äº‹å‰é€éŽåˆæˆ",
+			"ä¹—ç®—åˆæˆ",
+			"ä¹—ç®—äº‹å‰é€éŽåˆæˆ",
+			"ã‚¹ã‚¯ãƒªãƒ¼ãƒ³åˆæˆ",
+			"ã‚¹ã‚¯ãƒªãƒ¼ãƒ³äº‹å‰é€éŽåˆæˆ",
+			"é™¤å¤–åˆæˆ",
+			"é™¤å¤–äº‹å‰é€éŽåˆæˆ",
+			"æ¯”è¼ƒ(æ˜Ž)åˆæˆ",
+			"æ¯”è¼ƒ(æ˜Ž)äº‹å‰é€éŽåˆæˆ",
+			"æ¯”è¼ƒ(æš—)åˆæˆ",
+			"æ¯”è¼ƒ(æš—)äº‹å‰é€éŽåˆæˆ",
 		#if WITH_EXPERIMENT
-			"ƒJƒ‰[2”{",
-			"æŽZ2”{",
+			"ã‚«ãƒ©ãƒ¼2å€",
+			"ä¹—ç®—2å€",
 		#endif
-			"‚»‚Ì‘¼"
+			"ãã®ä»–"
 		};
 		public static BlendColorPreset GetPreset( float blendOp, float srcFactor, float dstFactor, float blendFactorFlag, Color blendFactorColor)
 		{

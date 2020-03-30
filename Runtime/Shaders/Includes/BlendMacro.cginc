@@ -1,4 +1,4 @@
-
+﻿
 #ifndef __BLENDMACRO_CGINC__
 #define __BLENDMACRO_CGINC__
 

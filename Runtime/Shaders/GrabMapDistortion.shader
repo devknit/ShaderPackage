@@ -86,7 +86,7 @@
 		_StencilZFail( "Stencil ZFail Operation", float) = 0 /* Keep */
 	}
 	SubShader
-	{ 
+	{
 		Tags
 		{
 			"Queue" = "Transparent"
@@ -99,6 +99,11 @@
 		}
 		Pass
 		{
+			Name "NORMAL"
+			Tags
+			{
+				"LightMode" = "Always"
+			}
 			Lighting Off
 			Cull [_RS_Cull]
 			ZWrite [_RS_ZWrite]

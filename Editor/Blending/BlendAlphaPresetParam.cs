@@ -1,4 +1,4 @@
-
+ï»¿
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -16,10 +16,10 @@ namespace ZanShader.Editor
 	{
 		public static string[] kBlendAlphaPresetNames = new string[]
 		{
-			"‘OŒi‚ğã‘‚«",
-			"‘OŒi‚ÌƒAƒ‹ƒtƒ@‚Å‡¬",
-			"”wŒi‚ÌƒAƒ‹ƒtƒ@‚Å‡¬",
-			"‚»‚Ì‘¼",
+			"å‰æ™¯ã‚’ä¸Šæ›¸ã",
+			"å‰æ™¯ã®ã‚¢ãƒ«ãƒ•ã‚¡ã§åˆæˆ",
+			"èƒŒæ™¯ã®ã‚¢ãƒ«ãƒ•ã‚¡ã§åˆæˆ",
+			"ãã®ä»–",
 		};
 		public static BlendAlphaPreset GetPreset( float blendOp, float srcFactor, float dstFactor)
 		{

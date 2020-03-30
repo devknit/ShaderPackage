@@ -1,4 +1,4 @@
-
+﻿
 #ifndef __ZAN_MACRO_CGINC__
 #define __ZAN_MACRO_CGINC__
 

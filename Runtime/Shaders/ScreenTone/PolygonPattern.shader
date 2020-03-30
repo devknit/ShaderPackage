@@ -80,33 +80,38 @@
 		_StencilZFail( "Stencil ZFail Operation", float) = 0 /* Keep */
 	}
 	SubShader
-	{ 
+	{
 		Tags
 		{
 			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 		}
-		Lighting Off
-		Cull [_RS_Cull]
-		ZWrite [_RS_ZWrite]
-		ZTest [_RS_ZTest]
-		BlendOp [_RS_ColorBlendOp], [_RS_AlphaBlendOp]
-		Blend [_RS_ColorSrcFactor] [_RS_ColorDstFactor], [_RS_AlphaSrcFactor] [_RS_AlphaDstFactor]
-		ColorMask [_RS_ColorMask]
-		
-		Stencil
-		{
-			Ref [_StencilRef]
-			ReadMask [_StencilReadMask]
-			WriteMask [_StencilWriteMask]
-			Comp [_StencilComp]
-			Pass [_StencilPass]
-			Fail [_StencilFail]
-			ZFail [_StencilZFail]
-		}
 		Pass
-		{ 
+		{
+			Name "NORMAL"
+			Tags
+			{
+				"LightMode" = "Always"
+			}
+			Lighting Off
+			Cull [_RS_Cull]
+			ZWrite [_RS_ZWrite]
+			ZTest [_RS_ZTest]
+			BlendOp [_RS_ColorBlendOp], [_RS_AlphaBlendOp]
+			Blend [_RS_ColorSrcFactor] [_RS_ColorDstFactor], [_RS_AlphaSrcFactor] [_RS_AlphaDstFactor]
+			ColorMask [_RS_ColorMask]
+			
+			Stencil
+			{
+				Ref [_StencilRef]
+				ReadMask [_StencilReadMask]
+				WriteMask [_StencilWriteMask]
+				Comp [_StencilComp]
+				Pass [_StencilPass]
+				Fail [_StencilFail]
+				ZFail [_StencilZFail]
+			}
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
