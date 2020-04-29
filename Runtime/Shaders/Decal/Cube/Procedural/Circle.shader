@@ -109,9 +109,9 @@
 			#pragma shader_feature_local _ _BLENDFACTOR_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
-			#include "../../Includes/Macro.cginc"
-			#include "../../Includes/Decal.cginc"
-			#include "../../Includes/Blend.cginc"
+			#include "../../../Includes/Macro.cginc"
+			#include "../../../Includes/Decal.cginc"
+			#include "../../../Includes/Blend.cginc"
 			
 			UNITY_INSTANCING_BUFFER_START( Props)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _Color)
@@ -130,7 +130,7 @@
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
 			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
-			#include "../../Includes/BlendMacro.cginc"
+			#include "../../../Includes/BlendMacro.cginc"
 			
 			struct VertexInput
 			{
