@@ -68,7 +68,7 @@
 	{
 		Tags
 		{
-			"Queue" = "Transparent-1"
+			"Queue" = "Transparent-200"
 			"RenderType" = "Transparent"
 			"DisableBatching" = "True"
 		}

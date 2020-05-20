@@ -100,6 +100,20 @@ Shader "Zan/Lit/Basic"
 		_RS_FA_AlphaDstFactor( "Alpha Dst Factor", float) = 1 /* One */
 		_RS_FA_BlendFactor( "Blend Factor", Color) = ( 0, 0, 0, 0)
 		[EdgeToggle] _FA_BLENDFACTOR( "Use Blend Factor", float) = 0
+		
+		/* Depth Stencil Status */
+		[Caption(Depth Stencil Status)]
+		_StencilRef( "Stencil Reference", Range( 0, 255)) = 0
+		_StencilReadMask( "Stencil Read Mask", Range( 0, 255)) = 255
+		_StencilWriteMask( "Stencil Write Mask", Range( 0, 255)) = 255
+		[Enum( UnityEngine.Rendering.CompareFunction)]
+		_StencilComp( "Stencil Comparison Function", float) = 8	/* Always */
+		[Enum( UnityEngine.Rendering.StencilOp)]
+		_StencilPass( "Stencil Pass Operation", float) = 0 /* Keep */
+		[Enum( UnityEngine.Rendering.StencilOp)]
+		_StencilFail( "Stencil Fail Operation", float) = 0 /* Keep */
+		[Enum( UnityEngine.Rendering.StencilOp)]
+		_StencilZFail( "Stencil ZFail Operation", float) = 0 /* Keep */
 	}
 	SubShader
 	{
@@ -121,6 +135,16 @@ Shader "Zan/Lit/Basic"
 			BlendOp [_RS_FB_ColorBlendOp], [_RS_FB_AlphaBlendOp]
 			Blend [_RS_FB_ColorSrcFactor] [_RS_FB_ColorDstFactor], [_RS_FB_AlphaSrcFactor] [_RS_FB_AlphaDstFactor]
 			
+			Stencil
+			{
+				Ref [_StencilRef]
+				ReadMask [_StencilReadMask]
+				WriteMask [_StencilWriteMask]
+				Comp [_StencilComp]
+				Pass [_StencilPass]
+				Fail [_StencilFail]
+				ZFail [_StencilZFail]
+			}
 			CGPROGRAM
 			#pragma target 3.0
 			#pragma vertex vertBase
