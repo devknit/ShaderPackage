@@ -101,6 +101,5 @@ namespace ZanShader.Editor
 			EditorGUIUtility.TrTextContent( "Y"),
 			EditorGUIUtility.TrTextContent( "Z")
 		};
-		readonly GUIContent[] subLabels;
 	}
 }
