@@ -151,7 +151,7 @@
 			#endif
 				color.rgb *= DecodeLightmap( UNITY_SAMPLE_TEX2D( unity_Lightmap, i.texcoord1));
 				UNITY_APPLY_FOG( i.fogCoord, color);
-			#if defined(_FA_BLENDFACTOR_ON)
+			#if defined(_BLENDFACTOR_ON)
 				color.rgb = (color.rgb * color.a) + (_RS_BlendFactor * (1.0 - color.a));
 			#endif
 				return color;
