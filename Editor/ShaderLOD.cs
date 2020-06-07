@@ -80,7 +80,7 @@ namespace ZanShader.Editor
 	    static void OnGUI()
 	    {
 			EditorGUI.LabelField( new Rect( 409, 5, 75, 22), "Shader LOD", EditorStyles.toolbarButton);
-			Shader.globalMaximumLOD = EditorGUI.IntPopup( new Rect( 484, 5, 128, 22), Shader.globalMaximumLOD, kLODStrings, kLODs, EditorStyles.toolbarPopup);
+			Shader.globalMaximumLOD = EditorGUI.IntPopup( new Rect( 484, 5, 64, 22), Shader.globalMaximumLOD, kLODStrings, kLODs, EditorStyles.toolbarPopup);
 	    }
 	    static readonly Type kToolBarType = typeof( EditorGUI).Assembly.GetType( "UnityEditor.Toolbar");
 	    static readonly FieldInfo kToolBarGet = kToolBarType.GetField( "get");
