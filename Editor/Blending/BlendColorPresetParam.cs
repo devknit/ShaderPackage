@@ -62,7 +62,7 @@ namespace ZanShader.Editor
 		#endif
 			"その他"
 		};
-		public static BlendColorPreset GetPreset( float blendOp, float srcFactor, float dstFactor, float blendFactorFlag, Color blendFactorColor)
+		public static BlendColorPreset GetPreset( float blendOp, float srcFactor, float dstFactor, float? blendFactorFlag, Color? blendFactorColor)
 		{
 			for( int i0 = 0; i0 < kBlendColorPresetParams.Length; ++i0)
 			{
@@ -85,10 +85,18 @@ namespace ZanShader.Editor
 			}
 			return param != null;
 		}
-		public BlendColorPresetParam( float blendOp, float srcFactor, float dstFactor, float blendFactorFlag, Color blendFactorColor) : base( blendOp, srcFactor, dstFactor)
+		public BlendColorPresetParam( float blendOp, float srcFactor, float dstFactor, float? blendFactorFlag, Color? blendFactorColor) : base( blendOp, srcFactor, dstFactor)
 		{
-			_fBlendFactor = blendFactorFlag;
-			rsBlendFactor = blendFactorColor;
+			if( blendFactorFlag.HasValue != false && blendFactorColor.HasValue != false)
+			{
+				_fBlendFactor = blendFactorFlag.Value;
+				rsBlendFactor = blendFactorColor.Value;
+			}
+			else
+			{
+				_fBlendFactor = 0.0f;
+				rsBlendFactor = Color.black;
+			}
 		}
 		public void SetMaterialProperty(
 			MaterialProperty rsBlendOpProp, 
@@ -98,30 +106,40 @@ namespace ZanShader.Editor
 			MaterialProperty rsBlendFactorProp)
 		{
 			SetMaterialProperty( rsBlendOpProp, rsSrcFactorProp, rsDstFactorProp);
-			_fBlendFactorProp.floatValue = _fBlendFactor;
-			rsBlendFactorProp.colorValue = rsBlendFactor;
 			
-			string keyword = string.Format( $"{_fBlendFactorProp.name.ToUpperInvariant()}_ON");
-			bool enabled = System.Math.Abs( _fBlendFactor) > 0.001f;
-			
-			foreach( Material material in _fBlendFactorProp.targets)
+			if( _fBlendFactorProp != null && rsBlendFactorProp != null)
 			{
-				if( enabled != false)
+				_fBlendFactorProp.floatValue = _fBlendFactor;
+				rsBlendFactorProp.colorValue = rsBlendFactor;
+				
+				string keyword = string.Format( $"{_fBlendFactorProp.name.ToUpperInvariant()}_ON");
+				bool enabled = System.Math.Abs( _fBlendFactor) > 0.001f;
+				
+				foreach( Material material in _fBlendFactorProp.targets)
 				{
-					material.EnableKeyword( keyword);
-				}
-				else
-				{
-					material.DisableKeyword( keyword);
+					if( enabled != false)
+					{
+						material.EnableKeyword( keyword);
+					}
+					else
+					{
+						material.DisableKeyword( keyword);
+					}
 				}
 			}
-			
 		}
-		protected bool Equals( float blendOp, float srcFactor, float dstFactor, float blendFactorFlag, Color blendFactorColor)
+		protected bool Equals( float blendOp, float srcFactor, float dstFactor, float? blendFactorFlag, Color? blendFactorColor)
 		{
-			if( Equals( blendOp, srcFactor, dstFactor) != false && _fBlendFactor == blendFactorFlag)
+			if( Equals( blendOp, srcFactor, dstFactor) != false)
 			{
-				return rsBlendFactor.r == blendFactorColor.r && rsBlendFactor.g == blendFactorColor.g && rsBlendFactor.b == blendFactorColor.b;
+				if( blendFactorFlag.HasValue != false && blendFactorColor.HasValue != false)
+				{
+					if( _fBlendFactor != blendFactorFlag.Value)
+					{
+						return rsBlendFactor.r == blendFactorColor.Value.r && rsBlendFactor.g == blendFactorColor.Value.g && rsBlendFactor.b == blendFactorColor.Value.b;
+					}
+				}
+				return true;
 			}
 			return false;
 		}

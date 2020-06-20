@@ -1,372 +1,81 @@
 ﻿
-using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using System;
+using System.Collections.Generic;
 
 namespace ZanShader.Editor
 {
-	class InspectorGUI : ShaderGUI
+	public class InspectorGUI : ShaderGUI
 	{
+		protected virtual void OnPropertiesGUI( MaterialEditor materialEditor, List<MaterialProperty> properties)
+		{
+			foreach( var property in properties)
+			{
+				materialEditor.ShaderProperty( property, property.displayName);
+			}
+		}
 		public override void OnGUI( MaterialEditor materialEditor, MaterialProperty[] properties)
 		{
-			bool[] baseProperties = new bool[ properties.Length];
-			MaterialProperty rsCullProp = null;
-			MaterialProperty rsZWriteProp = null;
-			MaterialProperty rsZWriteBProp = null;
-			MaterialProperty rsZWriteAProp = null;
-			MaterialProperty rsZTestProp = null;
-			MaterialProperty rsZTestBProp = null;
-			MaterialProperty rsZTestAProp = null;
-			MaterialProperty rsColorMaskProp = null;
-			MaterialProperty rsAlphaClipProp = null;
-			MaterialProperty rsAlphaClipThresholdProp = null;
-			MaterialProperty rsDitheringProp = null;
-			
-			BlendState rsBlendState = null;
-			BlendState rsBlendStateB = null;
-			BlendState rsBlendStateA = null;
-			
-			MaterialProperty stencilRefProp = null;
-			MaterialProperty stencilReadMaskProp = null;
-			MaterialProperty stencilWriteMaskProp = null;
-			MaterialProperty stencilCompProp = null;
-			MaterialProperty stencilPassProp = null;
-			MaterialProperty stencilFailProp = null;
-			MaterialProperty stencilZFailProp = null;
+			var materialProperties = new List<MaterialProperty>();
 			MaterialProperty property;
 			int indentCount = 0;
+			
+			if( renderingStatus == null)
+			{
+				renderingStatus = new RenderingStatus();
+			}
+			if( blendStatus == null)
+			{
+				blendStatus = new BlendStatus();
+			}
+			if( blendStatusForwardBase == null)
+			{
+				blendStatusForwardBase = new BlendStatus();
+			}
+			if( blendStatusForwardAdd == null)
+			{
+				blendStatusForwardAdd = new BlendStatus();
+			}
+			if( depthStencilStatus == null)
+			{
+				depthStencilStatus = new DepthStencilStatus();
+			}
+			
+			renderingStatus.ClearProperty();
+			blendStatus.ClearProperty();
+			blendStatusForwardBase.ClearProperty();
+			blendStatusForwardAdd.ClearProperty();
+			depthStencilStatus.ClearProperty();
 			
 			for( int i0 = 0; i0 < properties.Length; ++i0)
 			{
 				property = properties[ i0];
 				
-				switch( property.name)
+				if( renderingStatus.SetProperty( property) != false)
 				{
-					/* Rendering Status */
-					case rsCull:
-					{
-						rsCullProp = property;
-						break;
-					}
-					case rsZWrite:
-					{
-						rsZWriteProp = property;
-						break;
-					}
-					case rsZWriteB:
-					{
-						rsZWriteBProp = property;
-						break;
-					}
-					case rsZWriteA:
-					{
-						rsZWriteAProp = property;
-						break;
-					}
-					case rsZTest:
-					{
-						rsZTestProp = property;
-						break;
-					}
-					case rsZTestB:
-					{
-						rsZTestBProp = property;
-						break;
-					}
-					case rsZTestA:
-					{
-						rsZTestAProp = property;
-						break;
-					}
-					case rsColorMask:
-					{
-						rsColorMaskProp = property;
-						break;
-					}
-					case rsAlphaClip:
-					{
-						rsAlphaClipProp = property;
-						break;
-					}
-					case rsAlphaClipThreshold:
-					{
-						rsAlphaClipThresholdProp = property;
-						break;
-					}
-					case rsDithering:
-					{
-						rsDitheringProp = property;
-						break;
-					}
-					
-					/* Blending Status */
-					case rsColorBlendOp:
-					{
-						if( rsBlendState == null)
-						{
-							rsBlendState = new BlendState();
-						}
-						rsBlendState.rsColorBlendOpProp = property;
-						break;
-					}
-					case rsColorSrcFactor:
-					{
-						if( rsBlendState == null)
-						{
-							rsBlendState = new BlendState();
-						}
-						rsBlendState.rsColorSrcFactorProp = property;
-						break;
-					}
-					case rsColorDstFactor:
-					{
-						if( rsBlendState == null)
-						{
-							rsBlendState = new BlendState();
-						}
-						rsBlendState.rsColorDstFactorProp = property;
-						break;
-					}
-					case rsAlphaBlendOp:
-					{
-						if( rsBlendState == null)
-						{
-							rsBlendState = new BlendState();
-						}
-						rsBlendState.rsAlphaBlendOpProp = property;
-						break;
-					}
-					case rsAlphaSrcFactor:
-					{
-						if( rsBlendState == null)
-						{
-							rsBlendState = new BlendState();
-						}
-						rsBlendState.rsAlphaSrcFactorProp = property;
-						break;
-					}
-					case rsAlphaDstFactor:
-					{
-						if( rsBlendState == null)
-						{
-							rsBlendState = new BlendState();
-						}
-						rsBlendState.rsAlphaDstFactorProp = property;
-						break;
-					}
-					case rsColorBlendFactor:
-					{
-						if( rsBlendState == null)
-						{
-							rsBlendState = new BlendState();
-						}
-						rsBlendState.rsColorBlendFactorProp = property;
-						break;
-					}
-					case _fColorBlendFactor:
-					{
-						if( rsBlendState == null)
-						{
-							rsBlendState = new BlendState();
-						}
-						rsBlendState._fColorBlendFactorProp = property;
-						break;
-					}
-					
-					/* Forward Base Blending Status */
-					case rsColorBlendOpB:
-					{
-						if( rsBlendStateB == null)
-						{
-							rsBlendStateB = new BlendState();
-						}
-						rsBlendStateB.rsColorBlendOpProp = property;
-						break;
-					}
-					case rsColorSrcFactorB:
-					{
-						if( rsBlendStateB == null)
-						{
-							rsBlendStateB = new BlendState();
-						}
-						rsBlendStateB.rsColorSrcFactorProp = property;
-						break;
-					}
-					case rsColorDstFactorB:
-					{
-						if( rsBlendStateB == null)
-						{
-							rsBlendStateB = new BlendState();
-						}
-						rsBlendStateB.rsColorDstFactorProp = property;
-						break;
-					}
-					case rsAlphaBlendOpB:
-					{
-						if( rsBlendStateB == null)
-						{
-							rsBlendStateB = new BlendState();
-						}
-						rsBlendStateB.rsAlphaBlendOpProp = property;
-						break;
-					}
-					case rsAlphaSrcFactorB:
-					{
-						if( rsBlendStateB == null)
-						{
-							rsBlendStateB = new BlendState();
-						}
-						rsBlendStateB.rsAlphaSrcFactorProp = property;
-						break;
-					}
-					case rsAlphaDstFactorB:
-					{
-						if( rsBlendStateB == null)
-						{
-							rsBlendStateB = new BlendState();
-						}
-						rsBlendStateB.rsAlphaDstFactorProp = property;
-						break;
-					}
-					case rsColorBlendFactorB:
-					{
-						if( rsBlendStateB == null)
-						{
-							rsBlendStateB = new BlendState();
-						}
-						rsBlendStateB.rsColorBlendFactorProp = property;
-						break;
-					}
-					case _fColorBlendFactorB:
-					{
-						if( rsBlendStateB == null)
-						{
-							rsBlendStateB = new BlendState();
-						}
-						rsBlendStateB._fColorBlendFactorProp = property;
-						break;
-					}
-					
-					/* Forward Add Blending Status */
-					case rsColorBlendOpA:
-					{
-						if( rsBlendStateA == null)
-						{
-							rsBlendStateA = new BlendState();
-						}
-						rsBlendStateA.rsColorBlendOpProp = property;
-						break;
-					}
-					case rsColorSrcFactorA:
-					{
-						if( rsBlendStateA == null)
-						{
-							rsBlendStateA = new BlendState();
-						}
-						rsBlendStateA.rsColorSrcFactorProp = property;
-						break;
-					}
-					case rsColorDstFactorA:
-					{
-						if( rsBlendStateA == null)
-						{
-							rsBlendStateA = new BlendState();
-						}
-						rsBlendStateA.rsColorDstFactorProp = property;
-						break;
-					}
-					case rsAlphaBlendOpA:
-					{
-						if( rsBlendStateA == null)
-						{
-							rsBlendStateA = new BlendState();
-						}
-						rsBlendStateA.rsAlphaBlendOpProp = property;
-						break;
-					}
-					case rsAlphaSrcFactorA:
-					{
-						if( rsBlendStateA == null)
-						{
-							rsBlendStateA = new BlendState();
-						}
-						rsBlendStateA.rsAlphaSrcFactorProp = property;
-						break;
-					}
-					case rsAlphaDstFactorA:
-					{
-						if( rsBlendStateA == null)
-						{
-							rsBlendStateA = new BlendState();
-						}
-						rsBlendStateA.rsAlphaDstFactorProp = property;
-						break;
-					}
-					case rsColorBlendFactorA:
-					{
-						if( rsBlendStateA == null)
-						{
-							rsBlendStateA = new BlendState();
-						}
-						rsBlendStateA.rsColorBlendFactorProp = property;
-						break;
-					}
-					case _fColorBlendFactorA:
-					{
-						if( rsBlendStateA == null)
-						{
-							rsBlendStateA = new BlendState();
-						}
-						rsBlendStateA._fColorBlendFactorProp = property;
-						break;
-					}
-					
-					/* Depth Stencil Status */
-					case stencilRef:
-					{
-						stencilRefProp = property;
-						break;
-					}
-					case stencilReadMask:
-					{
-						stencilReadMaskProp = property;
-						break;
-					}
-					case stencilWriteMask:
-					{
-						stencilWriteMaskProp = property;
-						break;
-					}
-					case stencilComp:
-					{
-						stencilCompProp = property;
-						break;
-					}
-					case stencilPass:
-					{
-						stencilPassProp = property;
-						break;
-					}
-					case stencilFail:
-					{
-						stencilFailProp = property;
-						break;
-					}
-					case stencilZFail:
-					{
-						stencilZFailProp = property;
-						break;
-					}
-					
-					default:
-					{
-						if( (property.flags & (MaterialProperty.PropFlags.HideInInspector | MaterialProperty.PropFlags.PerRendererData)) == 0)
-						{
-							baseProperties[ i0] = true;
-						}
-						break;
-					}
+					continue;
+				}
+				if( blendStatus.SetProperty( property) != false)
+				{
+					continue;
+				}
+				if( blendStatusForwardBase.SetPropertyForwardBase( property) != false)
+				{
+					continue;
+				}
+				if( blendStatusForwardAdd.SetPropertyForwardAdd( property) != false)
+				{
+					continue;
+				}
+				if( depthStencilStatus.SetProperty( property) != false)
+				{
+					continue;
+				}
+				if( (property.flags & (MaterialProperty.PropFlags.HideInInspector | MaterialProperty.PropFlags.PerRendererData)) == 0)
+				{
+					materialProperties.Add( property);
 				}
 			}
 			EditorGUIUtility.fieldWidth = 64; //EditorGUI.kObjectFieldThumbnailHeight;
@@ -390,14 +99,8 @@ namespace ZanShader.Editor
 				++EditorGUI.indentLevel;
 				++indentCount;
 			};
-			for( int i0 = 0; i0 < properties.Length; ++i0)
-			{
-				if( baseProperties[ i0] != false)
-				{
-					property = properties[ i0];
-					materialEditor.ShaderProperty( property, property.displayName);
-				}
-			}
+			OnPropertiesGUI( materialEditor, materialProperties);
+			
 			if( indentCount > 0)
 			{
 				EditorGUI.indentLevel -= indentCount;
@@ -407,154 +110,21 @@ namespace ZanShader.Editor
             CaptionDecorator.OnAfterGUI = null;
 			CaptionDecorator.enabled = false;
 			
-			/* Rendering Status */
-			if( rsCullProp != null
-			||	rsZWriteProp != null
-			||	rsZWriteBProp != null
-			||	rsZWriteAProp != null
-			||	rsZTestProp != null
-			||	rsZTestBProp != null
-			||	rsZTestAProp != null
-			||	rsColorMaskProp != null
-			||	rsAlphaClipProp != null
-			||	rsAlphaClipThreshold != null
-			||	rsDithering != null)
+			if( renderingStatus.ValidGUI() != false
+			||	blendStatus.ValidGUI() != false
+			||	blendStatusForwardBase.ValidGUI() != false
+			||	blendStatusForwardAdd.ValidGUI() != false
+			||	depthStencilStatus.ValidGUI() != false)
 			{
 				EditorGUILayout.Space();
-				EditorGUILayout.BeginVertical( GUI.skin.box);
-				{
-					EditorGUILayout.LabelField( "Rendering Status", EditorStyles.boldLabel);
-					++EditorGUI.indentLevel;
-					if( rsCullProp != null)
-					{
-						materialEditor.ShaderProperty( rsCullProp, rsCullProp.displayName);
-					}
-					if( rsZWriteProp != null)
-					{
-						materialEditor.ShaderProperty( rsZWriteProp, rsZWriteProp.displayName);
-					}
-					if( rsZTestProp != null)
-					{
-						materialEditor.ShaderProperty( rsZTestProp, rsZTestProp.displayName);
-					}
-					if( rsZWriteBProp != null)
-					{
-						materialEditor.ShaderProperty( rsZWriteBProp, rsZWriteBProp.displayName);
-					}
-					if( rsZTestBProp != null)
-					{
-						materialEditor.ShaderProperty( rsZTestBProp, rsZTestBProp.displayName);
-					}
-					if( rsZWriteAProp != null)
-					{
-						materialEditor.ShaderProperty( rsZWriteAProp, rsZWriteAProp.displayName);
-					}
-					if( rsZTestAProp != null)
-					{
-						materialEditor.ShaderProperty( rsZTestAProp, rsZTestAProp.displayName);
-					}
-					if( rsColorMaskProp != null)
-					{
-						EditorGUI.BeginChangeCheck();
-						materialEditor.ShaderProperty( rsColorMaskProp, rsColorMaskProp.displayName);
-						if( EditorGUI.EndChangeCheck() != false)
-						{
-							if( rsColorMaskProp.floatValue != 15.0f)
-							{
-								if( EditorUtility.DisplayDialog( "Warning", "Color Mask を RGBA 以外に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映してもよろしいですか？", "はい", "いいえ") == false)
-								{
-									rsColorMaskProp.floatValue = 15.0f;
-								}
-							}
-						}
-						if( rsColorMaskProp.floatValue != 15.0f)
-						{
-		                	EditorGUILayout.LabelField( new GUIContent( 
-								"Color Mask の設定がモバイルでは高負荷となる状態です\n設定をRGBAに変更することで解消されます",
-		                    	EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
-		                }
-		            }
-					if( rsAlphaClipProp != null)
-					{
-						EditorGUI.BeginChangeCheck();
-						materialEditor.ShaderProperty( rsAlphaClipProp, rsAlphaClipProp.displayName);
-						if( EditorGUI.EndChangeCheck() != false)
-						{
-							if( rsAlphaClipProp.floatValue != 0.0f)
-							{
-								if( EditorUtility.DisplayDialog( "Warning", "Alpha Clip を有効に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映してもよろしいですか？", "はい", "いいえ") == false)
-								{
-									rsAlphaClipProp.floatValue = 0.0f;
-								}
-							}
-						}
-						if( rsAlphaClipProp.floatValue != 0.0f)
-						{
-							if( rsAlphaClipThresholdProp != null)
-							{
-								materialEditor.ShaderProperty( rsAlphaClipThresholdProp, rsAlphaClipThresholdProp.displayName);
-							}
-		                	EditorGUILayout.LabelField( new GUIContent( 
-								"Alpha Clip の設定がモバイルでは高負荷となる状態です\n設定を無効に変更することで解消されます",
-		                    	EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
-						}
-					}
-					if( rsDitheringProp != null)
-					{
-						materialEditor.ShaderProperty( rsDitheringProp, rsDitheringProp.displayName);
-						
-						if( rsDitheringProp.floatValue != 0.0f
-						&&	rsAlphaClipProp != null && rsAlphaClipProp.floatValue == 0.0f)
-						{
-							EditorGUILayout.LabelField( new GUIContent( 
-									"Alpha Clip の設定を有効にすることで擬似的な半透明として描画されます",
-			                    	EditorGUIUtility.Load( "console.infoicon.sml") as Texture2D), EditorStyles.helpBox);
-			            }
-					}
-					--EditorGUI.indentLevel;
-				}
-				EditorGUILayout.EndVertical();
+				GUILayout.Box( string.Empty, GUILayout.ExpandWidth( true), GUILayout.Height( 1));
+				renderingStatus.OnGUI( "Rendering Status", materialEditor, Foldout);
+				blendStatus.OnGUI( "Blending Status", materialEditor, Foldout);
+				blendStatusForwardBase.OnGUI( "Forward Base Blending Status", materialEditor, Foldout);
+				blendStatusForwardAdd.OnGUI( "Forward Add Blending Status", materialEditor, Foldout);
+				depthStencilStatus.OnGUI( "Depth Stencil Status", materialEditor, Foldout);
+				GUILayout.Box( string.Empty, GUILayout.ExpandWidth( true), GUILayout.Height( 1));
 			}
-			/* Blending Status */
-			if( rsBlendState != null)
-			{
-				rsBlendState.OnGUI( "Blending Status", materialEditor);
-			}
-			if( rsBlendStateB != null)
-			{
-				rsBlendStateB.OnGUI( "Forward Base Blending Status", materialEditor);
-			}
-			if( rsBlendStateA != null)
-			{
-				rsBlendStateA.OnGUI( "Forward Add Blending Status", materialEditor);
-			}
-			
-			/* Depth Stencil Status */
-			if( stencilRefProp != null
-			&&	stencilReadMaskProp != null
-			&&	stencilWriteMaskProp != null
-			&&	stencilCompProp != null
-			&&	stencilPassProp != null
-			&&	stencilFailProp != null
-			&&	stencilZFailProp != null)
-			{
-				EditorGUILayout.Space();
-				EditorGUILayout.BeginVertical( GUI.skin.box);
-				{
-					EditorGUILayout.LabelField( "Depth Stencil Status", EditorStyles.boldLabel);
-					++EditorGUI.indentLevel;
-					materialEditor.ShaderProperty( stencilRefProp, stencilRefProp.displayName);
-					materialEditor.ShaderProperty( stencilReadMaskProp, stencilReadMaskProp.displayName);
-					materialEditor.ShaderProperty( stencilWriteMaskProp, stencilWriteMaskProp.displayName);
-					materialEditor.ShaderProperty( stencilCompProp, stencilCompProp.displayName);
-					materialEditor.ShaderProperty( stencilPassProp, stencilPassProp.displayName);
-					materialEditor.ShaderProperty( stencilFailProp, stencilFailProp.displayName);
-					materialEditor.ShaderProperty( stencilZFailProp, stencilZFailProp.displayName);
-					--EditorGUI.indentLevel;
-				}
-				EditorGUILayout.EndVertical();
-			}
-			
 			EditorGUILayout.Space();
 			EditorGUILayout.Space();
 			
@@ -582,88 +152,448 @@ namespace ZanShader.Editor
                 }
             }
         }
-		
-		/* Rendering Status */
-		const string rsCull = "_RS_Cull";
-		const string rsZWrite = "_RS_ZWrite";
-		const string rsZWriteB = "_RS_FB_ZWrite";
-		const string rsZWriteA = "_RS_FA_ZWrite";
-		const string rsZTest = "_RS_ZTest";
-		const string rsZTestB = "_RS_FB_ZTest";
-		const string rsZTestA = "_RS_FA_ZTest";
-		const string rsColorMask = "_RS_ColorMask";
-		const string rsAlphaClip = "_ALPHACLIP";
-		const string rsAlphaClipThreshold = "_AlphaClipThreshold";
-		const string rsDithering = "_DITHERING";
-		
-		/* Blending Status */
-		const string rsColorBlendOp = "_RS_ColorBlendOp";
-		const string rsColorSrcFactor = "_RS_ColorSrcFactor";
-		const string rsColorDstFactor = "_RS_ColorDstFactor";
-		const string rsAlphaBlendOp = "_RS_AlphaBlendOp";
-		const string rsAlphaSrcFactor = "_RS_AlphaSrcFactor";
-		const string rsAlphaDstFactor = "_RS_AlphaDstFactor";
-		const string rsColorBlendFactor = "_RS_BlendFactor";
-		const string _fColorBlendFactor = "_BLENDFACTOR";
-		
-		/* Forward Base Blending Status */
-		const string rsColorBlendOpB = "_RS_FB_ColorBlendOp";
-		const string rsColorSrcFactorB = "_RS_FB_ColorSrcFactor";
-		const string rsColorDstFactorB = "_RS_FB_ColorDstFactor";
-		const string rsAlphaBlendOpB = "_RS_FB_AlphaBlendOp";
-		const string rsAlphaSrcFactorB = "_RS_FB_AlphaSrcFactor";
-		const string rsAlphaDstFactorB = "_RS_FB_AlphaDstFactor";
-		const string rsColorBlendFactorB = "_RS_FB_BlendFactor";
-		const string _fColorBlendFactorB = "_FB_BLENDFACTOR";
-		
-		/* Forward Base Blending Status */
-		const string rsColorBlendOpA = "_RS_FA_ColorBlendOp";
-		const string rsColorSrcFactorA = "_RS_FA_ColorSrcFactor";
-		const string rsColorDstFactorA = "_RS_FA_ColorDstFactor";
-		const string rsAlphaBlendOpA = "_RS_FA_AlphaBlendOp";
-		const string rsAlphaSrcFactorA = "_RS_FA_AlphaSrcFactor";
-		const string rsAlphaDstFactorA = "_RS_FA_AlphaDstFactor";
-		const string rsColorBlendFactorA = "_RS_FA_BlendFactor";
-		const string _fColorBlendFactorA = "_FA_BLENDFACTOR";
-		
-		/* Depth Stencil Status */
-		const string stencilRef = "_StencilRef";
-		const string stencilReadMask = "_StencilReadMask";
-		const string stencilWriteMask = "_StencilWriteMask";
-		const string stencilComp = "_StencilComp";
-		const string stencilPass = "_StencilPass";
-		const string stencilFail = "_StencilFail";
-		const string stencilZFail = "_StencilZFail";
+        protected static bool Foldout( bool display, bool toggle, string caption)
+        {
+			if( foldoutStyle == null)
+			{
+	            foldoutStyle = new GUIStyle( "ShurikenModuleTitle");
+	            foldoutStyle.font = new GUIStyle( EditorStyles.boldLabel).font;
+	            foldoutStyle.fontStyle = FontStyle.Bold;
+	            foldoutStyle.fixedHeight = 22;
+	            foldoutStyle.border = new RectOffset( 15, 7, 4, 4);
+	            foldoutStyle.contentOffset = new Vector2( 20, -2);
+	        }
+            var rect = GUILayoutUtility.GetRect( 16f, 22f, foldoutStyle);
+            GUI.Box( rect, caption, foldoutStyle);
+
+            var e = Event.current;
+
+            var toggleRect = new Rect(rect.x + 4f, rect.y + 2f, 13f, 13f);
+            if( e.type == EventType.Repaint)
+            {
+				GUIStyle style = (toggle == false)?
+					EditorStyles.foldout : EditorStyles.toggle;
+                style.Draw(　toggleRect, false, false, display, false);
+            }
+            if( e.type == EventType.MouseDown && rect.Contains( e.mousePosition) != false)
+            {
+                display = !display;
+                e.Use();
+            }
+            return display;
+        }	
+        
+        static GUIStyle foldoutStyle = null;
+		RenderingStatus renderingStatus = null;
+		BlendStatus blendStatus = null;
+		BlendStatus blendStatusForwardBase = null;
+		BlendStatus blendStatusForwardAdd = null;
+		DepthStencilStatus depthStencilStatus = null;
 	}
-	class BlendState
+	class RenderingStatus
 	{
-		public void OnGUI( string caption, MaterialEditor materialEditor)
+		internal void ClearProperty()
 		{
-			if( rsColorBlendOpProp == null
-			||	rsColorSrcFactorProp == null
-			||	rsColorDstFactorProp == null
-			||	rsAlphaBlendOpProp == null
-			||	rsAlphaSrcFactorProp == null
-			||	rsAlphaDstFactorProp == null
-			||	rsColorBlendFactorProp == null
-			||	_fColorBlendFactorProp == null)
+			cullProp = null;
+			zWriteProp = null;
+			zWriteBaseProp = null;
+			zWriteAddProp = null;
+			zTestProp = null;
+			zTestBaseProp = null;
+			zTestAddProp = null;
+			colorMaskProp = null;
+			alphaClipProp = null;
+			alphaClipThresholdProp = null;
+			ditheringProp = null;
+		}
+		internal bool SetProperty( MaterialProperty property)
+		{
+			switch( property.name)
+			{
+				case kCull:
+				{
+					cullProp = property;
+					return true;
+				}
+				case kZWrite:
+				{
+					zWriteProp = property;
+					return true;
+				}
+				case kZWriteB:
+				{
+					zWriteBaseProp = property;
+					return true;
+				}
+				case kZWriteA:
+				{
+					zWriteAddProp = property;
+					return true;
+				}
+				case kZTest:
+				{
+					zTestProp = property;
+					return true;
+				}
+				case kZTestB:
+				{
+					zTestBaseProp = property;
+					return true;
+				}
+				case kZTestA:
+				{
+					zTestAddProp = property;
+					return true;
+				}
+				case kColorMask:
+				{
+					colorMaskProp = property;
+					return true;
+				}
+				case kAlphaClip:
+				{
+					alphaClipProp = property;
+					return true;
+				}
+				case kAlphaClipThreshold:
+				{
+					alphaClipThresholdProp = property;
+					return true;
+				}
+				case kDithering:
+				{
+					ditheringProp = property;
+					return true;
+				}
+			}
+			return false;
+		}
+		internal bool ValidGUI()
+		{
+			if( cullProp == null
+			||	(zWriteProp == null && zWriteBaseProp == null && zWriteAddProp == null)
+			||	(zTestProp == null && zTestBaseProp == null && zTestAddProp == null)
+			||	colorMaskProp == null)
+			{
+				return false;
+			}
+			return true;
+		}
+		internal void OnGUI( string caption, MaterialEditor materialEditor, System.Func<bool, bool, string, bool> Foldout)
+		{
+			if( ValidGUI() == false)
 			{
 				return;
 			}
-			EditorGUILayout.Space();
-			EditorGUILayout.BeginVertical( GUI.skin.box);
+			foldoutFlag = Foldout( foldoutFlag, false, caption);
+			
+			if( foldoutFlag != false)
 			{
-				EditorGUILayout.LabelField( caption, EditorStyles.boldLabel);
+				++EditorGUI.indentLevel;
+				
+				if( cullProp != null)
+				{
+					materialEditor.ShaderProperty( cullProp, cullProp.displayName);
+				}
+				if( zWriteProp != null)
+				{
+					materialEditor.ShaderProperty( zWriteProp, zWriteProp.displayName);
+				}
+				if( zTestProp != null)
+				{
+					materialEditor.ShaderProperty( zTestProp, zTestProp.displayName);
+				}
+				if( zWriteBaseProp != null)
+				{
+					materialEditor.ShaderProperty( zWriteBaseProp, zWriteBaseProp.displayName);
+				}
+				if( zTestBaseProp != null)
+				{
+					materialEditor.ShaderProperty( zTestBaseProp, zTestBaseProp.displayName);
+				}
+				if( zWriteAddProp != null)
+				{
+					materialEditor.ShaderProperty( zWriteAddProp, zWriteAddProp.displayName);
+				}
+				if( zTestAddProp != null)
+				{
+					materialEditor.ShaderProperty( zTestAddProp, zTestAddProp.displayName);
+				}
+				if( colorMaskProp != null)
+				{
+					EditorGUI.BeginChangeCheck();
+					materialEditor.ShaderProperty( colorMaskProp, colorMaskProp.displayName);
+					if( EditorGUI.EndChangeCheck() != false)
+					{
+						if( colorMaskProp.floatValue != 15.0f)
+						{
+							if( EditorUtility.DisplayDialog( "Warning", "Color Mask を RGBA 以外に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映してもよろしいですか？", "はい", "いいえ") == false)
+							{
+								colorMaskProp.floatValue = 15.0f;
+							}
+						}
+					}
+					if( colorMaskProp.floatValue != 15.0f)
+					{
+	                	EditorGUILayout.LabelField( new GUIContent( 
+							"Color Mask の設定がモバイルでは高負荷となる状態です\n設定をRGBAに変更することで解消されます",
+	                    	EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
+	                }
+	            }
+				if( alphaClipProp != null)
+				{
+					EditorGUI.BeginChangeCheck();
+					materialEditor.ShaderProperty( alphaClipProp, alphaClipProp.displayName);
+					if( EditorGUI.EndChangeCheck() != false)
+					{
+						if( alphaClipProp.floatValue != 0.0f)
+						{
+							if( EditorUtility.DisplayDialog( "Warning", "Alpha Clip を有効に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映してもよろしいですか？", "はい", "いいえ") == false)
+							{
+								alphaClipProp.floatValue = 0.0f;
+							}
+						}
+					}
+					if( alphaClipProp.floatValue != 0.0f)
+					{
+						if( alphaClipThresholdProp != null)
+						{
+							materialEditor.ShaderProperty( alphaClipThresholdProp, alphaClipThresholdProp.displayName);
+						}
+	                	EditorGUILayout.LabelField( new GUIContent( 
+							"Alpha Clip の設定がモバイルでは高負荷となる状態です\n設定を無効に変更することで解消されます",
+	                    	EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
+					}
+				}
+				if( ditheringProp != null)
+				{
+					materialEditor.ShaderProperty( ditheringProp, ditheringProp.displayName);
+					
+					if( ditheringProp.floatValue != 0.0f
+					&&	alphaClipProp != null && alphaClipProp.floatValue == 0.0f)
+					{
+						EditorGUILayout.LabelField( new GUIContent( 
+								"Alpha Clip の設定を有効にすることで擬似的な半透明として描画されます",
+		                    	EditorGUIUtility.Load( "console.infoicon.sml") as Texture2D), EditorStyles.helpBox);
+		            }
+				}
+				--EditorGUI.indentLevel;
+			}
+		}
+		
+		const string kCull = "_RS_Cull";
+		const string kZWrite = "_RS_ZWrite";
+		const string kZWriteB = "_RS_FB_ZWrite";
+		const string kZWriteA = "_RS_FA_ZWrite";
+		const string kZTest = "_RS_ZTest";
+		const string kZTestB = "_RS_FB_ZTest";
+		const string kZTestA = "_RS_FA_ZTest";
+		const string kColorMask = "_RS_ColorMask";
+		const string kAlphaClip = "_ALPHACLIP";
+		const string kAlphaClipThreshold = "_AlphaClipThreshold";
+		const string kDithering = "_DITHERING";
+		
+		static bool foldoutFlag = false;
+		
+		internal MaterialProperty cullProp = null;
+		internal MaterialProperty zWriteProp = null;
+		internal MaterialProperty zWriteBaseProp = null;
+		internal MaterialProperty zWriteAddProp = null;
+		internal MaterialProperty zTestProp = null;
+		internal MaterialProperty zTestBaseProp = null;
+		internal MaterialProperty zTestAddProp = null;
+		internal MaterialProperty colorMaskProp = null;
+		internal MaterialProperty alphaClipProp = null;
+		internal MaterialProperty alphaClipThresholdProp = null;
+		internal MaterialProperty ditheringProp = null;
+	}
+	class BlendStatus
+	{
+		internal void ClearProperty()
+		{
+			colorBlendOpProp = null;
+			colorSrcFactorProp = null;
+			colorDstFactorProp = null;
+			alphaBlendOpProp = null;
+			alphaSrcFactorProp = null;
+			alphaDstFactorProp = null;
+			colorBlendFactorValueProp = null;
+			colorBlendFactorEnabledProp = null;
+		}
+		internal bool SetProperty( MaterialProperty property)
+		{
+			switch( property.name)
+			{
+				case kColorBlendOp:
+				{
+					colorBlendOpProp = property;
+					return true;
+				}
+				case kColorSrcFactor:
+				{
+					colorSrcFactorProp = property;
+					return true;
+				}
+				case kColorDstFactor:
+				{
+					colorDstFactorProp = property;
+					return true;
+				}
+				case kAlphaBlendOp:
+				{
+					alphaBlendOpProp = property;
+					return true;
+				}
+				case kAlphaSrcFactor:
+				{
+					alphaSrcFactorProp = property;
+					return true;
+				}
+				case kAlphaDstFactor:
+				{
+					alphaDstFactorProp = property;
+					return true;
+				}
+				case kColorBlendFactorValue:
+				{
+					colorBlendFactorValueProp = property;
+					return true;
+				}
+				case kColorBlendFactorEnabled:
+				{
+					colorBlendFactorEnabledProp = property;
+					return true;
+				}
+			}
+			return false;
+		}
+		internal bool SetPropertyForwardBase( MaterialProperty property)
+		{
+			switch( property.name)
+			{
+				case kColorBlendOpB:
+				{
+					colorBlendOpProp = property;
+					return true;
+				}
+				case kColorSrcFactorB:
+				{
+					colorSrcFactorProp = property;
+					return true;
+				}
+				case kColorDstFactorB:
+				{
+					colorDstFactorProp = property;
+					return true;
+				}
+				case kAlphaBlendOpB:
+				{
+					alphaBlendOpProp = property;
+					return true;
+				}
+				case kAlphaSrcFactorB:
+				{
+					alphaSrcFactorProp = property;
+					return true;
+				}
+				case kAlphaDstFactorB:
+				{
+					alphaDstFactorProp = property;
+					return true;
+				}
+				case kColorBlendFactorValueB:
+				{
+					colorBlendFactorValueProp = property;
+					return true;
+				}
+				case kColorBlendFactorEnabledB:
+				{
+					colorBlendFactorEnabledProp = property;
+					return true;
+				}
+			}
+			return false;
+		}
+		internal bool SetPropertyForwardAdd( MaterialProperty property)
+		{
+			switch( property.name)
+			{
+				case kColorBlendOpA:
+				{
+					colorBlendOpProp = property;
+					return true;
+				}
+				case kColorSrcFactorA:
+				{
+					colorSrcFactorProp = property;
+					return true;
+				}
+				case kColorDstFactorA:
+				{
+					colorDstFactorProp = property;
+					return true;
+				}
+				case kAlphaBlendOpA:
+				{
+					alphaBlendOpProp = property;
+					return true;
+				}
+				case kAlphaSrcFactorA:
+				{
+					alphaSrcFactorProp = property;
+					return true;
+				}
+				case kAlphaDstFactorA:
+				{
+					alphaDstFactorProp = property;
+					return true;
+				}
+				case kColorBlendFactorValueA:
+				{
+					colorBlendFactorValueProp = property;
+					return true;
+				}
+				case kColorBlendFactorEnabledA:
+				{
+					colorBlendFactorEnabledProp = property;
+					return true;
+				}
+			}
+			return false;
+		}
+		internal bool ValidGUI()
+		{
+			if( colorBlendOpProp == null
+			||	colorSrcFactorProp == null
+			||	colorDstFactorProp == null
+			||	alphaBlendOpProp == null
+			||	alphaSrcFactorProp == null
+			||	alphaDstFactorProp == null)
+			{
+				return false;
+			}
+			return true;
+		}
+		internal void OnGUI( string caption, MaterialEditor materialEditor, System.Func<bool, bool, string, bool> Foldout)
+		{
+			if( ValidGUI() == false)
+			{
+				return;
+			}
+			foldoutFlag = Foldout( foldoutFlag, false, caption);
+			
+			if( foldoutFlag != false)
+			{
 				++EditorGUI.indentLevel;
 				
 				/* color */
 				EditorGUI.BeginChangeCheck();
 				var prevColor = BlendColorPresetParam.GetPreset( 
-					rsColorBlendOpProp.floatValue,
-					rsColorSrcFactorProp.floatValue,
-					rsColorDstFactorProp.floatValue, 
-					_fColorBlendFactorProp.floatValue, 
-					rsColorBlendFactorProp.colorValue);
+					colorBlendOpProp.floatValue,
+					colorSrcFactorProp.floatValue,
+					colorDstFactorProp.floatValue, 
+					colorBlendFactorEnabledProp?.floatValue, 
+					colorBlendFactorValueProp?.colorValue);
 				var nextColor = (BlendColorPreset)EditorGUILayout.Popup( 
 					"Color Channel Blending", (int)prevColor, BlendColorPresetParam.kBlendColorPresetNames);
 				
@@ -676,37 +606,45 @@ namespace ZanShader.Editor
 						if( BlendColorPresetParam.TryGetPresetParam( nextColor, out colorParam) != false)
 						{
 							colorParam.SetMaterialProperty( 
-								rsColorBlendOpProp, 
-								rsColorSrcFactorProp, 
-								rsColorDstFactorProp, 
-								_fColorBlendFactorProp, 
-								rsColorBlendFactorProp);
+								colorBlendOpProp, 
+								colorSrcFactorProp, 
+								colorDstFactorProp, 
+								colorBlendFactorEnabledProp, 
+								colorBlendFactorValueProp);
 						}
 					}
 				}
 				EditorGUILayout.BeginVertical( EditorStyles.inspectorDefaultMargins);
 				{
-					materialEditor.ShaderProperty( rsColorBlendOpProp, "├─ " + rsColorBlendOpProp.displayName);
-					materialEditor.ShaderProperty( rsColorSrcFactorProp, "├─ " + rsColorSrcFactorProp.displayName);
-					materialEditor.ShaderProperty( rsColorDstFactorProp, "├─ " + rsColorDstFactorProp.displayName);
-					materialEditor.ShaderProperty( rsColorBlendFactorProp, "├─ " + rsColorBlendFactorProp.displayName);
-					materialEditor.ShaderProperty( _fColorBlendFactorProp, "└─ " + _fColorBlendFactorProp.displayName);
-					
+					if( colorBlendFactorValueProp != null && colorBlendFactorEnabledProp != null)
+					{
+						materialEditor.ShaderProperty( colorBlendOpProp, "├─ " + colorBlendOpProp.displayName);
+						materialEditor.ShaderProperty( colorSrcFactorProp, "├─ " + colorSrcFactorProp.displayName);
+						materialEditor.ShaderProperty( colorDstFactorProp, "├─ " + colorDstFactorProp.displayName);
+						materialEditor.ShaderProperty( colorBlendFactorValueProp, "├─ " + colorBlendFactorValueProp.displayName);
+						materialEditor.ShaderProperty( colorBlendFactorEnabledProp, "└─ " + colorBlendFactorEnabledProp.displayName);
+					}
+					else
+					{
+						materialEditor.ShaderProperty( colorBlendOpProp, "├─ " + colorBlendOpProp.displayName);
+						materialEditor.ShaderProperty( colorSrcFactorProp, "├─ " + colorSrcFactorProp.displayName);
+						materialEditor.ShaderProperty( colorDstFactorProp, "└─ " + colorDstFactorProp.displayName);
+					}
 					string formula;
 					
 					if( TryGetBlendFormula( 
-						(BlendOp)rsColorBlendOpProp.floatValue,
-						(BlendMode)rsColorSrcFactorProp.floatValue,
-						(BlendMode)rsColorDstFactorProp.floatValue,
+						(BlendOp)colorBlendOpProp.floatValue,
+						(BlendMode)colorSrcFactorProp.floatValue,
+						(BlendMode)colorDstFactorProp.floatValue,
 						"rgb", out formula) != false)
 					{
-						if( _fColorBlendFactorProp.floatValue != 0.0f)
+						if( colorBlendFactorEnabledProp.floatValue != 0.0f)
 						{
 							formula = "src.rgb = src.rgb * src.a + BlendFacter.rgb * (1.0 - src.a);\n" + formula;
 						}
 						EditorGUILayout.LabelField( new GUIContent( formula), EditorStyles.helpBox);
 					}
-					if( _fColorBlendFactorProp.floatValue != 0.0f)
+					if( colorBlendFactorEnabledProp.floatValue != 0.0f)
 					{
 	                	EditorGUILayout.LabelField( new GUIContent( 
 							"事前に透過計算をするためにGPUへのプロパティ転送とフラグメント演算が追加されています",
@@ -718,9 +656,9 @@ namespace ZanShader.Editor
 				/* alpha */
 				EditorGUI.BeginChangeCheck();
 				var prevAlpha = BlendAlphaPresetParam.GetPreset( 
-					rsAlphaBlendOpProp.floatValue,
-					rsAlphaSrcFactorProp.floatValue,
-					rsAlphaDstFactorProp.floatValue);
+					alphaBlendOpProp.floatValue,
+					alphaSrcFactorProp.floatValue,
+					alphaDstFactorProp.floatValue);
 				var nextAlpha = (BlendAlphaPreset)EditorGUILayout.Popup( 
 					"Alpha Channel Blending", (int)prevAlpha, BlendAlphaPresetParam.kBlendAlphaPresetNames);
 				
@@ -733,24 +671,24 @@ namespace ZanShader.Editor
 						if( BlendAlphaPresetParam.TryGetPresetParam( nextAlpha, out alphaParam) != false)
 						{
 							alphaParam.SetMaterialProperty( 
-								rsAlphaBlendOpProp, 
-								rsAlphaSrcFactorProp, 
-								rsAlphaDstFactorProp);
+								alphaBlendOpProp, 
+								alphaSrcFactorProp, 
+								alphaDstFactorProp);
 						}
 					}
 				}
 				EditorGUILayout.BeginVertical( EditorStyles.inspectorDefaultMargins);
 				{
-					materialEditor.ShaderProperty( rsAlphaBlendOpProp, "├─ " + rsAlphaBlendOpProp.displayName);
-					materialEditor.ShaderProperty( rsAlphaSrcFactorProp, "├─ " + rsAlphaSrcFactorProp.displayName);
-					materialEditor.ShaderProperty( rsAlphaDstFactorProp, "└─ " + rsAlphaDstFactorProp.displayName);
+					materialEditor.ShaderProperty( alphaBlendOpProp, "├─ " + alphaBlendOpProp.displayName);
+					materialEditor.ShaderProperty( alphaSrcFactorProp, "├─ " + alphaSrcFactorProp.displayName);
+					materialEditor.ShaderProperty( alphaDstFactorProp, "└─ " + alphaDstFactorProp.displayName);
 					
 					string formula;
 					
 					if( TryGetBlendFormula( 
-						(BlendOp)rsAlphaBlendOpProp.floatValue,
-						(BlendMode)rsAlphaSrcFactorProp.floatValue,
-						(BlendMode)rsAlphaDstFactorProp.floatValue,
+						(BlendOp)alphaBlendOpProp.floatValue,
+						(BlendMode)alphaSrcFactorProp.floatValue,
+						(BlendMode)alphaDstFactorProp.floatValue,
 						"a", out formula) != false)
 					{
 						EditorGUILayout.LabelField( new GUIContent( formula), EditorStyles.helpBox);
@@ -759,7 +697,6 @@ namespace ZanShader.Editor
 				EditorGUILayout.EndVertical();
 				--EditorGUI.indentLevel;
 			}
-			EditorGUILayout.EndVertical();
 		}
 		static bool TryGetBlendFormula( BlendOp blendOp, BlendMode srcFactor, BlendMode dstFactor, string swizzle, out string formula)
 		{
@@ -872,13 +809,149 @@ namespace ZanShader.Editor
 			}
 			return string.IsNullOrEmpty( value) == false;
 		}
-		public MaterialProperty rsColorBlendOpProp = null;
-		public MaterialProperty rsColorSrcFactorProp = null;
-		public MaterialProperty rsColorDstFactorProp = null;
-		public MaterialProperty rsAlphaBlendOpProp = null;
-		public MaterialProperty rsAlphaSrcFactorProp = null;
-		public MaterialProperty rsAlphaDstFactorProp = null;
-		public MaterialProperty rsColorBlendFactorProp = null;
-		public MaterialProperty _fColorBlendFactorProp = null;
+		const string kColorBlendOp = "_RS_ColorBlendOp";
+		const string kColorSrcFactor = "_RS_ColorSrcFactor";
+		const string kColorDstFactor = "_RS_ColorDstFactor";
+		const string kAlphaBlendOp = "_RS_AlphaBlendOp";
+		const string kAlphaSrcFactor = "_RS_AlphaSrcFactor";
+		const string kAlphaDstFactor = "_RS_AlphaDstFactor";
+		const string kColorBlendFactorValue = "_RS_BlendFactor";
+		const string kColorBlendFactorEnabled = "_BLENDFACTOR";
+		
+		const string kColorBlendOpB = "_RS_FB_ColorBlendOp";
+		const string kColorSrcFactorB = "_RS_FB_ColorSrcFactor";
+		const string kColorDstFactorB = "_RS_FB_ColorDstFactor";
+		const string kAlphaBlendOpB = "_RS_FB_AlphaBlendOp";
+		const string kAlphaSrcFactorB = "_RS_FB_AlphaSrcFactor";
+		const string kAlphaDstFactorB = "_RS_FB_AlphaDstFactor";
+		const string kColorBlendFactorValueB = "_RS_FB_BlendFactor";
+		const string kColorBlendFactorEnabledB = "_FB_BLENDFACTOR";
+		
+		const string kColorBlendOpA = "_RS_FA_ColorBlendOp";
+		const string kColorSrcFactorA = "_RS_FA_ColorSrcFactor";
+		const string kColorDstFactorA = "_RS_FA_ColorDstFactor";
+		const string kAlphaBlendOpA = "_RS_FA_AlphaBlendOp";
+		const string kAlphaSrcFactorA = "_RS_FA_AlphaSrcFactor";
+		const string kAlphaDstFactorA = "_RS_FA_AlphaDstFactor";
+		const string kColorBlendFactorValueA = "_RS_FA_BlendFactor";
+		const string kColorBlendFactorEnabledA = "_FA_BLENDFACTOR";
+		
+		static bool foldoutFlag = false;
+		
+		internal MaterialProperty colorBlendOpProp = null;
+		internal MaterialProperty colorSrcFactorProp = null;
+		internal MaterialProperty colorDstFactorProp = null;
+		internal MaterialProperty alphaBlendOpProp = null;
+		internal MaterialProperty alphaSrcFactorProp = null;
+		internal MaterialProperty alphaDstFactorProp = null;
+		internal MaterialProperty colorBlendFactorValueProp = null;
+		internal MaterialProperty colorBlendFactorEnabledProp = null;
+	}
+	class DepthStencilStatus
+	{
+		internal void ClearProperty()
+		{
+			stencilRefProp = null;
+			stencilReadMaskProp = null;
+			stencilWriteMaskProp = null;
+			stencilCompProp = null;
+			stencilPassProp = null;
+			stencilFailProp = null;
+			stencilZFailProp = null;
+		}
+		internal bool SetProperty( MaterialProperty property)
+		{
+			switch( property.name)
+			{
+				case stencilRef:
+				{
+					stencilRefProp = property;
+					return true;
+				}
+				case stencilReadMask:
+				{
+					stencilReadMaskProp = property;
+					return true;
+				}
+				case stencilWriteMask:
+				{
+					stencilWriteMaskProp = property;
+					return true;
+				}
+				case stencilComp:
+				{
+					stencilCompProp = property;
+					return true;
+				}
+				case stencilPass:
+				{
+					stencilPassProp = property;
+					return true;
+				}
+				case stencilFail:
+				{
+					stencilFailProp = property;
+					return true;
+				}
+				case stencilZFail:
+				{
+					stencilZFailProp = property;
+					return true;
+				}
+			}
+			return false;
+		}
+		internal bool ValidGUI()
+		{
+			if( stencilRefProp == null
+			||	stencilReadMaskProp == null
+			||	stencilWriteMaskProp == null
+			||	stencilCompProp == null
+			||	stencilPassProp == null
+			||	stencilFailProp == null
+			||	stencilZFailProp == null)
+			{
+				return false;
+			}
+			return true;
+		}
+		internal void OnGUI( string caption, MaterialEditor materialEditor, System.Func<bool, bool, string, bool> Foldout)
+		{
+			if( ValidGUI() == false)
+			{
+				return;
+			}
+			foldoutFlag = Foldout( foldoutFlag, false, caption);
+			
+			if( foldoutFlag != false)
+			{
+				++EditorGUI.indentLevel;
+				materialEditor.ShaderProperty( stencilRefProp, stencilRefProp.displayName);
+				materialEditor.ShaderProperty( stencilReadMaskProp, stencilReadMaskProp.displayName);
+				materialEditor.ShaderProperty( stencilWriteMaskProp, stencilWriteMaskProp.displayName);
+				materialEditor.ShaderProperty( stencilCompProp, stencilCompProp.displayName);
+				materialEditor.ShaderProperty( stencilPassProp, stencilPassProp.displayName);
+				materialEditor.ShaderProperty( stencilFailProp, stencilFailProp.displayName);
+				materialEditor.ShaderProperty( stencilZFailProp, stencilZFailProp.displayName);
+				--EditorGUI.indentLevel;
+			}
+		}
+		const string stencilRef = "_StencilRef";
+		const string stencilReadMask = "_StencilReadMask";
+		const string stencilWriteMask = "_StencilWriteMask";
+		const string stencilComp = "_StencilComp";
+		const string stencilPass = "_StencilPass";
+		const string stencilFail = "_StencilFail";
+		const string stencilZFail = "_StencilZFail";
+		
+		static bool foldoutFlag = false;
+		
+		MaterialProperty stencilRefProp = null;
+		MaterialProperty stencilReadMaskProp = null;
+		MaterialProperty stencilWriteMaskProp = null;
+		MaterialProperty stencilCompProp = null;
+		MaterialProperty stencilPassProp = null;
+		MaterialProperty stencilFailProp = null;
+		MaterialProperty stencilZFailProp = null;
 	}
 }
