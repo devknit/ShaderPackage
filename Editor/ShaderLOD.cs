@@ -98,7 +98,10 @@ namespace ZanShader.Editor
 			"250",
 			"200",
 			"150",
-			"100"
+			"100",
+			"VertexNormal(3)",
+			"VertexAlpha(2)",
+			"VertexColor(1)",
 		};
 		static readonly int[] kLODs = new int[]
 	    {
@@ -110,7 +113,10 @@ namespace ZanShader.Editor
 			250,
 			200,
 			150,
-			100
+			100,
+			3,
+			2,
+			1,
 		};
 	}
 }
