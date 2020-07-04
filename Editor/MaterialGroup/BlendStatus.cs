@@ -80,7 +80,7 @@ namespace ZanShader.Editor
 						materialEditor.ShaderProperty( colorSrcFactorProp, "├─ " + colorSrcFactorProp.displayName);
 						materialEditor.ShaderProperty( colorDstFactorProp, "└─ " + colorDstFactorProp.displayName);
 					}
-					string formula;
+					string formula = string.Empty;
 					
 					if( TryGetBlendFormula( 
 						(BlendOp)colorBlendOpProp.floatValue,
@@ -88,13 +88,13 @@ namespace ZanShader.Editor
 						(BlendMode)colorDstFactorProp.floatValue,
 						"rgb", out formula) != false)
 					{
-						if( colorBlendFactorEnabledProp.floatValue != 0.0f)
+						if( colorBlendFactorEnabledProp?.floatValue != 0.0f)
 						{
 							formula = "src.rgb = src.rgb * src.a + BlendFacter.rgb * (1.0 - src.a);\n" + formula;
 						}
 						EditorGUILayout.LabelField( new GUIContent( formula), EditorStyles.helpBox);
 					}
-					if( colorBlendFactorEnabledProp.floatValue != 0.0f)
+					if( colorBlendFactorEnabledProp?.floatValue != 0.0f)
 					{
 	                	EditorGUILayout.LabelField( new GUIContent( 
 							"事前に透過計算をするためにGPUへのプロパティ転送とフラグメント演算が追加されています",
