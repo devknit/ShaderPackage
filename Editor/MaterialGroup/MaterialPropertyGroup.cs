@@ -14,7 +14,7 @@ namespace ZanShader.Editor
 			: this( string.Empty, propertyNames, foldoutIndices)
 		{
 		}
-		MaterialPropertyGroup( string groupCaption, string[] propertyNames, int[] foldoutIndices)
+		public MaterialPropertyGroup( string groupCaption, string[] propertyNames, params int[] foldoutIndices)
 		{
 			this.groupCaption = groupCaption;
 			this.propertyNames = propertyNames;
