@@ -1,4 +1,4 @@
-﻿Shader "Zan/Unlit/GrabMapDistortion"
+﻿Shader "Zan/Unlit/GrabMapDistortionFast"
 {
 	Properties
 	{
@@ -95,6 +95,7 @@
 		}
 		GrabPass
 		{
+			"_GrabPassTexture"
 		}
 		Pass
 		{
@@ -144,7 +145,7 @@
 			
 			uniform sampler2D _MainTex;
 			uniform sampler2D _DistortionTex;
-			uniform sampler2D _GrabTexture;
+			uniform sampler2D _GrabPassTexture;
 			UNITY_INSTANCING_BUFFER_START( Props)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _MainTex_ST)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _DistortionTex_ST)
@@ -236,7 +237,7 @@
 			#if defined(_CD_ALPHABLENDRATIO1_ON)
 				alphaBlendRatio *= i.uv2.w;
 			#endif
-				fixed4 color = tex2D( _GrabTexture, (i.uv1.xy / i.uv1.w) + (distortion.xy * baseVolume));
+				fixed4 color = tex2D( _GrabPassTexture, (i.uv1.xy / i.uv1.w) + (distortion.xy * baseVolume));
 				
 		#if defined(_BLENDORDER_INVERSE)
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)
