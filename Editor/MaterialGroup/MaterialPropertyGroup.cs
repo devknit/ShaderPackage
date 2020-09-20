@@ -101,7 +101,10 @@ namespace ZanShader.Editor
 					
 					for( int i0 = startIndex; i0 < endIndex; ++i0)
 					{
-						materialEditor.ShaderProperty( properties[ i0], properties[ i0].displayName);
+						if( (properties[ i0].flags & MaterialProperty.PropFlags.HideInInspector) == 0)
+						{
+							materialEditor.ShaderProperty( properties[ i0], properties[ i0].displayName);
+						}
 					}
 					if( recursion != false)
 					{
