@@ -3,7 +3,6 @@ Shader "Zan/Lit/Basic"
 {
 	Properties
 	{
-		[Caption(Function Properties)]
 		[KeywordEnum(None, Lambert, Disney)]
 		_DIFFUSEBRDF( "Diffuse", float) = 1
 		[KeywordEnum(None, BlinnPhong, Phong, CookTorrance, CookTorranceGGX, TorranceSparrow, TorranceSparrowGGX)]
@@ -12,45 +11,47 @@ Shader "Zan/Lit/Basic"
 		_INDIRECTMODE( "Indirect", float) = 4
 		[Gamma] _Metallic( "Metallic", Range( 0.0, 1.0)) = 1.0
 		_Gloss( "Gloss", Range(0, 1)) = 1.0
-		[EdgeToggle] _SHADOWTRANSLUCENT( "Shadow Translucent", float) = 0
+		[Toggle] _VERTEXCOLOR( "Vertex Color (Option)", float) = 0
+		[Toggle] _SHADOWTRANSLUCENT( "Shadow Translucent (Option)", float) = 0
 		
-		[Caption(Albedo Properties)]
-		[EdgeToggle] _ALBEDOMAP( "Use Albedo Map", float) = 0
+		[Toggle]
+		_ALBEDOMAP( "Albedo Map (Option)", float) = 0
 		_MainTex( "Albedo Map (RGBA)", 2D) = "white" {}
 		[HDR] _Color( "Color (RGBA)", Color) = (1, 1, 1, 1)
 		
-		[Caption(Metallic Gloss Map Properties)]
-		[EdgeToggle] _METALLICGLOSSMAP( "Use Metallic Gloss Map", float) = 0
+		[Toggle]
+		_METALLICGLOSSMAP( "Metallic Gloss Map (Option)", float) = 0
 		_MetallicGlossTex("Metallic Gloss Map (RA)", 2D) = "white" {}
 		
-		[Caption(Emissive Properties)]
-		[EdgeToggle] _EMISSIVEMAP( "Use Emissive Map", float) = 0
+		[Toggle]
+		_EMISSIVEMAP( "Emissive Map (Option)", float) = 0
 		_EmissiveTex("Emissive Map (RGB)", 2D) = "white" {}
 		[HDR] _EmissiveColor("Emissive Color", Color) = (1, 1, 1, 1)
 		
-		[Caption(Rim Light Properties)]
-		[KeywordEnum(None, Normal, NormalMap)]
-		_RIMLIGHT( "Rim Light Mode", float) = 0
-		[HDR] _RimColor( "Rim Color", Color) = (1,1,1,1)
-		_RimPower( "Rim Power", Range( 0, 10)) = 2.0
+		[Toggle]
+		_RIMLIGHT( "Rimlight (Option)", float) = 0
+		[KeywordEnum(Vertex, Fragment)]
+		_RIMLIGHTMODE( "Rimlight Mode", float) = 0
+		[HDR] _RimlightColor( "Rimlight Color", Color) = (1,1,1,1)
+		_RimlightStep( "Rimlight Step", Range( 0, 1)) = 0.5
+		_RimlightFeather( "Rimlight Feather", Range( 0, 1)) = 1
 		
-		[Caption(Normal Map Properties)]
-		[EdgeToggle] _NORMALMAP( "Use Normal Map", float) = 0
+		[Toggle]
+		_NORMALMAP( "Normal Map (Option)", float) = 0
 		_NormalTex( "Normal Map", 2D) = "bump" {}
 		_NormalScale( "Normal Map Scale", float) = 1.0
 		
-		[Caption(Parallax Map Properties)]
-		[EdgeToggle] _PARALLAXMAP( "Use Parallax Map", float) = 0
+		[Toggle]
+		_PARALLAXMAP( "Parallax Map (Option)", float) = 0
 		_ParallaxTex( "Parallax Map (G)", 2D) = "black" {}
 		_ParallaxScale( "Parallax Map Scale", Range( 0.005, 0.08)) = 0.02
 		
-		[Caption(Occlusion Map Properties)]
-		[EdgeToggle] _OCCLUSIONMAP( "Use Occlusion Map", float) = 0
+		[Toggle]
+		_OCCLUSIONMAP( "Occlusion Map (Option)", float) = 0
 		_OcclusionTex("Occlusion Map (G)", 2D) = "white" {}
 		_OcclusionStrength( "Occlusion Map Strength", Range( 0.0, 1.0)) = 1.0
 		
 		/* Forward Base Rendering Status */
-		[Caption(Rendering Status)]
 		[Enum( UnityEngine.Rendering.CullMode)]
 		_RS_Cull( "Cull", float) = 2 /* Back */
 		[Enum(Off, 0, On, 1)]
@@ -63,12 +64,11 @@ Shader "Zan/Lit/Basic"
 		_RS_FA_ZTest( "Add ZTest", float) = 4	/* LessEqual */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		[EdgeToggle] _ALPHACLIP( "Alpha Clip", float) = 0
+		[Toggle] _ALPHACLIP( "Alpha Clip", float) = 0
 		_AlphaClipThreshold( "Alpha Clip Threshold", Range( 0.0, 1.0)) = 0
-		[EdgeToggle] _DITHERING( "Dithering", float) = 0
+		[Toggle] _DITHERING( "Dithering", float) = 0
 		
 		/* Forward Base Blending Status */
-		[Caption(Forward Base Blending Status)]
 		[Enum( UnityEngine.Rendering.BlendOp)]
 		_RS_FB_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
@@ -82,10 +82,9 @@ Shader "Zan/Lit/Basic"
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_RS_FB_AlphaDstFactor( "Alpha Dst Factor", float) = 0 /* Zero */
 		_RS_FB_BlendFactor( "Blend Factor", Color) = ( 0, 0, 0, 0)
-		[EdgeToggle] _FB_BLENDFACTOR( "Use Blend Factor", float) = 0
+		[Toggle] _FB_BLENDFACTOR( "Use Blend Factor", float) = 0
 		
 		/* Forward Add Blending Status */
-		[Caption(Forward Add Blending Status)]
 		[Enum( UnityEngine.Rendering.BlendOp)]
 		_RS_FA_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
@@ -99,10 +98,9 @@ Shader "Zan/Lit/Basic"
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_RS_FA_AlphaDstFactor( "Alpha Dst Factor", float) = 1 /* One */
 		_RS_FA_BlendFactor( "Blend Factor", Color) = ( 0, 0, 0, 0)
-		[EdgeToggle] _FA_BLENDFACTOR( "Use Blend Factor", float) = 0
+		[Toggle] _FA_BLENDFACTOR( "Use Blend Factor", float) = 0
 		
 		/* Depth Stencil Status */
-		[Caption(Depth Stencil Status)]
 		_StencilRef( "Stencil Reference", Range( 0, 255)) = 0
 		_StencilReadMask( "Stencil Read Mask", Range( 0, 255)) = 255
 		_StencilWriteMask( "Stencil Write Mask", Range( 0, 255)) = 255
@@ -152,11 +150,12 @@ Shader "Zan/Lit/Basic"
 			#pragma shader_feature_local _DIFFUSEBRDF_NONE _DIFFUSEBRDF_LAMBERT _DIFFUSEBRDF_DISNEY
 			#pragma shader_feature_local _SPECULARBRDF_NONE _SPECULARBRDF_BLINNPHONG _SPECULARBRDF_PHONG _SPECULARBRDF_COOKTORRANCE _SPECULARBRDF_COOKTORRANCEGGX _SPECULARBRDF_TORRANCESPARROW _SPECULARBRDF_TORRANCESPARROWGGX
 			#pragma shader_feature_local _INDIRECTMODE_NONE _INDIRECTMODE_AMBIENTONLY _INDIRECTMODE_FASTGI _INDIRECTMODE_GI _INDIRECTMODE_REFLECTIONFASTGI _INDIRECTMODE_REFLECTIONGI
-			
+			#pragma shader_feature_local _ _VERTEXCOLOR_ON
 			#pragma shader_feature_local _ _ALBEDOMAP_ON
 			#pragma shader_feature_local _ _METALLICGLOSSMAP_ON
 			#pragma shader_feature_local _ _EMISSIVEMAP_ON
-			#pragma shader_feature_local _RIMLIGHT_NONE _RIMLIGHT_NORMAL _RIMLIGHT_NORMALMAP
+			#pragma shader_feature_local _ _RIMLIGHT_ON
+			#pragma shader_feature_local _RIMLIGHTMODE_VERTEX _RIMLIGHTMODE_FRAGMENT
 			#pragma shader_feature_local _ _NORMALMAP_ON
 			#pragma shader_feature_local _ _PARALLAXMAP_ON
 			#pragma shader_feature_local _ _OCCLUSIONMAP_ON
@@ -194,7 +193,6 @@ Shader "Zan/Lit/Basic"
 		#endif
 		#if defined(_OCCLUSIONMAP_ON) && (defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI))
 			uniform sampler2D _OcclusionTex;
-			uniform float4 _OcclusionTex_ST;
 		#endif
 			UNITY_INSTANCING_BUFFER_START( Props)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _Metallic)
@@ -210,9 +208,10 @@ Shader "Zan/Lit/Basic"
 				UNITY_DEFINE_INSTANCED_PROP( float4, _EmissiveTex_ST)
 				UNITY_DEFINE_INSTANCED_PROP( float4,  _EmissiveColor)
 			#endif
-			#if !defined(_RIMLIGHT_NONE)
-				UNITY_DEFINE_INSTANCED_PROP( float4, _RimColor)
-				UNITY_DEFINE_INSTANCED_PROP( float,  _RimPower)
+			#if defined(_RIMLIGHT_ON)
+				UNITY_DEFINE_INSTANCED_PROP( half,   _RimlightStep)
+				UNITY_DEFINE_INSTANCED_PROP( half,   _RimlightFeather)
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RimlightColor)
 			#endif
 			#if defined(_NORMALMAP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _NormalTex_ST)
@@ -237,6 +236,9 @@ Shader "Zan/Lit/Basic"
 			struct VertexInput
 			{
 				float4 vertex : POSITION;
+			#if defined(_VERTEXCOLOR_ON)
+				fixed4 color : COLOR;
+			#endif
 				float3 normal : NORMAL;
 				float4 tangent : TANGENT;
 				float2 texcoord0 : TEXCOORD0;
@@ -249,6 +251,9 @@ Shader "Zan/Lit/Basic"
 			struct VertexOutputBase
 			{
 				float4 pos : SV_POSITION;
+			#if defined(_VERTEXCOLOR_ON)
+				fixed4 color : COLOR;
+			#endif
 				float4 uv0 : TEXCOORD0;
 				float4 worldPosition : TEXCOORD1;
 				/* [0].xyz : normalDirection
@@ -273,6 +278,9 @@ Shader "Zan/Lit/Basic"
 				UNITY_SETUP_INSTANCE_ID( v);
 				UNITY_TRANSFER_INSTANCE_ID( v, o);
 				o.pos = UnityObjectToClipPos( v.vertex);
+			#if defined(_VERTEXCOLOR_ON)
+				o.color = v.color;
+			#endif
 				o.uv0.xy = v.texcoord0.xy;
 				o.uv0.zw = 0.0;
 				o.worldPosition = mul( unity_ObjectToWorld, v.vertex);
@@ -328,6 +336,9 @@ Shader "Zan/Lit/Basic"
 					* UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
 			#else
 				float4 diffuseColor = UNITY_ACCESS_INSTANCED_PROP( Props, _Color);
+			#endif
+			#if defined(_VERTEXCOLOR_ON)
+				diffuseColor *= i.color;
 			#endif
 			#if defined(_DITHERING_ON)
 				diffuseColor.a = tex3D( _DitherMaskLOD, float3( 
@@ -511,15 +522,15 @@ Shader "Zan/Lit/Basic"
 				float3 diffuse = directDiffuse + indirectDiffuse;
 
 				/* rim */
-#if !defined(_RIMLIGHT_NONE)
-				fixed4 rimColor = UNITY_ACCESS_INSTANCED_PROP( Props, _RimColor);
-				float rimPower = UNITY_ACCESS_INSTANCED_PROP( Props, _RimPower);
-			#if defined(_RIMLIGHT_NORMAL)
-				float VdotN = saturate( dot( viewDirection, preNormalDirection));
-			#else
-				float VdotN = saturate( dot( viewDirection, normalDirection));
+#if defined(_RIMLIGHT_ON)
+			#if defined(_RIMLIGHTMODE_VERTEX)
+				NdotV = saturate( dot( preNormalDirection, viewDirection));
 			#endif
-				emissive += rimColor * pow( 1.0 - VdotN, rimPower) * rimColor.a;
+				half rimlightStep = 1.0 - UNITY_ACCESS_INSTANCED_PROP( Props, _RimlightStep);
+				half rimlightFeather = saturate( rimlightStep + UNITY_ACCESS_INSTANCED_PROP( Props, _RimlightFeather));
+				half rimlightPower = smoothstep( rimlightStep, rimlightFeather, 1.0 - NdotV);
+				half4 rimlightColor = UNITY_ACCESS_INSTANCED_PROP( Props, _RimlightColor);
+				emissive += rimlightPower * rimlightColor.rgb * rimlightColor.a;
 #endif
 				
 				/* final Color */
@@ -934,5 +945,5 @@ Shader "Zan/Lit/Basic"
 		}
 	}
 	Fallback Off
-	CustomEditor "ZanShader.Editor.InspectorGUI"
+	CustomEditor "ZanShader.Editor.BasicGUI"
 }
