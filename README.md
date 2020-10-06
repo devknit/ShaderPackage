@@ -9,12 +9,12 @@ Windows の場合はコマンドプロンプト、Mac、Linux の場合はター
 
 パッケージをインストールしたい Unity プロジェクトを開いている状態で、メニューの `Window` から `PackageManager` を開きます。
 
-![](Documentation/WindowOpen.png)
+![](.Docs/WindowOpen.png)
 
 開かれた PackageManager のウィンドウの左上にある `+` ボタンから
 `Add package from git URL...` を選択します。
 
-![](Documentation/Install.png)
+![](.Docs/Install.png)
 
 URL の入力フォームに以下のアドレスを入力してから Add のボタンを押すとインストールが行われます。
 ```
@@ -25,7 +25,7 @@ https://github.com/devknit/ShaderPackage.git
 
 アンインストールする場合は PackageManager から `ZanShader` を選択した状態で `Remove` ボタンを押してください。
 
-![](Documentation/Uninstall.png)
+![](.Docs/Uninstall.png)
 
 # 導入する際の注意
 
