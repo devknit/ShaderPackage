@@ -3,6 +3,30 @@
 汎用的に使用することができるシェーダを用意しています。  
 ※シェーダの内容は予告なく変更される場合があります。
 
+# インストール方法
+
+Windows の場合はコマンドプロンプト、Mac、Linux の場合はターミナルで `git` のコマンドが実行可能な状態か事前に確認してから以下の手順を行ってください。
+
+パッケージをインストールしたい Unity プロジェクトを開いている状態で、メニューの `Window` から `PackageManager` を開きます。
+
+![](Documentation/WindowOpen.png)
+
+開かれた PackageManager のウィンドウの左上にある `+` ボタンから
+`Add package from git URL...` を選択します。
+
+![](Documentation/Install.png)
+
+URL の入力フォームに以下のアドレスを入力してから Add のボタンを押すとインストールが行われます。
+```
+https://github.com/devknit/ShaderPackage.git
+```
+
+# アンインストール方法
+
+アンインストールする場合は PackageManager から `ZanShader` を選択した状態で `Remove` ボタンを押してください。
+
+![](Documentation/Uninstall.png)
+
 # 導入する際の注意
 
 ### グローバルキーワード 
