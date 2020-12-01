@@ -90,7 +90,7 @@
 			#pragma shader_feature_local _ _BLENDFACTOR_ON
 			#pragma multi_compile_fog
 			#include "UnityCG.cginc"
-	
+			
 			uniform sampler2D _MainTex;
 			uniform float4 _MainTex_ST;
 		#if defined(_DITHERING_ON)
@@ -102,7 +102,7 @@
 		#if defined(_BLENDFACTOR_ON)
 			uniform fixed4 _RS_BlendFactor;
 		#endif
-
+			
 			struct VertexInput
 			{
 				float4 vertex : POSITION;

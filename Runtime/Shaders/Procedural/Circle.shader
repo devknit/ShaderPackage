@@ -117,11 +117,11 @@
 			#include "../Includes/Blend.cginc"
 			
 			UNITY_INSTANCING_BUFFER_START( Props)
-                UNITY_DEFINE_INSTANCED_PROP( fixed4, _Color)
-                
-                UNITY_DEFINE_INSTANCED_PROP( float, _CircleRadius)
-                UNITY_DEFINE_INSTANCED_PROP( float, _SmoothEdges)
-            #if !defined(_VERTEXCOLORBLENDOP_NONE)
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _Color)
+				
+				UNITY_DEFINE_INSTANCED_PROP( float, _CircleRadius)
+				UNITY_DEFINE_INSTANCED_PROP( float, _SmoothEdges)
+			#if !defined(_VERTEXCOLORBLENDOP_NONE)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio)
 			#endif
 			#if !defined(_VERTEXALPHABLENDOP_NONE)
@@ -130,11 +130,11 @@
 			#if defined(_ALPHACLIP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
-	        #if defined(_BLENDFACTOR_ON)
-	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
+			#if defined(_BLENDFACTOR_ON)
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
 			#endif    
-            UNITY_INSTANCING_BUFFER_END( Props)
-            #include "../Includes/BlendMacro.cginc"
+			UNITY_INSTANCING_BUFFER_END( Props)
+			#include "../Includes/BlendMacro.cginc"
 			
 			struct VertexInput
 			{
@@ -157,7 +157,7 @@
 			void vert( VertexInput v, out VertexOutput o)
 			{
 				UNITY_SETUP_INSTANCE_ID( v);
-                UNITY_TRANSFER_INSTANCE_ID( v, o);
+				UNITY_TRANSFER_INSTANCE_ID( v, o);
 				o.position = UnityObjectToClipPos( v.vertex);
 				o.uv0 = v.uv0;
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)

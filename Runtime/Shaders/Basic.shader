@@ -289,19 +289,19 @@ Shader "Zan/Lit/Basic"
 				float4 tangent = float4( UnityObjectToWorldDir( v.tangent.xyz), v.tangent.w);
 				float3x3 tangentTransform = CreateTangentToWorldPerVertex( normalDirection, tangent.xyz, tangent.w);
 				o.tangentToWorldAndPackedData[ 0].xyz = tangentTransform[ 0];
-		        o.tangentToWorldAndPackedData[ 1].xyz = tangentTransform[ 1];
-		        o.tangentToWorldAndPackedData[ 2].xyz = tangentTransform[ 2];
+				o.tangentToWorldAndPackedData[ 1].xyz = tangentTransform[ 1];
+				o.tangentToWorldAndPackedData[ 2].xyz = tangentTransform[ 2];
 			#else
 				o.tangentToWorldAndPackedData[ 0].xyz = 0;
-		        o.tangentToWorldAndPackedData[ 1].xyz = 0;
-		        o.tangentToWorldAndPackedData[ 2].xyz = normalDirection;
+				o.tangentToWorldAndPackedData[ 1].xyz = 0;
+				o.tangentToWorldAndPackedData[ 2].xyz = normalDirection;
 			#endif
 			#if defined(_PARALLAXMAP_ON)
 				TANGENT_SPACE_ROTATION;
 				half3 viewDirForParallax = mul( rotation, ObjSpaceViewDir( v.vertex));
 				o.tangentToWorldAndPackedData[ 0].w = viewDirForParallax.x;
-		        o.tangentToWorldAndPackedData[ 1].w = viewDirForParallax.y;
-		        o.tangentToWorldAndPackedData[ 2].w = viewDirForParallax.z;
+				o.tangentToWorldAndPackedData[ 1].w = viewDirForParallax.y;
+				o.tangentToWorldAndPackedData[ 2].w = viewDirForParallax.z;
 			#endif
 			#if defined(_INDIRECTMODE_FASTGI) || defined(_INDIRECTMODE_GI) || defined(_INDIRECTMODE_REFLECTIONFASTGI) || defined(_INDIRECTMODE_REFLECTIONGI)
 				o.ambientOrLightmapUV = vertGI( v.texcoord1, v.texcoord2, o.worldPosition, normalDirection);
@@ -369,8 +369,8 @@ Shader "Zan/Lit/Basic"
 				float3 preNormalDirection = normalize( i.tangentToWorldAndPackedData[ 2].xyz * (facing >= 0 ? 1.0 : -1.0));
 			#if defined(_NORMALMAP_ON)
 				half3 tangent = i.tangentToWorldAndPackedData[ 0].xyz;
-			    half3 binormal = i.tangentToWorldAndPackedData[ 1].xyz;
-			    half3 normal = preNormalDirection;
+				half3 binormal = i.tangentToWorldAndPackedData[ 1].xyz;
+				half3 normal = preNormalDirection;
 				
 				float3 normalTangent = UnpackScaleNormal( 
 					tex2D( _NormalTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _NormalTex)),
@@ -478,12 +478,12 @@ Shader "Zan/Lit/Basic"
 				float roughness2 = roughness * roughness;
 				float d = NdotH * NdotH * (roughness2 - 1.0) + 1.00001;
 			#ifdef UNITY_COLORSPACE_GAMMA
-			    float specularTerm = roughness / (max( 0.32, LdotH) * (1.5 + roughness) * d);
+				float specularTerm = roughness / (max( 0.32, LdotH) * (1.5 + roughness) * d);
 			#else
-			    float specularTerm = roughness2 / (max(0.1, LdotH * LdotH) * (roughness + 0.5) * (d * d) * 4.0);
+				float specularTerm = roughness2 / (max(0.1, LdotH * LdotH) * (roughness + 0.5) * (d * d) * 4.0);
 			#endif
 			#if defined(SHADER_API_MOBILE)
-			    specularTerm = specularTerm - 1e-4;
+				specularTerm = specularTerm - 1e-4;
 			#endif
 		#else
 				half specularPower = PerceptualRoughnessToSpecPower( perceptualRoughness);
@@ -491,11 +491,11 @@ Shader "Zan/Lit/Basic"
 				half invF = LdotH;
 				half specularTerm = ((specularPower + 1.0h) * pow( NdotH, specularPower)) / (8.0h * invV * invF + 1e-4h);
 			#ifdef UNITY_COLORSPACE_GAMMA
-			    specularTerm = sqrt( max( 1e-4h, specularTerm));
+				specularTerm = sqrt( max( 1e-4h, specularTerm));
 			#endif
 		#endif
 			#if defined (SHADER_API_MOBILE)
-			    specularTerm = clamp( specularTerm, 0.0, 100.0);
+				specularTerm = clamp( specularTerm, 0.0, 100.0);
 			#endif
 				float3 directSpecular = specularTerm * NdotL * specularColor;
 #elif defined(_SPECULARBRDF_PHONG)
@@ -665,18 +665,18 @@ Shader "Zan/Lit/Basic"
 				float4 tangent = float4( UnityObjectToWorldDir( v.tangent.xyz), v.tangent.w);
 				float3x3 tangentTransform = CreateTangentToWorldPerVertex( normalDirection, tangent.xyz, tangent.w);
 				o.tangentToWorldAndLightDir[ 0].xyz = tangentTransform[ 0];
-		        o.tangentToWorldAndLightDir[ 1].xyz = tangentTransform[ 1];
-		        o.tangentToWorldAndLightDir[ 2].xyz = tangentTransform[ 2];
+				o.tangentToWorldAndLightDir[ 1].xyz = tangentTransform[ 1];
+				o.tangentToWorldAndLightDir[ 2].xyz = tangentTransform[ 2];
 			#else
 				o.tangentToWorldAndLightDir[ 0].xyz = 0;
-		        o.tangentToWorldAndLightDir[ 1].xyz = 0;
-		        o.tangentToWorldAndLightDir[ 2].xyz = normalDirection;
+				o.tangentToWorldAndLightDir[ 1].xyz = 0;
+				o.tangentToWorldAndLightDir[ 2].xyz = normalDirection;
 			#endif
 				float3 lightDirection = _WorldSpaceLightPos0.xyz - o.worldPosition.xyz * _WorldSpaceLightPos0.w;
 				o.tangentToWorldAndLightDir[ 0].w = lightDirection.x;
-			    o.tangentToWorldAndLightDir[ 1].w = lightDirection.y;
-			    o.tangentToWorldAndLightDir[ 2].w = lightDirection.z;
-			    
+				o.tangentToWorldAndLightDir[ 1].w = lightDirection.y;
+				o.tangentToWorldAndLightDir[ 2].w = lightDirection.z;
+				
 			#if defined(_PARALLAXMAP_ON)
 				TANGENT_SPACE_ROTATION;
 				o.viewDirForParallax = mul( rotation, ObjSpaceViewDir( v.vertex));
@@ -719,8 +719,8 @@ Shader "Zan/Lit/Basic"
 				float3 preNormalDirection = normalize( i.tangentToWorldAndLightDir[ 2].xyz * (facing >= 0 ? 1.0 : -1.0));
 			#if defined(_NORMALMAP_ON)
 				half3 tangent = i.tangentToWorldAndLightDir[ 0].xyz;
-			    half3 binormal = i.tangentToWorldAndLightDir[ 1].xyz;
-			    half3 normal = preNormalDirection;
+				half3 binormal = i.tangentToWorldAndLightDir[ 1].xyz;
+				half3 normal = preNormalDirection;
 				
 				float3 normalTangent = UnpackScaleNormal( 
 					tex2D( _NormalTex, TRANSFORM_TEX_INSTANCED_PROP( i.uv0.xy, _NormalTex)),
@@ -788,12 +788,12 @@ Shader "Zan/Lit/Basic"
 				float roughness2 = roughness * roughness;
 				float d = NdotH * NdotH * (roughness2 - 1.0) + 1.00001;
 			#ifdef UNITY_COLORSPACE_GAMMA
-			    float specularTerm = roughness / (max( 0.32, LdotH) * (1.5 + roughness) * d);
+				float specularTerm = roughness / (max( 0.32, LdotH) * (1.5 + roughness) * d);
 			#else
-			    float specularTerm = roughness2 / (max(0.1, LdotH * LdotH) * (roughness + 0.5) * (d * d) * 4.0);
+				float specularTerm = roughness2 / (max(0.1, LdotH * LdotH) * (roughness + 0.5) * (d * d) * 4.0);
 			#endif
 			#if defined(SHADER_API_MOBILE)
-			    specularTerm = specularTerm - 1e-4;
+				specularTerm = specularTerm - 1e-4;
 			#endif
 		#else
 				half specularPower = PerceptualRoughnessToSpecPower( perceptualRoughness);
@@ -801,11 +801,11 @@ Shader "Zan/Lit/Basic"
 				half invF = LdotH;
 				half specularTerm = ((specularPower + 1.0h) * pow( NdotH, specularPower)) / (8.0h * invV * invF + 1e-4h);
 			#ifdef UNITY_COLORSPACE_GAMMA
-			    specularTerm = sqrt( max( 1e-4h, specularTerm));
+				specularTerm = sqrt( max( 1e-4h, specularTerm));
 			#endif
 		#endif
 			#if defined (SHADER_API_MOBILE)
-			    specularTerm = clamp( specularTerm, 0.0, 100.0);
+				specularTerm = clamp( specularTerm, 0.0, 100.0);
 			#endif
 				float3 specular = specularTerm * NdotL * specularColor;
 #elif defined(_SPECULARBRDF_PHONG)

@@ -119,7 +119,7 @@ namespace ZanShader.Editor
 			return hierarchyNo;
 		}
 		protected static void SetToggleKeyword( MaterialProperty property)
-        {
+		{
 			if( property.type == MaterialProperty.PropType.Float
 			||	property.type == MaterialProperty.PropType.Range)
 			{
@@ -139,91 +139,91 @@ namespace ZanShader.Editor
 					}
 				}
 			}
-        }
-        protected static bool Foldout( MaterialEditor materialEditor, MaterialProperty property, string caption)
-        {
+		}
+		protected static bool Foldout( MaterialEditor materialEditor, MaterialProperty property, string caption)
+		{
 			if( property.type == MaterialProperty.PropType.Float
 			||	property.type == MaterialProperty.PropType.Range)
 			{
 				var style = FoldoutStyle;
-	            style = new GUIStyle( "ShurikenModuleTitle");
-	            style.font = new GUIStyle( EditorStyles.boldLabel).font;
-	            style.fontStyle = FontStyle.Bold;
-	            style.fixedHeight = 22;
-	            style.border = new RectOffset( 15, 7, 4, 4);
-	            style.contentOffset = new Vector2( 20, -2);
-	            
-	            var rect = GUILayoutUtility.GetRect( 16f, 22f, foldoutStyle);
-	            rect.xMin += EditorGUI.indentLevel * 16.0f;
-	            GUI.Box( rect, caption, foldoutStyle);
-	            
-	            EditorGUI.showMixedValue = property.hasMixedValue;
-	            rect.xMin -= EditorGUI.indentLevel * 16.0f;
-	            rect.xMin += 4;
-	            rect.yMin -= 2;
-	            
-	            EditorGUI.BeginChangeCheck();
-	            
-	            bool display = EditorGUI.ToggleLeft( rect, "", property.floatValue > 0.0f);
-	            if( EditorGUI.EndChangeCheck() != false)
-	            {
+				style = new GUIStyle( "ShurikenModuleTitle");
+				style.font = new GUIStyle( EditorStyles.boldLabel).font;
+				style.fontStyle = FontStyle.Bold;
+				style.fixedHeight = 22;
+				style.border = new RectOffset( 15, 7, 4, 4);
+				style.contentOffset = new Vector2( 20, -2);
+				
+				var rect = GUILayoutUtility.GetRect( 16f, 22f, foldoutStyle);
+				rect.xMin += EditorGUI.indentLevel * 16.0f;
+				GUI.Box( rect, caption, foldoutStyle);
+				
+				EditorGUI.showMixedValue = property.hasMixedValue;
+				rect.xMin -= EditorGUI.indentLevel * 16.0f;
+				rect.xMin += 4;
+				rect.yMin -= 2;
+				
+				EditorGUI.BeginChangeCheck();
+				
+				bool display = EditorGUI.ToggleLeft( rect, "", property.floatValue > 0.0f);
+				if( EditorGUI.EndChangeCheck() != false)
+				{
 					materialEditor.RegisterPropertyChangeUndo( property.name);
 					property.floatValue = (display == false)? 0.0f : 1.0f;
 					SetToggleKeyword( property);
 				}
-	            EditorGUI.showMixedValue = false;
-
-	            return display != false || property.hasMixedValue != false;
-	        }
-	        return false;
+				EditorGUI.showMixedValue = false;
+				
+				return display != false || property.hasMixedValue != false;
+			}
+			return false;
 		}
-        protected static bool Foldout( bool display, string caption)
-        {
+		protected static bool Foldout( bool display, string caption)
+		{
 			var style = FoldoutStyle;
-            style = new GUIStyle( "ShurikenModuleTitle");
-            style.font = new GUIStyle( EditorStyles.boldLabel).font;
-            style.fontStyle = FontStyle.Bold;
-            style.fixedHeight = 22;
-            style.border = new RectOffset( 15, 7, 4, 4);
-            style.contentOffset = new Vector2( 20, -2);
-            
-            var rect = GUILayoutUtility.GetRect( 16f, 22f, style);
-            rect.xMin += EditorGUI.indentLevel * 16.0f;
-            GUI.Box( rect, caption, style);
-
-            var toggleRect = new Rect(rect.x + 4f, rect.y + 2f, 13f, 13f);
-            if( Event.current.type == EventType.Repaint)
-            {
-                EditorStyles.foldout.Draw(　toggleRect, false, false, display, false);
-            }
-            if( Event.current.type == EventType.MouseDown && rect.Contains( Event.current.mousePosition) != false)
-            {
-                display = !display;
-                Event.current.Use();
-            }
-            return display;
-        }
-        public string Caption
-        {
+			style = new GUIStyle( "ShurikenModuleTitle");
+			style.font = new GUIStyle( EditorStyles.boldLabel).font;
+			style.fontStyle = FontStyle.Bold;
+			style.fixedHeight = 22;
+			style.border = new RectOffset( 15, 7, 4, 4);
+			style.contentOffset = new Vector2( 20, -2);
+			
+			var rect = GUILayoutUtility.GetRect( 16f, 22f, style);
+			rect.xMin += EditorGUI.indentLevel * 16.0f;
+			GUI.Box( rect, caption, style);
+			
+			var toggleRect = new Rect(rect.x + 4f, rect.y + 2f, 13f, 13f);
+			if( Event.current.type == EventType.Repaint)
+			{
+				EditorStyles.foldout.Draw(　toggleRect, false, false, display, false);
+			}
+			if( Event.current.type == EventType.MouseDown && rect.Contains( Event.current.mousePosition) != false)
+			{
+				display = !display;
+				Event.current.Use();
+			}
+			return display;
+		}
+		public string Caption
+		{
 			get => groupCaption;
 		}
-        static GUIStyle FoldoutStyle
-        {
+		static GUIStyle FoldoutStyle
+		{
 			get
 			{
 				if( foldoutStyle == null)
 				{
-		            foldoutStyle = new GUIStyle( "ShurikenModuleTitle");
-		            foldoutStyle.font = new GUIStyle( EditorStyles.boldLabel).font;
-		            foldoutStyle.fontStyle = FontStyle.Bold;
-		            foldoutStyle.fixedHeight = 22;
-		            foldoutStyle.border = new RectOffset( 15, 7, 4, 4);
-		            foldoutStyle.contentOffset = new Vector2( 20, -2);
-		        }
-		        return foldoutStyle;
+					foldoutStyle = new GUIStyle( "ShurikenModuleTitle");
+					foldoutStyle.font = new GUIStyle( EditorStyles.boldLabel).font;
+					foldoutStyle.fontStyle = FontStyle.Bold;
+					foldoutStyle.fixedHeight = 22;
+					foldoutStyle.border = new RectOffset( 15, 7, 4, 4);
+					foldoutStyle.contentOffset = new Vector2( 20, -2);
+				}
+				return foldoutStyle;
 			}
 		}
-        static GUIStyle foldoutStyle = null;
+		static GUIStyle foldoutStyle = null;
 		
 		string groupCaption;
 		string[] propertyNames;

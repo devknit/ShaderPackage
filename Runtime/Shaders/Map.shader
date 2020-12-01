@@ -118,11 +118,11 @@
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
 			#if defined(_BLENDFACTOR_ON)
-	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
-	        #endif
-            UNITY_INSTANCING_BUFFER_END( Props)
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
+			#endif
+			UNITY_INSTANCING_BUFFER_END( Props)
 			#include "Includes/BlendMacro.cginc"
-        	
+			
 			struct VertexInput
 			{
 				float4 vertex : POSITION;
@@ -145,7 +145,7 @@
 			{
 				o = (VertexOutput)0;
 				UNITY_SETUP_INSTANCE_ID( v);
-                UNITY_TRANSFER_INSTANCE_ID( v, o);
+				UNITY_TRANSFER_INSTANCE_ID( v, o);
 				o.position = UnityObjectToClipPos( v.vertex);
 				o.uv0 = TRANSFORM_TEX_INSTANCED_PROP( v.uv0, _MainTex);
 			#if !defined(_VERTEXCOLORBLENDOP_NONE) || !defined(_VERTEXALPHABLENDOP_NONE)

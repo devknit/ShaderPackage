@@ -130,8 +130,8 @@
 			uniform sampler2D _MainTex;
 			UNITY_INSTANCING_BUFFER_START( Props)
 				UNITY_DEFINE_INSTANCED_PROP( float4, _MainTex_ST)
-                UNITY_DEFINE_INSTANCED_PROP( fixed4, _Color)
-                UNITY_DEFINE_INSTANCED_PROP( float,  _ColorBlendRatio2)
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _Color)
+				UNITY_DEFINE_INSTANCED_PROP( float,  _ColorBlendRatio2)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaBlendRatio2)
 			#if !defined(_VERTEXCOLORBLENDOP_NONE)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _VertexColorBlendRatio)
@@ -142,11 +142,11 @@
 			#if defined(_ALPHACLIP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
-	        #if defined(_BLENDFACTOR_ON)
-	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
+			#if defined(_BLENDFACTOR_ON)
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
 			#endif    
-            UNITY_INSTANCING_BUFFER_END( Props)
-            #include "Includes/BlendMacro.cginc"
+			UNITY_INSTANCING_BUFFER_END( Props)
+			#include "Includes/BlendMacro.cginc"
 			
 			struct VertexInput
 			{
@@ -170,7 +170,7 @@
 			{
 				o = (VertexOutput)0;
 				UNITY_SETUP_INSTANCE_ID( v);
-                UNITY_TRANSFER_INSTANCE_ID( v, o);
+				UNITY_TRANSFER_INSTANCE_ID( v, o);
 				o.position = UnityObjectToClipPos( v.vertex);
 				o.uv0.xy = TRANSFORM_TEX_INSTANCED_PROP( v.uv0.xy, _MainTex);
 			#if defined(_CD_COLORBLENDRATIO2_ON) || defined(_CD_ALPHABLENDRATIO2_ON)

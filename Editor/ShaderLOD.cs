@@ -56,40 +56,40 @@ namespace ZanShader.Editor
 		}
 		[InitializeOnLoadMethod]
 		static void InitializeOnLoad()
-	    {
-	        EditorApplication.update += OnUpdate;
-	    }
-    	static void OnUpdate()
-	    {
-	        var toolbar = kToolBarGet.GetValue( null);
-	        if( toolbar != null)
-	        {
+		{
+			EditorApplication.update += OnUpdate;
+		}
+		static void OnUpdate()
+		{
+			var toolbar = kToolBarGet.GetValue( null);
+			if( toolbar != null)
+			{
 				EditorApplication.update -= OnUpdate;
 				AddHandler( toolbar);
 			}
-	    }
+		}
 		static void AddHandler( object toolbar)
-	    {
-	        var container = kViewContainer.GetValue( toolbar, null) as IMGUIContainer;
-	        var handler = kContainerHandler.GetValue( container) as Action;
-
-	        handler += OnGUI;
-
-	        kContainerHandler.SetValue( container, handler);
-	    }
-	    static void OnGUI()
-	    {
+		{
+			var container = kViewContainer.GetValue( toolbar, null) as IMGUIContainer;
+			var handler = kContainerHandler.GetValue( container) as Action;
+			
+			handler += OnGUI;
+			
+			kContainerHandler.SetValue( container, handler);
+		}
+		static void OnGUI()
+		{
 			EditorGUI.LabelField( new Rect( 409, 5, 75, 22), "Shader LOD", EditorStyles.toolbarButton);
 			Shader.globalMaximumLOD = EditorGUI.IntPopup( new Rect( 484, 5, 64, 22), Shader.globalMaximumLOD, kLODStrings, kLODs, EditorStyles.toolbarPopup);
-	    }
-	    static readonly Type kToolBarType = typeof( EditorGUI).Assembly.GetType( "UnityEditor.Toolbar");
-	    static readonly FieldInfo kToolBarGet = kToolBarType.GetField( "get");
-	    static readonly Type kViewType = typeof( EditorGUI).Assembly.GetType( "UnityEditor.GUIView");
-	    static readonly BindingFlags kBindingAttribute = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-	    static readonly PropertyInfo kViewContainer = kViewType.GetProperty( "imguiContainer", kBindingAttribute);
-	    static readonly FieldInfo kContainerHandler = typeof( IMGUIContainer ).GetField("m_OnGUIHandler", kBindingAttribute);
-	    static readonly string[] kLODStrings = new string[]
-	    {
+		}
+		static readonly Type kToolBarType = typeof( EditorGUI).Assembly.GetType( "UnityEditor.Toolbar");
+		static readonly FieldInfo kToolBarGet = kToolBarType.GetField( "get");
+		static readonly Type kViewType = typeof( EditorGUI).Assembly.GetType( "UnityEditor.GUIView");
+		static readonly BindingFlags kBindingAttribute = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+		static readonly PropertyInfo kViewContainer = kViewType.GetProperty( "imguiContainer", kBindingAttribute);
+		static readonly FieldInfo kContainerHandler = typeof( IMGUIContainer ).GetField("m_OnGUIHandler", kBindingAttribute);
+		static readonly string[] kLODStrings = new string[]
+		{
 			"Default",
 			"600",
 			"500",
@@ -104,7 +104,7 @@ namespace ZanShader.Editor
 			"VertexColor(1)",
 		};
 		static readonly int[] kLODs = new int[]
-	    {
+		{
 			int.MaxValue,
 			600,
 			500,

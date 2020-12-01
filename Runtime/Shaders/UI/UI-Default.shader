@@ -5,17 +5,13 @@
 		[PerRendererData] _MainTex( "Sprite Texture", 2D) = "white" {}
 		[HDR] _Color( "Blend Color", Color) = ( 1,1,1,1)
 		
-		[Caption(Rendering Status)]
 		[Enum( UnityEngine.Rendering.CullMode)]
 		_Cull( "Cull", float) = 0 /* Off */
 		[Enum(Off, 0, On, 1)]
 		_ZWrite( "ZWrite", float) = 0 /* Off */
-		[Enum( UnityEngine.Rendering.CompareFunction)]
-		_ZTest( "ZTest", float) = 4	/* LessEqual */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_ColorMask( "Color Mask", float) = 15 /* RGBA */
 		
-		[Caption(Blending Status)]
 		[Enum( UnityEngine.Rendering.BlendOp)]
 		_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
@@ -26,8 +22,9 @@
 		_AlphaBlendOp( "Alpha Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_AlphaSrcFactor( "Alpha Src Factor", float) = 5 /* SrcAlpha */
+		[Enum( UnityEngine.Rendering.BlendMode)]
+		_AlphaDstFactor( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
 		
-		[Caption(Depth Stencil Status)]
 		_Stencil( "Stencil Reference", Range( 0, 255)) = 0
 		_StencilReadMask( "Stencil Read Mask", Range( 0, 255)) = 255
 		_StencilWriteMask( "Stencil Write Mask", Range( 0, 255)) = 255
@@ -63,8 +60,8 @@
 		}
 		Lighting Off
 		Cull [_Cull]
-		ZWrite [_ZWrite]
-		ZTest [_ZTest]
+        ZWrite [_ZWrite]
+        ZTest [unity_GUIZTestMode]
 		BlendOp [_ColorBlendOp], [_AlphaBlendOp]
 		Blend [_ColorSrcFactor] [_ColorDstFactor], [_AlphaSrcFactor] [_AlphaDstFactor]
 		ColorMask [_ColorMask]
@@ -79,9 +76,14 @@
 			#pragma fragment frag
 			#pragma multi_compile_local _ UNITY_UI_CLIP_RECT
 			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
-			
 			#include "UnityCG.cginc"
 			#include "UnityUI.cginc"
+			
+			sampler2D _MainTex;
+			float4 _MainTex_ST;
+			float4 _ClipRect;
+			fixed4 _Color;
+			fixed4 _TextureSampleAdd;
 			
 			struct VertexInput
 			{
@@ -98,13 +100,6 @@
 				float4 worldPosition : TEXCOORD1;
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
-			
-			sampler2D _MainTex;
-			fixed4 _Color;
-			fixed4 _TextureSampleAdd;
-			float4 _ClipRect;
-			float4 _MainTex_ST;
-			
 			void vert( VertexInput v, out VertexOutput o)
 			{
 				UNITY_SETUP_INSTANCE_ID( v);
@@ -129,5 +124,4 @@
 		}
 	}
 	Fallback Off
-	CustomEditor "ZanShader.Editor.InspectorGUI"
 }

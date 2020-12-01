@@ -96,10 +96,10 @@ namespace ZanShader.Editor
 					}
 					if( colorBlendFactorEnabledProp?.floatValue != 0.0f)
 					{
-	                	EditorGUILayout.LabelField( new GUIContent( 
+						EditorGUILayout.LabelField( new GUIContent( 
 							"事前に透過計算をするためにGPUへのプロパティ転送とフラグメント演算が追加されています",
-	                    	EditorGUIUtility.Load( "console.infoicon.sml") as Texture2D), EditorStyles.helpBox);
-	                }
+							EditorGUIUtility.Load( "console.infoicon.sml") as Texture2D), EditorStyles.helpBox);
+					}
 				}
 				EditorGUILayout.EndVertical();
 				

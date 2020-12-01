@@ -90,11 +90,11 @@ namespace ZanShader.Editor
 					}
 					if( colorMaskProp.floatValue != 15.0f)
 					{
-	                	EditorGUILayout.LabelField( new GUIContent( 
+						EditorGUILayout.LabelField( new GUIContent( 
 							"Color Mask の設定がモバイルでは高負荷となる状態です\n設定をRGBAに変更することで解消されます",
-	                    	EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
-	                }
-	            }
+							EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
+					}
+				}
 				if( alphaClipProp != null)
 				{
 					EditorGUI.BeginChangeCheck();
@@ -115,9 +115,9 @@ namespace ZanShader.Editor
 						{
 							materialEditor.ShaderProperty( alphaClipThresholdProp, alphaClipThresholdProp.displayName);
 						}
-	                	EditorGUILayout.LabelField( new GUIContent( 
+						EditorGUILayout.LabelField( new GUIContent( 
 							"Alpha Clip の設定がモバイルでは高負荷となる状態です\n設定を無効に変更することで解消されます",
-	                    	EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
+							EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
 					}
 				}
 				if( ditheringProp != null)
@@ -129,8 +129,8 @@ namespace ZanShader.Editor
 					{
 						EditorGUILayout.LabelField( new GUIContent( 
 								"Alpha Clip の設定を有効にすることで擬似的な半透明として描画されます",
-		                    	EditorGUIUtility.Load( "console.infoicon.sml") as Texture2D), EditorStyles.helpBox);
-		            }
+								EditorGUIUtility.Load( "console.infoicon.sml") as Texture2D), EditorStyles.helpBox);
+					}
 				}
 				--EditorGUI.indentLevel;
 			}

@@ -201,7 +201,7 @@
 				float halftoneScale = UNITY_ACCESS_INSTANCED_PROP( Props, _HalftoneScale);
 				float4 halftoneScaleOffset = UNITY_ACCESS_INSTANCED_PROP( Props, _HalftoneScaleOffset);
 				float halftonePolygon = UNITY_ACCESS_INSTANCED_PROP( Props, _HalftonePolygon);
-
+				
 				float2 uv = ((i.position.xy / _ScreenParams.xy) - 0.5) * halftoneScale;
 				uv.x *= _ScreenParams.x / _ScreenParams.y;
 				uv = rotation( uv, i.uv0.zw) * halftoneScaleOffset.xy + halftoneScaleOffset.zw;

@@ -121,7 +121,7 @@ inline float3 diffuseDisney( half NdotV, half NdotL, half LdotH, half perceptual
     half viewScatter  = schlickFresnel( 1.0h, fd90, NdotV);
     return lightScatter * viewScatter * NdotL * attenColor;
 }
- 
+
 /**
  * specular
  * - Blinn-Phong
