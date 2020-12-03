@@ -1,4 +1,4 @@
-﻿Shader "Zan/Hidden"
+﻿Shader "Zan/Hidden/Fast"
 {
 	SubShader
 	{
