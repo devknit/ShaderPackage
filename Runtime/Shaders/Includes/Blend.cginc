@@ -370,7 +370,7 @@ inline fixed4 Blending2( fixed4 Base, fixed4 Blend, float ColorRatio, float Alph
 	alpha = Base.a + Blend.a;
 #elif _ALPHABLENDOP2_SUBSTRACT
 	alpha = Base.a - Blend.a;
-#elif _ALPHABLENDOP2_REVERSESUBSTRACT	
+#elif _ALPHABLENDOP2_REVERSESUBSTRACT
 	alpha = Blend.a - Base.a;
 #elif _ALPHABLENDOP2_MAXIMUM
 	alpha = max( Base.a, Blend.a);
