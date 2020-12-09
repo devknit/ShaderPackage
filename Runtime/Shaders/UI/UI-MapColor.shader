@@ -2,7 +2,10 @@
 {
 	Properties
 	{
-		_MainTex( "Sprite Texture", 2D) = "white" {}
+		[PerRendererData]
+		_MainTex( "Base Map", 2D) = "white" {}
+		[Vector2x2(Tiling, Offset, X, Y)]
+		_MainTex_ST( "Base Map", Vector) = (1, 1, 0, 0)
 		
 		[HDR] _Color( "Blend Color", Color) = ( 1, 1, 1, 1)
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]

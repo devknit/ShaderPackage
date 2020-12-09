@@ -6,7 +6,9 @@
 		_BaseMapDistortionVolume( "Base Map Distortion Volume", float) = 1
 		
 		[PerRendererData]
-		_MainTex( "Sprite Map", 2D) = "white" {}
+		_MainTex( "Base Map", 2D) = "white" {}
+		[Vector2x2(Tiling, Offset, X, Y)]
+		_MainTex_ST( "Base Map", Vector) = (1, 1, 0, 0)
 		[Vector2x2(Input, Output, Min, Max)]
 		_MainTexAlphaRemap( "Blend Map Alpha Remap Param", Vector) = (0.0, 1.0, 0.0, 1.0)
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]
