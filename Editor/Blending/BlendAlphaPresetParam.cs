@@ -16,6 +16,7 @@ namespace ZanShader.Editor
 	{
 		public static string[] kBlendAlphaPresetNames = new string[]
 		{
+			"背景を維持",
 			"前景を上書き",
 			"前景のアルファで合成",
 			"背景のアルファで合成",
@@ -69,6 +70,10 @@ namespace ZanShader.Editor
 		
 		static readonly BlendAlphaPresetParam[] kBlendAlphaPresetParams = new BlendAlphaPresetParam[]
 		{
+			new BlendAlphaPresetParam(
+				(float)BlendOp.Add,
+				(float)BlendMode.Zero,
+				(float)BlendMode.One),
 			new BlendAlphaPresetParam(
 				(float)BlendOp.Add,
 				(float)BlendMode.One,

@@ -35,8 +35,6 @@
 		[Toggle] _USE_PREBLEND( "Use Pre Blending", float) = 0
 		_PreBlendColor( "Pre Blend Color", Color) = ( 0, 0, 0, 0)
 		
-		[Toggle] _BLENDFACTOR( "Use Pre Blending X", float) = 0
-		
 		/* Depth Stencil Status */
 		_Stencil( "Stencil ID", Range( 0, 255)) = 0
 		_StencilReadMask( "Stencil Read Mask", Range( 0, 255)) = 255
@@ -87,7 +85,7 @@
 			#pragma fragment frag
 			#pragma shader_feature_local _ _ALPHACLIP_ON
 			#pragma shader_feature_local _ _DITHERING_ON
-			#pragma shader_feature_local _ _BLENDFACTOR_ON
+			#pragma shader_feature_local _ _USE_PREBLEND_ON
 			#pragma multi_compile_fog
 			#include "UnityCG.cginc"
 			
@@ -99,7 +97,7 @@
 		#if defined(_ALPHACLIP_ON)
 			uniform half _AlphaClipThreshold;
 		#endif
-		#if defined(_BLENDFACTOR_ON)
+		#if defined(_USE_PREBLEND_ON)
 			uniform fixed4 _PreBlendColor;
 		#endif
 			
@@ -151,7 +149,7 @@
 			#endif
 				color.rgb *= DecodeLightmap( UNITY_SAMPLE_TEX2D( unity_Lightmap, i.texcoord1));
 				UNITY_APPLY_FOG( i.fogCoord, color);
-			#if defined(_BLENDFACTOR_ON)
+			#if defined(_USE_PREBLEND_ON)
 				color.rgb = (color.rgb * color.a) + (_PreBlendColor * (1.0 - color.a));
 			#endif
 				return color;

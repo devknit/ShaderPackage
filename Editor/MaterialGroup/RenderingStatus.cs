@@ -23,14 +23,24 @@ namespace ZanShader.Editor
 		};
 		public override bool ValidGUI()
 		{
-			if( cullProp == null
-			||	(zWriteProp == null && zWriteAddProp == null)
-			||	(zTestProp == null && zTestAddProp == null)
-			||	colorMaskProp == null)
+			if( cullProp != null
+			||	zWriteProp != null
+			||	zWriteAddProp != null
+			||	zTestProp != null
+			||	zTestAddProp != null
+			||	colorMaskProp != null)
 			{
-				return false;
+				return true;
 			}
-			return true;
+			if( alphaClipProp != null && alphaClipThresholdProp != null)
+			{
+				return true;
+			}
+			if( ditheringProp != null)
+			{
+				return true;
+			}
+			return false;
 		}
 		public override void OnGUI( MaterialEditor materialEditor)
 		{

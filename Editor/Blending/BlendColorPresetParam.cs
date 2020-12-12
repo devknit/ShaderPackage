@@ -37,6 +37,7 @@ namespace ZanShader.Editor
 	{
 		public static string[] kBlendColorPresetNames = new string[]
 		{
+			"背景を維持",
 			"前景を上書き",
 			"前景のアルファで合成",
 			"背景のアルファで合成",
@@ -136,8 +137,9 @@ namespace ZanShader.Editor
 				{
 					if( _fBlendFactor != blendFactorFlag.Value)
 					{
-						return rsBlendFactor.r == blendFactorColor.Value.r && rsBlendFactor.g == blendFactorColor.Value.g && rsBlendFactor.b == blendFactorColor.Value.b;
+						return false;
 					}
+					return rsBlendFactor.r == blendFactorColor.Value.r && rsBlendFactor.g == blendFactorColor.Value.g && rsBlendFactor.b == blendFactorColor.Value.b;
 				}
 				return true;
 			}
@@ -148,6 +150,13 @@ namespace ZanShader.Editor
 		
 		static readonly BlendColorPresetParam[] kBlendColorPresetParams = new BlendColorPresetParam[]
 		{
+			/* None */
+			new BlendColorPresetParam(
+				(float)BlendOp.Add,
+				(float)BlendMode.Zero,
+				(float)BlendMode.One,
+				0.0f,
+				Color.black),
 			/* None */
 			new BlendColorPresetParam(
 				(float)BlendOp.Add,

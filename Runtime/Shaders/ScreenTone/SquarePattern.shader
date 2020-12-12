@@ -63,8 +63,6 @@
 		[Toggle] _USE_PREBLEND( "Use Pre Blending", float) = 0
 		_PreBlendColor( "Pre Blend Color", Color) = ( 0, 0, 0, 0)
 		
-		[Toggle] _BLENDFACTOR( "Use Pre Blending X", float) = 0
-		
 		/* Depth Stencil Status */
 		_Stencil( "Stencil ID", Range( 0, 255)) = 0
 		_StencilReadMask( "Stencil Read Mask", Range( 0, 255)) = 255
@@ -121,7 +119,7 @@
 			#pragma shader_feature _VERTEXCOLORBLENDSRC_VALUE _VERTEXCOLORBLENDSRC_ALPHABLENDOP _VERTEXCOLORBLENDSRC_ONEMINUSALPHABLENDOP _VERTEXCOLORBLENDSRC_BASEALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBASEALPHA _VERTEXCOLORBLENDSRC_BLENDALPHA _VERTEXCOLORBLENDSRC_ONEMINUSBLENDALPHA _VERTEXCOLORBLENDSRC_BASECOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBASECOLORVALUE _VERTEXCOLORBLENDSRC_BLENDCOLORVALUE _VERTEXCOLORBLENDSRC_ONEMINUSBLENDCOLORVALUE
 			#pragma shader_feature _VERTEXALPHABLENDOP_NONE _VERTEXALPHABLENDOP_OVERRIDE _VERTEXALPHABLENDOP_MULTIPLY _VERTEXALPHABLENDOP_ADD _VERTEXALPHABLENDOP_SUBSTRACT _VERTEXALPHABLENDOP_REVERSESUBSTRACT _VERTEXALPHABLENDOP_MAXIMUM
 			#pragma shader_feature_local _ _ALPHACLIP_ON
-			#pragma shader_feature_local _ _BLENDFACTOR_ON
+			#pragma shader_feature_local _ _USE_PREBLEND_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
 			#include "../Includes/Macro.cginc"
@@ -147,7 +145,7 @@
 			#if defined(_ALPHACLIP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
-			#if defined(_BLENDFACTOR_ON)
+			#if defined(_USE_PREBLEND_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _PreBlendColor)
 			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
@@ -211,7 +209,7 @@
 			#if defined(_ALPHACLIP_ON)
 				clip( color.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
 			#endif
-			#if defined(_BLENDFACTOR_ON)
+			#if defined(_USE_PREBLEND_ON)
 				color.rgb = (color.rgb * color.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _PreBlendColor) * (1.0 - color.a));
 			#endif
 				return color;

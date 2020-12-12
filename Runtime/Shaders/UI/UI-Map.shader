@@ -47,9 +47,9 @@
 		[Enum( UnityEngine.Rendering.StencilOp)]
 		_StencilOp( "Stencil Pass Operation", float) = 0 /* Keep */
 		[Enum( UnityEngine.Rendering.StencilOp)]
-		_StencilFailOp( "Stencil Fail Operation", float) = 0 /* Keep */
+		_StencilFail( "Stencil Fail Operation", float) = 0 /* Keep */
 		[Enum( UnityEngine.Rendering.StencilOp)]
-		_StencilZFailOp( "Stencil ZFail Operation", float) = 0 /* Keep */
+		_StencilZFail( "Stencil ZFail Operation", float) = 0 /* Keep */
 		
 		[Toggle(UNITY_UI_ALPHACLIP), HideInInspector]
 		_UseUIAlphaClip ("Use Alpha Clip", Float) = 0
