@@ -159,8 +159,7 @@ namespace ZanShader.Editor
 		{
 			typeof( RenderingStatus),
 			typeof( BlendStatus),
-			typeof( BlendStatusForwardBase),
-			typeof( BlendStatusForwardAdd),
+			typeof( BlendStatusAdd),
 			typeof( DepthStencilStatus),
 		};
 		MaterialPropertyGroup[] statusGroups = new MaterialPropertyGroup[ kStatusTypes.Length];

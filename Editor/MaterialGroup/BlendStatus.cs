@@ -280,20 +280,20 @@ namespace ZanShader.Editor
 		}
 		static readonly string[] kPropertyNames = new string[]
 		{
-			"_RS_ColorBlendOp",
-			"_RS_ColorSrcFactor",
-			"_RS_ColorDstFactor",
-			"_RS_AlphaBlendOp",
-			"_RS_AlphaSrcFactor",
-			"_RS_AlphaDstFactor",
-			"_RS_BlendFactor",
+			"_ColorBlendOp",
+			"_ColorSrcFactor",
+			"_ColorDstFactor",
+			"_AlphaBlendOp",
+			"_AlphaSrcFactor",
+			"_AlphaDstFactor",
+			"_PreBlendColor",
 			"_BLENDFACTOR"
 		};
 		static bool foldoutFlag = false;
 	}
-	class BlendStatusForwardBase : BlendStatusAtom
+	class BlendStatusAdd : BlendStatusAtom
 	{
-		public BlendStatusForwardBase() : base( "Forward Base Blending Status", kPropertyNames)
+		public BlendStatusAdd() : base( "Forward Add Blending Status", kPropertyNames)
 		{
 		}
 		protected override bool GroupFoldout
@@ -303,36 +303,13 @@ namespace ZanShader.Editor
 		}
 		static readonly string[] kPropertyNames = new string[]
 		{
-			"_RS_FB_ColorBlendOp",
-			"_RS_FB_ColorSrcFactor",
-			"_RS_FB_ColorDstFactor",
-			"_RS_FB_AlphaBlendOp",
-			"_RS_FB_AlphaSrcFactor",
-			"_RS_FB_AlphaDstFactor",
-			"_RS_FB_BlendFactor",
-			"_FB_BLENDFACTOR"
-		};
-		static bool foldoutFlag = false;
-	}
-	class BlendStatusForwardAdd : BlendStatusAtom
-	{
-		public BlendStatusForwardAdd() : base( "Forward Add Blending Status", kPropertyNames)
-		{
-		}
-		protected override bool GroupFoldout
-		{
-			get{ return foldoutFlag; }
-			set{ foldoutFlag = value; }
-		}
-		static readonly string[] kPropertyNames = new string[]
-		{
-			"_RS_FA_ColorBlendOp",
-			"_RS_FA_ColorSrcFactor",
-			"_RS_FA_ColorDstFactor",
-			"_RS_FA_AlphaBlendOp",
-			"_RS_FA_AlphaSrcFactor",
-			"_RS_FA_AlphaDstFactor",
-			"_RS_FA_BlendFactor",
+			"_ColorBlendOpA",
+			"_ColorSrcFactorA",
+			"_ColorDstFactorA",
+			"_AlphaBlendOpA",
+			"_AlphaSrcFactorA",
+			"_AlphaDstFactorA",
+			"_PreBlendColorA",
 			"_FA_BLENDFACTOR"
 		};
 		static bool foldoutFlag = false;

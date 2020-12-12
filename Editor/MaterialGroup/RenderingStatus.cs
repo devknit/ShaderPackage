@@ -13,9 +13,9 @@ namespace ZanShader.Editor
 		{
 			"_Cull",
 			"_ZWrite",
-			"_ZWriteAdd",
+			"_ZWriteA",
 			"_ZTest",
-			"_ZTestAdd",
+			"_ZTestA",
 			"_ColorMask",
 			"_ALPHACLIP",
 			"_AlphaClipThreshold",
