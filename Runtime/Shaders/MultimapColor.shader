@@ -71,14 +71,13 @@
 		[EdgeToggle] _BLENDFACTOR( "Use Blend Factor", float) = 0
 		
 		/* Depth Stencil Status */
-		[Caption(Depth Stencil Status)]
-		_StencilRef( "Stencil Reference", Range( 0, 255)) = 0
+		_Stencil( "Stencil ID", Range( 0, 255)) = 0
 		_StencilReadMask( "Stencil Read Mask", Range( 0, 255)) = 255
 		_StencilWriteMask( "Stencil Write Mask", Range( 0, 255)) = 255
 		[Enum( UnityEngine.Rendering.CompareFunction)]
-		_StencilComp( "Stencil Comparison Function", float) = 8	/* Always */
+		_StencilComp( "Stencil Compare Function", float) = 8	/* Always */
 		[Enum( UnityEngine.Rendering.StencilOp)]
-		_StencilPass( "Stencil Pass Operation", float) = 0 /* Keep */
+		_StencilOp( "Stencil Pass Operation", float) = 0 /* Keep */
 		[Enum( UnityEngine.Rendering.StencilOp)]
 		_StencilFail( "Stencil Fail Operation", float) = 0 /* Keep */
 		[Enum( UnityEngine.Rendering.StencilOp)]
@@ -109,11 +108,11 @@
 			
 			Stencil
 			{
-				Ref [_StencilRef]
+				Ref [_Stencil]
 				ReadMask [_StencilReadMask]
 				WriteMask [_StencilWriteMask]
 				Comp [_StencilComp]
-				Pass [_StencilPass]
+				Pass [_StencilOp]
 				Fail [_StencilFail]
 				ZFail [_StencilZFail]
 			}

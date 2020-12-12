@@ -13,11 +13,11 @@ namespace ZanShader.Editor
 		}
 		static readonly string[] kPropertyNames = new string[]
 		{
-			"_StencilRef",
+			"_Stencil",
 			"_StencilReadMask",
 			"_StencilWriteMask",
 			"_StencilComp",
-			"_StencilPass",
+			"_StencilOp",
 			"_StencilFail",
 			"_StencilZFail",
 		};
