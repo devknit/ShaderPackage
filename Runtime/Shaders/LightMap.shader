@@ -37,15 +37,15 @@
 		[Enum( UnityEngine.Rendering.BlendOp)]
 		_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
-		_ColorSrcFactor( "Color Src Factor", float) = 5 /* SrcAlpha */
+		_ColorSrcFactor( "Color Src Factor", float) = 1 /* One */
 		[Enum( UnityEngine.Rendering.BlendMode)]
-		_ColorDstFactor( "Color Dst Factor", float) = 10 /* OneMinusSrcAlpha */
+		_ColorDstFactor( "Color Dst Factor", float) = 0 /* Zero */
 		[Enum( UnityEngine.Rendering.BlendOp)]
 		_AlphaBlendOp( "Alpha Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
-		_AlphaSrcFactor( "Alpha Src Factor", float) = 5 /* SrcAlpha */
+		_AlphaSrcFactor( "Alpha Src Factor", float) = 1 /* One */
 		[Enum( UnityEngine.Rendering.BlendMode)]
-		_AlphaDstFactor( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
+		_AlphaDstFactor( "Alpha Dst Factor", float) = 0 /* Zero */
 		_PreBlendColor( "Pre Blend Color", Color) = ( 0, 0, 0, 0)
 		
 		[Toggle] _BLENDFACTOR( "Use Pre Blending", float) = 0
@@ -82,8 +82,8 @@
 			ZWrite [_ZWrite]
 			ZTest [_ZTest]
 			ColorMask [_ColorMask]
-			BlendOp [_RS_ColorBlendOp], [_RS_AlphaBlendOp]
-			Blend [_RS_ColorSrcFactor] [_RS_ColorDstFactor], [_RS_AlphaSrcFactor] [_RS_AlphaDstFactor]
+			BlendOp [_ColorBlendOp], [_AlphaBlendOp]
+			Blend [_ColorSrcFactor] [_ColorDstFactor], [_AlphaSrcFactor] [_AlphaDstFactor]
 			
 			Stencil
 			{
@@ -113,7 +113,7 @@
 			uniform half _AlphaClipThreshold;
 		#endif
 		#if defined(_BLENDFACTOR_ON)
-			uniform fixed4 _RS_BlendFactor;
+			uniform fixed4 _PreBlendColor;
 		#endif
 			
 			struct VertexInput
@@ -165,7 +165,7 @@
 				color.rgb *= DecodeLightmap( UNITY_SAMPLE_TEX2D( unity_Lightmap, i.texcoord1));
 				UNITY_APPLY_FOG( i.fogCoord, color);
 			#if defined(_BLENDFACTOR_ON)
-				color.rgb = (color.rgb * color.a) + (_RS_BlendFactor * (1.0 - color.a));
+				color.rgb = (color.rgb * color.a) + (_PreBlendColor * (1.0 - color.a));
 			#endif
 				return color;
 			}

@@ -117,8 +117,8 @@
 			ZWrite [_ZWrite]
 			ZTest [_ZTest]
 			ColorMask [_ColorMask]
-			BlendOp [_RS_ColorBlendOp], [_RS_AlphaBlendOp]
-			Blend [_RS_ColorSrcFactor] [_RS_ColorDstFactor], [_RS_AlphaSrcFactor] [_RS_AlphaDstFactor]
+			BlendOp [_ColorBlendOp], [_AlphaBlendOp]
+			Blend [_ColorSrcFactor] [_ColorDstFactor], [_AlphaSrcFactor] [_AlphaDstFactor]
 			
 			Stencil
 			{
@@ -166,7 +166,7 @@
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
 			#if _BLENDFACTOR_ON
-				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_BlendFactor)
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _PreBlendColor)
 			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
 			
@@ -238,7 +238,7 @@
 				clip( color.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
 			#endif
 			#if _BLENDFACTOR_ON
-				color.rgb = (color.rgb * color.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _RS_BlendFactor) * (1.0 - color.a));
+				color.rgb = (color.rgb * color.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _PreBlendColor) * (1.0 - color.a));
 			#endif
 				return color;
 			}
