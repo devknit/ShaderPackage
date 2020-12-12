@@ -43,25 +43,10 @@
 		_ZTest( "ZTest", float) = 8	/* Always */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		
 		[Toggle] _ALPHACLIP( "Use Alpha Clip", float) = 0
 		_AlphaClipThreshold( "Alpha Clip Threshold", Range( 0.0, 1.0)) = 0
 		
 		/* Blending Status */
-		[Enum( UnityEngine.Rendering.BlendOp)]
-		_RS_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_ColorSrcFactor( "Color Src Factor", float) = 5 /* SrcAlpha */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_ColorDstFactor( "Color Dst Factor", float) = 10 /* OneMinusSrcAlpha */
-		[Enum( UnityEngine.Rendering.BlendOp)]
-		_RS_AlphaBlendOp( "Alpha Blend Op", float) = 0 /* Add */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_AlphaSrcFactor( "Alpha Src Factor", float) = 5 /* SrcAlpha */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_AlphaDstFactor( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
-		_RS_BlendFactor( "Blend Factor", Color) = ( 0, 0, 0, 0)
-		
 		[Enum( UnityEngine.Rendering.BlendOp)]
 		_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
@@ -74,9 +59,10 @@
 		_AlphaSrcFactor( "Alpha Src Factor", float) = 5 /* SrcAlpha */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_AlphaDstFactor( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
+		[Toggle] _USE_PREBLEND( "Use Pre Blending", float) = 0
 		_PreBlendColor( "Pre Blend Color", Color) = ( 0, 0, 0, 0)
 		
-		[Toggle] _BLENDFACTOR( "Use Pre Blending", float) = 0
+		[Toggle] _BLENDFACTOR( "Use Pre Blending X", float) = 0
 		
 		/* Depth Stencil Status */
 		_Stencil( "Stencil ID", Range( 0, 255)) = 0

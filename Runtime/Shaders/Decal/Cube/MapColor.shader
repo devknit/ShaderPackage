@@ -49,20 +49,6 @@
 		
 		/* Blending Status */
 		[Enum( UnityEngine.Rendering.BlendOp)]
-		_RS_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_ColorSrcFactor( "Color Src Factor", float) = 5 /* SrcAlpha */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_ColorDstFactor( "Color Dst Factor", float) = 10 /* OneMinusSrcAlpha */
-		[Enum( UnityEngine.Rendering.BlendOp)]
-		_RS_AlphaBlendOp( "Alpha Blend Op", float) = 0 /* Add */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_AlphaSrcFactor( "Alpha Src Factor", float) = 5 /* SrcAlpha */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_AlphaDstFactor( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
-		_RS_BlendFactor( "Blend Factor", Color) = ( 0, 0, 0, 0)
-		
-		[Enum( UnityEngine.Rendering.BlendOp)]
 		_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_ColorSrcFactor( "Color Src Factor", float) = 5 /* SrcAlpha */
@@ -74,9 +60,10 @@
 		_AlphaSrcFactor( "Alpha Src Factor", float) = 5 /* SrcAlpha */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_AlphaDstFactor( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
+		[Toggle] _USE_PREBLEND( "Use Pre Blending", float) = 0
 		_PreBlendColor( "Pre Blend Color", Color) = ( 0, 0, 0, 0)
 		
-		[Toggle] _BLENDFACTOR( "Use Pre Blending", float) = 0
+		[Toggle] _BLENDFACTOR( "Use Pre Blending X", float) = 0
 		
 		/* Depth Stencil Status */
 		_Stencil( "Stencil ID", Range( 0, 255)) = 0

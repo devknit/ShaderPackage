@@ -77,20 +77,6 @@ Shader "Zan/Lit/Basic"
 		
 		/* Forward Base Blending Status */
 		[Enum( UnityEngine.Rendering.BlendOp)]
-		_RS_FB_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_FB_ColorSrcFactor( "Color Src Factor", float) = 1 /* One */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_FB_ColorDstFactor( "Color Dst Factor", float) = 0 /* Zero */
-		[Enum( UnityEngine.Rendering.BlendOp)]
-		_RS_FB_AlphaBlendOp( "Alpha Blend Op", float) = 0 /* Add */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_FB_AlphaSrcFactor( "Alpha Src Factor", float) = 1 /* One */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_FB_AlphaDstFactor( "Alpha Dst Factor", float) = 0 /* Zero */
-		_RS_FB_BlendFactor( "Blend Factor", Color) = ( 0, 0, 0, 0)
-		
-		[Enum( UnityEngine.Rendering.BlendOp)]
 		_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_ColorSrcFactor( "Color Src Factor", float) = 5 /* SrcAlpha */
@@ -102,25 +88,10 @@ Shader "Zan/Lit/Basic"
 		_AlphaSrcFactor( "Alpha Src Factor", float) = 5 /* SrcAlpha */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_AlphaDstFactor( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
+		[Toggle] _USE_PREBLEND( "Use Pre Blending", float) = 0
 		_PreBlendColor( "Pre Blend Color", Color) = ( 0, 0, 0, 0)
 		
-		[Toggle] _FB_BLENDFACTOR( "Use Pre Blending", float) = 0
-		
 		/* Forward Add Blending Status */
-		[Enum( UnityEngine.Rendering.BlendOp)]
-		_RS_FA_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_FA_ColorSrcFactor( "Color Src Factor", float) = 1 /* One */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_FA_ColorDstFactor( "Color Dst Factor", float) = 1 /* One */
-		[Enum( UnityEngine.Rendering.BlendOp)]
-		_RS_FA_AlphaBlendOp( "Alpha Blend Op", float) = 0 /* Add */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_FA_AlphaSrcFactor( "Alpha Src Factor", float) = 1 /* One */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_FA_AlphaDstFactor( "Alpha Dst Factor", float) = 1 /* One */
-		_RS_FA_BlendFactor( "Blend Factor", Color) = ( 0, 0, 0, 0)
-		
 		[Enum( UnityEngine.Rendering.BlendOp)]
 		_ColorBlendOpA( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
@@ -133,9 +104,8 @@ Shader "Zan/Lit/Basic"
 		_AlphaSrcFactorA( "Alpha Src Factor", float) = 5 /* SrcAlpha */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_AlphaDstFactorA( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
+		[Toggle] _USE_PREBLENDA( "Use Pre Blending", float) = 0
 		_PreBlendColorA( "Pre Blend Color", Color) = ( 0, 0, 0, 0)
-		
-		[Toggle] _FA_BLENDFACTOR( "Use Pre Blending", float) = 0
 		
 		/* Depth Stencil Status */
 		_Stencil( "Stencil ID", Range( 0, 255)) = 0
@@ -163,12 +133,12 @@ Shader "Zan/Lit/Basic"
 			{
 				"LightMode" = "ForwardBase"
 			}
-			Cull [_RS_Cull]
-			ZWrite [_RS_FB_ZWrite]
-			ZTest [_RS_FB_ZTest]
-			ColorMask [_RS_ColorMask]
-			BlendOp [_RS_FB_ColorBlendOp], [_RS_FB_AlphaBlendOp]
-			Blend [_RS_FB_ColorSrcFactor] [_RS_FB_ColorDstFactor], [_RS_FB_AlphaSrcFactor] [_RS_FB_AlphaDstFactor]
+			Cull [_Cull]
+			ZWrite [_ZWrite]
+			ZTest [_ZTest]
+			ColorMask [_ColorMask]
+			BlendOp [_ColorBlendOp], [_AlphaBlendOp]
+			Blend [_ColorSrcFactor] [_ColorDstFactor], [_AlphaSrcFactor] [_AlphaDstFactor]
 			
 			Stencil
 			{
@@ -199,7 +169,7 @@ Shader "Zan/Lit/Basic"
 			
 			#pragma shader_feature_local _ _ALPHACLIP_ON
 			#pragma shader_feature_local _ _DITHERING_ON
-			#pragma shader_feature_local _ _FB_BLENDFACTOR_ON
+			#pragma shader_feature_local _ _USE_PREBLEND_ON
 			#pragma multi_compile_instancing
 			#pragma multi_compile_fwdbase
 			#pragma multi_compile_fog
@@ -265,8 +235,8 @@ Shader "Zan/Lit/Basic"
 			#if defined(_ALPHACLIP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
-			#if defined(_FB_BLENDFACTOR_ON)
-				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FB_BlendFactor)
+			#if defined(_USE_PREBLEND_ON)
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _PreBlendColor)
 			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
 			
@@ -573,8 +543,8 @@ Shader "Zan/Lit/Basic"
 				/* final Color */
 				fixed4 finalColor = fixed4( diffuse + specular + emissive, diffuseColor.a);
 				UNITY_APPLY_FOG( i.fogCoord, finalColor);
-			#if defined(_FB_BLENDFACTOR_ON)
-				finalColor.rgb = (finalColor.rgb * finalColor.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _RS_FB_BlendFactor) * (1.0 - finalColor.a));
+			#if defined(_USE_PREBLEND_ON)
+				finalColor.rgb = (finalColor.rgb * finalColor.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _PreBlendColor) * (1.0 - finalColor.a));
 			#endif
 				return finalColor;
 			}
@@ -587,11 +557,11 @@ Shader "Zan/Lit/Basic"
 			{
 				"LightMode" = "ForwardAdd"
 			}
-			ZWrite [_RS_FA_ZWrite]
-			ZTest [_RS_FA_ZTest]
-			ColorMask [_RS_ColorMask]
-			BlendOp [_RS_FA_ColorBlendOp], [_RS_FA_AlphaBlendOp]
-			Blend [_RS_FA_ColorSrcFactor] [_RS_FA_ColorDstFactor], [_RS_FA_AlphaSrcFactor] [_RS_FA_AlphaDstFactor]
+			ZWrite [_ZWriteA]
+			ZTest [_ZTestA]
+			ColorMask [_ColorMask]
+			BlendOp [_ColorBlendOpA], [_AlphaBlendOpA]
+			Blend [_ColorSrcFactorA] [_ColorDstFactorA], [_AlphaSrcFactorA] [_AlphaDstFactorA]
 			
 			CGPROGRAM
 			#pragma target 3.0
@@ -607,7 +577,7 @@ Shader "Zan/Lit/Basic"
 			
 			#pragma shader_feature_local _ _ALPHACLIP_ON
 			#pragma shader_feature_local _ _DITHERING_ON
-			#pragma shader_feature_local _ _FA_BLENDFACTOR_ON
+			#pragma shader_feature_local _ _USE_PREBLENDA_ON
 			#pragma multi_compile_instancing
 			#pragma multi_compile_fwdadd
 			#pragma multi_compile_fog
@@ -654,8 +624,8 @@ Shader "Zan/Lit/Basic"
 			#if defined(_ALPHACLIP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
-			#if defined(_FA_BLENDFACTOR_ON)
-				UNITY_DEFINE_INSTANCED_PROP( fixed4, _RS_FA_BlendFactor)
+			#if defined(_USE_PREBLENDA_ON)
+				UNITY_DEFINE_INSTANCED_PROP( fixed4, _PreBlendColorA)
 			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
 
@@ -869,8 +839,8 @@ Shader "Zan/Lit/Basic"
 				/* final Color */
 				fixed4 finalColor = fixed4( diffuse + specular, diffuseColor.a);
 				UNITY_APPLY_FOG( i.fogCoord, finalColor);
-			#if defined(_FA_BLENDFACTOR_ON)
-				finalColor.rgb = (finalColor.rgb * finalColor.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _RS_FA_BlendFactor) * (1.0 - finalColor.a));
+			#if defined(_USE_PREBLENDA_ON)
+				finalColor.rgb = (finalColor.rgb * finalColor.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _PreBlendColorA) * (1.0 - finalColor.a));
 			#endif
 				return finalColor;
 			}
@@ -884,7 +854,7 @@ Shader "Zan/Lit/Basic"
 				"LightMode"="ShadowCaster"
 			}
 			Offset 1, 1
-			Cull [_RS_Cull]
+			Cull [_Cull]
 			
 			CGPROGRAM
 			#pragma target 3.0

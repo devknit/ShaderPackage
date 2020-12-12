@@ -287,13 +287,13 @@ namespace ZanShader.Editor
 			"_AlphaSrcFactor",
 			"_AlphaDstFactor",
 			"_PreBlendColor",
-			"_BLENDFACTOR"
+			"_USE_PREBLEND"
 		};
 		static bool foldoutFlag = false;
 	}
 	class BlendStatusAdd : BlendStatusAtom
 	{
-		public BlendStatusAdd() : base( "Forward Add Blending Status", kPropertyNames)
+		public BlendStatusAdd() : base( "Add Blending Status", kPropertyNames)
 		{
 		}
 		protected override bool GroupFoldout
@@ -310,7 +310,7 @@ namespace ZanShader.Editor
 			"_AlphaSrcFactorA",
 			"_AlphaDstFactorA",
 			"_PreBlendColorA",
-			"_FA_BLENDFACTOR"
+			"_USE_PREBLENDA"
 		};
 		static bool foldoutFlag = false;
 	}

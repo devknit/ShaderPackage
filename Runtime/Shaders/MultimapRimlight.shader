@@ -20,15 +20,6 @@
 		
 		/* Rendering Status */
 		[Enum( UnityEngine.Rendering.CullMode)]
-		_RS_Cull( "Cull", float) = 0 /* Off */
-		[Enum(Off, 0, On, 1)]
-		_RS_ZWrite( "ZWrite", float) = 0 /* Off */
-		[Enum( UnityEngine.Rendering.CompareFunction)]
-		_RS_ZTest( "ZTest", float) = 8	/* Always */
-		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
-		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		
-		[Enum( UnityEngine.Rendering.CullMode)]
 		_Cull( "Cull", float) = 0 /* Off */
 		[Enum(Off, 0, On, 1)]
 		_ZWrite( "ZWrite", float) = 0 /* Off */
@@ -42,20 +33,6 @@
 		
 		/* Blending Status */
 		[Enum( UnityEngine.Rendering.BlendOp)]
-		_RS_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_ColorSrcFactor( "Color Src Factor", float) = 5 /* SrcAlpha */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_ColorDstFactor( "Color Dst Factor", float) = 10 /* OneMinusSrcAlpha */
-		[Enum( UnityEngine.Rendering.BlendOp)]
-		_RS_AlphaBlendOp( "Alpha Blend Op", float) = 0 /* Add */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_AlphaSrcFactor( "Alpha Src Factor", float) = 5 /* SrcAlpha */
-		[Enum( UnityEngine.Rendering.BlendMode)]
-		_RS_AlphaDstFactor( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
-		_RS_BlendFactor( "Blend Factor", Color) = ( 0, 0, 0, 0)
-		
-		[Enum( UnityEngine.Rendering.BlendOp)]
 		_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_ColorSrcFactor( "Color Src Factor", float) = 5 /* SrcAlpha */
@@ -67,22 +44,20 @@
 		_AlphaSrcFactor( "Alpha Src Factor", float) = 5 /* SrcAlpha */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_AlphaDstFactor( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
+		[Toggle] _USE_PREBLEND( "Use Pre Blending", float) = 0
 		_PreBlendColor( "Pre Blend Color", Color) = ( 0, 0, 0, 0)
 		
-		[Toggle] _BLENDFACTOR( "Use Blend Factor", float) = 0
+		[Toggle] _BLENDFACTOR( "Use Blend Factor X", float) = 0
 		
 		/* Depth Stencil Status */
 		[Caption(Depth Stencil Status)]
 		_Stencil( "Stencil ID", Range( 0, 255)) = 0
-		_StencilRef( "Stencil Reference", Range( 0, 255)) = 0
 		_StencilReadMask( "Stencil Read Mask", Range( 0, 255)) = 255
 		_StencilWriteMask( "Stencil Write Mask", Range( 0, 255)) = 255
 		[Enum( UnityEngine.Rendering.CompareFunction)]
 		_StencilComp( "Stencil Compare Function", float) = 8	/* Always */
 		[Enum( UnityEngine.Rendering.StencilOp)]
 		_StencilOp( "Stencil Pass Operation", float) = 0 /* Keep */
-		[Enum( UnityEngine.Rendering.StencilOp)]
-		_StencilPass( "Stencil Pass Operation", float) = 0 /* Keep */
 		[Enum( UnityEngine.Rendering.StencilOp)]
 		_StencilFail( "Stencil Fail Operation", float) = 0 /* Keep */
 		[Enum( UnityEngine.Rendering.StencilOp)]
