@@ -2,6 +2,14 @@
 {
 	Properties
 	{
+		/* Rendering Status */
+		[Enum( UnityEngine.Rendering.CullMode)]
+		_Cull( "Cull", float) = 0 /* Off */
+		[Enum(Off, 0, On, 1)]
+		_ZWrite( "ZWrite", float) = 0 /* Off */
+		[Enum( UnityEngine.Rendering.CompareFunction)]
+		_ZTest( "ZTest", float) = 8	/* Always */
+		
 		[Enum( UnityEngine.Rendering.CullMode)]
 		_RS_Cull( "Cull", float) = 2 /* Back */
 		[Enum(Off, 0, On, 1)]
@@ -31,9 +39,9 @@
 		Pass
 		{
 			Lighting Off
-			Cull [_RS_Cull]
-			ZWrite [_RS_ZWrite]
-			ZTest [_RS_ZTest]
+			Cull [_Cull]
+			ZWrite [_ZWrite]
+			ZTest [_ZTest]
 			BlendOp Add
 			Blend Zero One
 			

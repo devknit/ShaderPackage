@@ -21,7 +21,6 @@
 		[EdgeToggle] _FASTMODE( "Fast Mode (non-linear)", float) = 1
 		
 		/* Rendering Status */
-		[Caption(Rendering Status)]
 		[Enum( UnityEngine.Rendering.CullMode)]
 		_RS_Cull( "Cull", float) = 2 /* Back */
 		[Enum(Off, 0, On, 1)]
@@ -34,7 +33,6 @@
 		_AlphaClipThreshold( "Alpha Clip Threshold", Range( 0.0, 1.0)) = 0
 		
 		/* Blending Status */
-		[Caption(Blending Status)]
 		[Enum( UnityEngine.Rendering.BlendOp)]
 		_RS_ColorBlendOp( "Color Blend Op", float) = 0 /* Add */
 		[Enum( UnityEngine.Rendering.BlendMode)]
@@ -79,12 +77,12 @@
 				"LightMode" = "Always"
 			}
 			Lighting Off
-			Cull [_RS_Cull]
-			ZWrite [_RS_ZWrite]
-			ZTest [_RS_ZTest]
+			Cull [_Cull]
+			ZWrite [_ZWrite]
+			ZTest [_ZTest]
+			ColorMask [_ColorMask]
 			BlendOp [_RS_ColorBlendOp], [_RS_AlphaBlendOp]
 			Blend [_RS_ColorSrcFactor] [_RS_ColorDstFactor], [_RS_AlphaSrcFactor] [_RS_AlphaDstFactor]
-			ColorMask [_RS_ColorMask]
 			
 			Stencil
 			{

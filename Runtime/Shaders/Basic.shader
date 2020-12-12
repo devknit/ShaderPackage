@@ -53,6 +53,19 @@ Shader "Zan/Lit/Basic"
 		
 		/* Forward Base Rendering Status */
 		[Enum( UnityEngine.Rendering.CullMode)]
+		_Cull( "Cull", float) = 0 /* Off */
+		[Enum(Off, 0, On, 1)]
+		_ZWrite( "ZWrite", float) = 0 /* Off */
+		[Enum( UnityEngine.Rendering.CompareFunction)]
+		_ZTest( "ZTest", float) = 8	/* Always */
+		[Enum(Off, 0, On, 1)]
+		_ZWriteAdd( "ZWrite Add", float) = 0 /* Off */
+		[Enum( UnityEngine.Rendering.CompareFunction)]
+		_ZTestAdd( "ZTest Add", float) = 8	/* Always */
+		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
+		_ColorMask( "Color Mask", float) = 15 /* RGBA */
+		
+		[Enum( UnityEngine.Rendering.CullMode)]
 		_RS_Cull( "Cull", float) = 2 /* Back */
 		[Enum(Off, 0, On, 1)]
 		_RS_FB_ZWrite( "Base ZWrite", float) = 1 /* On */

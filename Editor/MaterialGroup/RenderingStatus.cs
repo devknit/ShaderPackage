@@ -11,23 +11,21 @@ namespace ZanShader.Editor
 		}
 		static readonly string[] kPropertyNames = new string[]
 		{
-			"_RS_Cull",
-			"_RS_ZWrite",
-			"_RS_FB_ZWrite",
-			"_RS_FA_ZWrite",
-			"_RS_ZTest",
-			"_RS_FB_ZTest",
-			"_RS_FA_ZTest",
-			"_RS_ColorMask",
+			"_Cull",
+			"_ZWrite",
+			"_ZWriteAdd",
+			"_ZTest",
+			"_ZTestAdd",
+			"_ColorMask",
 			"_ALPHACLIP",
 			"_AlphaClipThreshold",
-			"_DITHERING"
+			"_DITHERING",
 		};
 		public override bool ValidGUI()
 		{
 			if( cullProp == null
-			||	(zWriteProp == null && zWriteBaseProp == null && zWriteAddProp == null)
-			||	(zTestProp == null && zTestBaseProp == null && zTestAddProp == null)
+			||	(zWriteProp == null && zWriteAddProp == null)
+			||	(zTestProp == null && zTestAddProp == null)
 			||	colorMaskProp == null)
 			{
 				return false;
@@ -57,14 +55,6 @@ namespace ZanShader.Editor
 				if( zTestProp != null)
 				{
 					materialEditor.ShaderProperty( zTestProp, zTestProp.displayName);
-				}
-				if( zWriteBaseProp != null)
-				{
-					materialEditor.ShaderProperty( zWriteBaseProp, zWriteBaseProp.displayName);
-				}
-				if( zTestBaseProp != null)
-				{
-					materialEditor.ShaderProperty( zTestBaseProp, zTestBaseProp.displayName);
 				}
 				if( zWriteAddProp != null)
 				{
@@ -138,14 +128,12 @@ namespace ZanShader.Editor
 		static bool foldoutFlag = false;
 		MaterialProperty cullProp{ get{ return properties[ 0]; } }
 		MaterialProperty zWriteProp{ get{ return properties[ 1]; } }
-		MaterialProperty zWriteBaseProp{ get{ return properties[ 2]; } }
-		MaterialProperty zWriteAddProp{ get{ return properties[ 3]; } }
-		MaterialProperty zTestProp{ get{ return properties[ 4]; } }
-		MaterialProperty zTestBaseProp{ get{ return properties[ 5]; } }
-		MaterialProperty zTestAddProp{ get{ return properties[ 6]; } }
-		MaterialProperty colorMaskProp{ get{ return properties[ 7]; } }
-		MaterialProperty alphaClipProp{ get{ return properties[ 8]; } }
-		MaterialProperty alphaClipThresholdProp{ get{ return properties[ 9]; } }
-		MaterialProperty ditheringProp{ get{ return properties[ 10]; } }
+		MaterialProperty zWriteAddProp{ get{ return properties[ 2]; } }
+		MaterialProperty zTestProp{ get{ return properties[ 3]; } }
+		MaterialProperty zTestAddProp{ get{ return properties[ 4]; } }
+		MaterialProperty colorMaskProp{ get{ return properties[ 5]; } }
+		MaterialProperty alphaClipProp{ get{ return properties[ 6]; } }
+		MaterialProperty alphaClipThresholdProp{ get{ return properties[ 7]; } }
+		MaterialProperty ditheringProp{ get{ return properties[ 8]; } }
 	}
 }
