@@ -21,7 +21,7 @@
 		
 		/* Use Custom Data */
 		[Caption(Use Custom Data)]
-		[EdgeToggle] _CD_BASEDISTORTION( "Base Map Distortion Volume *= (TEXCORD0.z)", float) = 0
+		[Toggle] _CD_BASEDISTORTION( "Base Map Distortion Volume *= (TEXCORD0.z)", float) = 0
 		
 		/* Rendering Status */
 		[Enum( UnityEngine.Rendering.CullMode)]

@@ -18,7 +18,7 @@
 		[Caption(Circle Properties)]
 		_CircleRadius( "Circle Radius", Range( 0, 3)) = 1.0
 		_SmoothEdges( "Smooth Edges", Range( 0, 1)) = 0.02
-		[EdgeToggle] _FASTMODE( "Fast Mode (non-linear)", float) = 1
+		[Toggle] _FASTMODE( "Fast Mode (non-linear)", float) = 1
 		
 		/* Rendering Status */
 		[Enum( UnityEngine.Rendering.CullMode)]

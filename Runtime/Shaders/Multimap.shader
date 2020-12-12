@@ -34,8 +34,8 @@
 		
 		/* Use Custom Data */
 		[Caption(Use Custom Data)]
-		[EdgeToggle] _CD_COLORBLENDRATIO1( "Multi Map Color Blend Ratio Value *= (TEXCORD0.z)", float) = 0
-		[EdgeToggle] _CD_ALPHABLENDRATIO1( "Multi Map Alpha Blend Ratio Value *= (TEXCORD0.w)", float) = 0
+		[Toggle] _CD_COLORBLENDRATIO1( "Multi Map Color Blend Ratio Value *= (TEXCORD0.z)", float) = 0
+		[Toggle] _CD_ALPHABLENDRATIO1( "Multi Map Alpha Blend Ratio Value *= (TEXCORD0.w)", float) = 0
 		
 		/* Rendering Status */
 		[Enum( UnityEngine.Rendering.CullMode)]

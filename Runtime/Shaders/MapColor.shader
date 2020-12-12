@@ -29,8 +29,8 @@
 		
 		/* Use Custom Data */
 		[Caption(Use Custom Data)]
-		[EdgeToggle] _CD_COLORBLENDRATIO2( "Color Blend Ratio Value *= (TEXCORD0.z)", float) = 0
-		[EdgeToggle] _CD_ALPHABLENDRATIO2( "Alpha Blend Ratio Value *= (TEXCORD0.w)", float) = 0
+		[Toggle] _CD_COLORBLENDRATIO2( "Color Blend Ratio Value *= (TEXCORD0.z)", float) = 0
+		[Toggle] _CD_ALPHABLENDRATIO2( "Alpha Blend Ratio Value *= (TEXCORD0.w)", float) = 0
 		
 		/* Rendering Status */
 		[Enum( UnityEngine.Rendering.CullMode)]

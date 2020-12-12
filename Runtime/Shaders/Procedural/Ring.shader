@@ -19,12 +19,12 @@
 		_CircleRadius( "Circle Radius", Range( 0, 4)) = 1.0
 		_RingSize( "Ring Size", Range( 0, 2)) = 0.5
 		_SmoothEdges( "Smooth Edges", Range( 0, 1)) = 0.02
-		[EdgeToggle] _FASTMODE( "Fast Mode (non-linear)", float) = 1
+		[Toggle] _FASTMODE( "Fast Mode (non-linear)", float) = 1
 		
 		/* Use Custom Datas */
 		[Caption(Custom Datas)]
-		[EdgeToggle] _CD_CIRCLERADIUS( "Circle Radius *= (TEXCORD0.z)", float) = 0
-		[EdgeToggle] _CD_RINGSIZE( "Ring Size *= (TEXCORD0.w)", float) = 0
+		[Toggle] _CD_CIRCLERADIUS( "Circle Radius *= (TEXCORD0.z)", float) = 0
+		[Toggle] _CD_RINGSIZE( "Ring Size *= (TEXCORD0.w)", float) = 0
 		
 		/* Rendering Status */
 		[Enum( UnityEngine.Rendering.CullMode)]

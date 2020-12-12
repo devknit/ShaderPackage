@@ -17,7 +17,7 @@
 		
 		[Toggle] _ALPHACLIP( "Use Alpha Clip", float) = 0
 		_AlphaClipThreshold( "Alpha Clip Threshold", Range( 0.0, 1.0)) = 0
-		[EdgeToggle] _DITHERING( "Dithering", float) = 0
+		[Toggle] _DITHERING( "Use Dithering", float) = 0
 		
 		/* Blending Status */
 		[Enum( UnityEngine.Rendering.BlendOp)]
