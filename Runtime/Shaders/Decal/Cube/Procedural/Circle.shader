@@ -22,14 +22,15 @@
 		
 		/* Rendering Status */
 		[Enum( UnityEngine.Rendering.CullMode)]
-		_RS_Cull( "Cull", float) = 2 /* Back */
+		_Cull( "Cull", float) = 0 /* Off */
 		[Enum(Off, 0, On, 1)]
-		_RS_ZWrite( "ZWrite", float) = 0 /* Off */
+		_ZWrite( "ZWrite", float) = 0 /* Off */
 		[Enum( UnityEngine.Rendering.CompareFunction)]
-		_RS_ZTest( "ZTest", float) = 4	/* LessEqual */
+		_ZTest( "ZTest", float) = 8	/* Always */
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
-		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		[EdgeToggle] _ALPHACLIP( "Alpha Clip", float) = 0
+		_ColorMask( "Color Mask", float) = 15 /* RGBA */
+		
+		[Toggle] _ALPHACLIP( "Use Alpha Clip", float) = 0
 		_AlphaClipThreshold( "Alpha Clip Threshold", Range( 0.0, 1.0)) = 0
 		
 		/* Blending Status */

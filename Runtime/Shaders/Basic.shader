@@ -65,21 +65,9 @@ Shader "Zan/Lit/Basic"
 		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
 		_ColorMask( "Color Mask", float) = 15 /* RGBA */
 		
-		[Enum( UnityEngine.Rendering.CullMode)]
-		_RS_Cull( "Cull", float) = 2 /* Back */
-		[Enum(Off, 0, On, 1)]
-		_RS_FB_ZWrite( "Base ZWrite", float) = 1 /* On */
-		[Enum( UnityEngine.Rendering.CompareFunction)]
-		_RS_FB_ZTest( "Base ZTest", float) = 2	/* Less */
-		[Enum(Off, 0, On, 1)]
-		_RS_FA_ZWrite( "Add ZWrite", float) = 0 /* Off */
-		[Enum( UnityEngine.Rendering.CompareFunction)]
-		_RS_FA_ZTest( "Add ZTest", float) = 4	/* LessEqual */
-		[Enum( Off, 0, R, 8, G, 4, B, 2, A, 1, RGB, 14, RGBA, 15)]
-		_RS_ColorMask( "Color Mask", float) = 15 /* RGBA */
-		[Toggle] _ALPHACLIP( "Alpha Clip", float) = 0
+		[Toggle] _ALPHACLIP( "Use Alpha Clip", float) = 0
 		_AlphaClipThreshold( "Alpha Clip Threshold", Range( 0.0, 1.0)) = 0
-		[Toggle] _DITHERING( "Dithering", float) = 0
+		[Toggle] _DITHERING( "Use Dithering", float) = 0
 		
 		/* Forward Base Blending Status */
 		[Enum( UnityEngine.Rendering.BlendOp)]

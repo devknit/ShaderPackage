@@ -10,13 +10,6 @@
 		[Enum( UnityEngine.Rendering.CompareFunction)]
 		_ZTest( "ZTest", float) = 8	/* Always */
 		
-		[Enum( UnityEngine.Rendering.CullMode)]
-		_RS_Cull( "Cull", float) = 2 /* Back */
-		[Enum(Off, 0, On, 1)]
-		_RS_ZWrite( "ZWrite", float) = 1 /* On */
-		[Enum( UnityEngine.Rendering.CompareFunction)]
-		_RS_ZTest( "ZTest", float) = 2	/* Less */
-		
 		/* Depth Stencil Status */
 		_Stencil( "Stencil ID", Range( 0, 255)) = 0
 		_StencilReadMask( "Stencil Read Mask", Range( 0, 255)) = 255
