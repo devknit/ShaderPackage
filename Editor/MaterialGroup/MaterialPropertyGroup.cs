@@ -140,7 +140,7 @@ namespace ZanShader.Editor
 				}
 			}
 		}
-		protected static bool Foldout( MaterialEditor materialEditor, MaterialProperty property, string caption, System.Action<bool> onChanged=null)
+		protected static bool Foldout( MaterialEditor materialEditor, MaterialProperty property, string caption)
 		{
 			if( property.type == MaterialProperty.PropType.Float
 			||	property.type == MaterialProperty.PropType.Range)
@@ -170,7 +170,6 @@ namespace ZanShader.Editor
 					materialEditor.RegisterPropertyChangeUndo( property.name);
 					property.floatValue = (display == false)? 0.0f : 1.0f;
 					SetToggleKeyword( property);
-					onChanged?.Invoke( display);
 				}
 				EditorGUI.showMixedValue = false;
 				

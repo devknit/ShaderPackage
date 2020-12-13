@@ -80,33 +80,26 @@ namespace ZanShader.Editor
 					materialEditor.ShaderProperty( colorMaskProp, colorMaskProp.displayName);
 					if( EditorGUI.EndChangeCheck() != false)
 					{
+					#if false
 						if( colorMaskProp.floatValue != 15.0f)
 						{
-							if( EditorUtility.DisplayDialog( "Warning", "Color Mask を RGBA 以外に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映してもよろしいですか？", "はい", "いいえ") == false)
+							if( EditorUtility.DisplayDialog( "Warning", "Color Mask を RGBA 以外に設定すると\nモバイル環境で高負荷となる場合があります。\n\n設定を反映してもよろしいですか？", "はい", "いいえ") == false)
 							{
 								colorMaskProp.floatValue = 15.0f;
 							}
 						}
+					#endif
 					}
 					if( colorMaskProp.floatValue != 15.0f)
 					{
 						EditorGUILayout.LabelField( new GUIContent( 
-							"Color Mask の設定がモバイルでは高負荷となる状態です\n設定をRGBAに変更することで解消されます",
+							"Color Mask の設定が有効になっているためモバイル環境では高負荷となる場合があります\n設定をRGBAに変更することで解消されます",
 							EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
 					}
 				}
 				if( alphaClipProp != null)
 				{
-					if( Foldout( materialEditor, alphaClipProp, alphaClipProp.displayName + " (option)", (enabled) =>
-					{
-						if( enabled != false)
-						{
-							if( EditorUtility.DisplayDialog( "Warning", "Alpha Clip を有効に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映してもよろしいですか？", "はい", "いいえ") == false)
-							{
-								alphaClipProp.floatValue = 0.0f;
-							}
-						}
-					}) != false)
+					if( Foldout( materialEditor, alphaClipProp, alphaClipProp.displayName + " (option)") != false)
 					{
 						++EditorGUI.indentLevel;
 						
@@ -115,7 +108,7 @@ namespace ZanShader.Editor
 							materialEditor.ShaderProperty( alphaClipThresholdProp, alphaClipThresholdProp.displayName);
 						}
 						EditorGUILayout.LabelField( new GUIContent( 
-							"Alpha Clip の設定がモバイルでは高負荷となる状態です\n設定を無効に変更することで解消されます",
+							"Use Alpha Clip の設定が有効になっているためモバイル環境では高負荷となる場合があります\n設定を無効状態に変更することで解消されます",
 							EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
 						
 						--EditorGUI.indentLevel;

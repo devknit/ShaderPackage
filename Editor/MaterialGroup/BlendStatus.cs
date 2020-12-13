@@ -46,7 +46,7 @@ namespace ZanShader.Editor
 					colorBlendFactorValueProp?.colorValue);
 				BlendColorPreset nextColor = prevColor;
 				
-				colorFoldoutFlag = Foldout( colorFoldoutFlag, "Color Blending", (rect) =>
+				colorFoldoutFlag = Foldout( colorFoldoutFlag, "Color Channel Blending", (rect) =>
 				{
 					var popupRect = rect;
 					popupRect.xMin += rect.width / 2;
@@ -120,7 +120,7 @@ namespace ZanShader.Editor
 					alphaDstFactorProp.floatValue);
 				BlendAlphaPreset nextAlpha = prevAlpha;
 				
-				alphaFoldoutFlag = Foldout( alphaFoldoutFlag, "Alpha Blending", (rect) =>
+				alphaFoldoutFlag = Foldout( alphaFoldoutFlag, "Alpha Channel Blending", (rect) =>
 				{
 					var popupRect = rect;
 					popupRect.xMin += rect.width / 2;
@@ -279,8 +279,8 @@ namespace ZanShader.Editor
 			}
 			return string.IsNullOrEmpty( value) == false;
 		}
-		static bool colorFoldoutFlag = true;
-		static bool alphaFoldoutFlag = true;
+		static bool colorFoldoutFlag = false;
+		static bool alphaFoldoutFlag = false;
 		
 		MaterialProperty colorBlendOpProp{ get{ return properties[ 0]; } }
 		MaterialProperty colorSrcFactorProp{ get{ return properties[ 1]; } }
@@ -312,7 +312,7 @@ namespace ZanShader.Editor
 			"_PreBlendColor",
 			"_USE_PREBLEND"
 		};
-		static bool foldoutFlag = false;
+		static bool foldoutFlag = true;
 	}
 	class BlendStatusAdd : BlendStatusAtom
 	{
@@ -335,6 +335,6 @@ namespace ZanShader.Editor
 			"_PreBlendColorA",
 			"_USE_PREBLENDA"
 		};
-		static bool foldoutFlag = false;
+		static bool foldoutFlag = true;
 	}
 }
