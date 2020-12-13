@@ -88,7 +88,7 @@ Shader "Zan/Lit/Basic"
 		_AlphaSrcFactor( "Alpha Src Factor", float) = 5 /* SrcAlpha */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_AlphaDstFactor( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
-		[Toggle] _USE_PREBLEND( "Use Pre Blending", float) = 0
+		[Toggle] _PREBLEND( "Use Pre Blending", float) = 0
 		_PreBlendColor( "Pre Blend Color", Color) = ( 0, 0, 0, 0)
 		
 		/* Forward Add Blending Status */
@@ -104,7 +104,7 @@ Shader "Zan/Lit/Basic"
 		_AlphaSrcFactorA( "Alpha Src Factor", float) = 5 /* SrcAlpha */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_AlphaDstFactorA( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
-		[Toggle] _USE_PREBLENDA( "Use Pre Blending", float) = 0
+		[Toggle] _PREBLENDA( "Use Pre Blending", float) = 0
 		_PreBlendColorA( "Pre Blend Color", Color) = ( 0, 0, 0, 0)
 		
 		/* Depth Stencil Status */
@@ -169,7 +169,7 @@ Shader "Zan/Lit/Basic"
 			
 			#pragma shader_feature_local _ _ALPHACLIP_ON
 			#pragma shader_feature_local _ _DITHERING_ON
-			#pragma shader_feature_local _ _USE_PREBLEND_ON
+			#pragma shader_feature_local _ _PREBLEND_ON
 			#pragma multi_compile_instancing
 			#pragma multi_compile_fwdbase
 			#pragma multi_compile_fog
@@ -235,7 +235,7 @@ Shader "Zan/Lit/Basic"
 			#if defined(_ALPHACLIP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
-			#if defined(_USE_PREBLEND_ON)
+			#if defined(_PREBLEND_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _PreBlendColor)
 			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
@@ -543,7 +543,7 @@ Shader "Zan/Lit/Basic"
 				/* final Color */
 				fixed4 finalColor = fixed4( diffuse + specular + emissive, diffuseColor.a);
 				UNITY_APPLY_FOG( i.fogCoord, finalColor);
-			#if defined(_USE_PREBLEND_ON)
+			#if defined(_PREBLEND_ON)
 				finalColor.rgb = (finalColor.rgb * finalColor.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _PreBlendColor) * (1.0 - finalColor.a));
 			#endif
 				return finalColor;
@@ -577,7 +577,7 @@ Shader "Zan/Lit/Basic"
 			
 			#pragma shader_feature_local _ _ALPHACLIP_ON
 			#pragma shader_feature_local _ _DITHERING_ON
-			#pragma shader_feature_local _ _USE_PREBLENDA_ON
+			#pragma shader_feature_local _ _PREBLENDA_ON
 			#pragma multi_compile_instancing
 			#pragma multi_compile_fwdadd
 			#pragma multi_compile_fog
@@ -624,7 +624,7 @@ Shader "Zan/Lit/Basic"
 			#if defined(_ALPHACLIP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
-			#if defined(_USE_PREBLENDA_ON)
+			#if defined(_PREBLENDA_ON)
 				UNITY_DEFINE_INSTANCED_PROP( fixed4, _PreBlendColorA)
 			#endif
 			UNITY_INSTANCING_BUFFER_END( Props)
@@ -839,7 +839,7 @@ Shader "Zan/Lit/Basic"
 				/* final Color */
 				fixed4 finalColor = fixed4( diffuse + specular, diffuseColor.a);
 				UNITY_APPLY_FOG( i.fogCoord, finalColor);
-			#if defined(_USE_PREBLENDA_ON)
+			#if defined(_PREBLENDA_ON)
 				finalColor.rgb = (finalColor.rgb * finalColor.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _PreBlendColorA) * (1.0 - finalColor.a));
 			#endif
 				return finalColor;

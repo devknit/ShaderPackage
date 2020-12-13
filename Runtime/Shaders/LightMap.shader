@@ -32,7 +32,7 @@
 		_AlphaSrcFactor( "Alpha Src Factor", float) = 1 /* One */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_AlphaDstFactor( "Alpha Dst Factor", float) = 0 /* Zero */
-		[Toggle] _USE_PREBLEND( "Use Pre Blending", float) = 0
+		[Toggle] _PREBLEND( "Use Pre Blending", float) = 0
 		_PreBlendColor( "Pre Blend Color", Color) = ( 0, 0, 0, 0)
 		
 		/* Depth Stencil Status */
@@ -85,7 +85,7 @@
 			#pragma fragment frag
 			#pragma shader_feature_local _ _ALPHACLIP_ON
 			#pragma shader_feature_local _ _DITHERING_ON
-			#pragma shader_feature_local _ _USE_PREBLEND_ON
+			#pragma shader_feature_local _ _PREBLEND_ON
 			#pragma multi_compile_fog
 			#include "UnityCG.cginc"
 			
@@ -97,7 +97,7 @@
 		#if defined(_ALPHACLIP_ON)
 			uniform half _AlphaClipThreshold;
 		#endif
-		#if defined(_USE_PREBLEND_ON)
+		#if defined(_PREBLEND_ON)
 			uniform fixed4 _PreBlendColor;
 		#endif
 			
@@ -149,7 +149,7 @@
 			#endif
 				color.rgb *= DecodeLightmap( UNITY_SAMPLE_TEX2D( unity_Lightmap, i.texcoord1));
 				UNITY_APPLY_FOG( i.fogCoord, color);
-			#if defined(_USE_PREBLEND_ON)
+			#if defined(_PREBLEND_ON)
 				color.rgb = (color.rgb * color.a) + (_PreBlendColor * (1.0 - color.a));
 			#endif
 				return color;

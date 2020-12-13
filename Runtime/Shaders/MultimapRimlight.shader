@@ -44,7 +44,7 @@
 		_AlphaSrcFactor( "Alpha Src Factor", float) = 5 /* SrcAlpha */
 		[Enum( UnityEngine.Rendering.BlendMode)]
 		_AlphaDstFactor( "Alpha Dst Factor", float) = 10 /* OneMinusSrcAlpha */
-		[Toggle] _USE_PREBLEND( "Use Pre Blending", float) = 0
+		[Toggle] _PREBLEND( "Use Pre Blending", float) = 0
 		_PreBlendColor( "Pre Blend Color", Color) = ( 0, 0, 0, 0)
 		
 		/* Depth Stencil Status */
@@ -95,7 +95,7 @@
 			#pragma shader_feature_local _RIMALPHA_OVERRIDE _RIMALPHA_MULTIPLY _RIMALPHA_MINIMUM _RIMALPHA_MAXIMUM
 			#pragma shader_feature_local _ _DEPTHINTERSECTION_ON
 			#pragma shader_feature_local _ _ALPHACLIP_ON
-			#pragma shader_feature_local _ _USE_PREBLEND_ON
+			#pragma shader_feature_local _ _PREBLEND_ON
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
 
@@ -138,7 +138,7 @@
 			#if defined(_ALPHACLIP_ON)
 				UNITY_DEFINE_INSTANCED_PROP( float,  _AlphaClipThreshold)
 			#endif
-			#if _USE_PREBLEND_ON
+			#if _PREBLEND_ON
 	        	UNITY_DEFINE_INSTANCED_PROP( fixed4, _PreBlendColor)
 	        #endif
 			UNITY_INSTANCING_BUFFER_END( Props)
@@ -194,7 +194,7 @@
 			#if defined(_ALPHACLIP_ON)
 				clip( color.a - UNITY_ACCESS_INSTANCED_PROP( Props, _AlphaClipThreshold) - 1e-4);
 			#endif
-			#if _USE_PREBLEND_ON
+			#if _PREBLEND_ON
 				color.rgb = (color.rgb * color.a) + (UNITY_ACCESS_INSTANCED_PROP( Props, _PreBlendColor) * (1.0 - color.a));
 			#endif
 				return color;
