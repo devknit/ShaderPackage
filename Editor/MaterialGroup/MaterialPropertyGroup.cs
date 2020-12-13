@@ -140,7 +140,7 @@ namespace ZanShader.Editor
 				}
 			}
 		}
-		protected static bool Foldout( MaterialEditor materialEditor, MaterialProperty property, string caption)
+		protected static bool Foldout( MaterialEditor materialEditor, MaterialProperty property, string caption, System.Action<bool> onChanged=null)
 		{
 			if( property.type == MaterialProperty.PropType.Float
 			||	property.type == MaterialProperty.PropType.Range)
@@ -153,14 +153,14 @@ namespace ZanShader.Editor
 				style.border = new RectOffset( 15, 7, 4, 4);
 				style.contentOffset = new Vector2( 20, -2);
 				
-				var rect = GUILayoutUtility.GetRect( 16f, 22f, foldoutStyle);
+				var rect = GUILayoutUtility.GetRect( 16f, 24f, foldoutStyle);
 				rect.xMin += EditorGUI.indentLevel * 16.0f;
 				GUI.Box( rect, caption, foldoutStyle);
 				
 				EditorGUI.showMixedValue = property.hasMixedValue;
 				rect.xMin -= EditorGUI.indentLevel * 16.0f;
 				rect.xMin += 4;
-				rect.yMin -= 2;
+				rect.yMin -= 4;
 				
 				EditorGUI.BeginChangeCheck();
 				
@@ -170,6 +170,7 @@ namespace ZanShader.Editor
 					materialEditor.RegisterPropertyChangeUndo( property.name);
 					property.floatValue = (display == false)? 0.0f : 1.0f;
 					SetToggleKeyword( property);
+					onChanged?.Invoke( display);
 				}
 				EditorGUI.showMixedValue = false;
 				
@@ -177,7 +178,7 @@ namespace ZanShader.Editor
 			}
 			return false;
 		}
-		protected static bool Foldout( bool display, string caption)
+		protected static bool Foldout( bool display, string caption, System.Func<Rect, Rect> callback=null)
 		{
 			var style = FoldoutStyle;
 			style = new GUIStyle( "ShurikenModuleTitle");
@@ -187,15 +188,17 @@ namespace ZanShader.Editor
 			style.border = new RectOffset( 15, 7, 4, 4);
 			style.contentOffset = new Vector2( 20, -2);
 			
-			var rect = GUILayoutUtility.GetRect( 16f, 22f, style);
+			var rect = GUILayoutUtility.GetRect( 16f, 24f, style);
 			rect.xMin += EditorGUI.indentLevel * 16.0f;
 			GUI.Box( rect, caption, style);
 			
-			var toggleRect = new Rect(rect.x + 4f, rect.y + 2f, 13f, 13f);
+			var toggleRect = new Rect( rect.x + 4f, rect.y + 3f, 13f, 13f);
 			if( Event.current.type == EventType.Repaint)
 			{
-				EditorStyles.foldout.Draw(　toggleRect, false, false, display, false);
+				EditorStyles.foldout.Draw( toggleRect, false, false, display, false);
 			}
+			rect = callback?.Invoke( rect) ?? rect;
+			
 			if( Event.current.type == EventType.MouseDown && rect.Contains( Event.current.mousePosition) != false)
 			{
 				display = !display;

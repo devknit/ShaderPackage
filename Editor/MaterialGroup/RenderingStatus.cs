@@ -97,20 +97,19 @@ namespace ZanShader.Editor
 				}
 				if( alphaClipProp != null)
 				{
-					EditorGUI.BeginChangeCheck();
-					materialEditor.ShaderProperty( alphaClipProp, alphaClipProp.displayName);
-					if( EditorGUI.EndChangeCheck() != false)
+					if( Foldout( materialEditor, alphaClipProp, alphaClipProp.displayName + " (option)", (enabled) =>
 					{
-						if( alphaClipProp.floatValue != 0.0f)
+						if( enabled != false)
 						{
 							if( EditorUtility.DisplayDialog( "Warning", "Alpha Clip を有効に設定すると\nモバイル環境で高負荷となります。\n\n設定を反映してもよろしいですか？", "はい", "いいえ") == false)
 							{
 								alphaClipProp.floatValue = 0.0f;
 							}
 						}
-					}
-					if( alphaClipProp.floatValue != 0.0f)
+					}) != false)
 					{
+						++EditorGUI.indentLevel;
+						
 						if( alphaClipThresholdProp != null)
 						{
 							materialEditor.ShaderProperty( alphaClipThresholdProp, alphaClipThresholdProp.displayName);
@@ -118,6 +117,8 @@ namespace ZanShader.Editor
 						EditorGUILayout.LabelField( new GUIContent( 
 							"Alpha Clip の設定がモバイルでは高負荷となる状態です\n設定を無効に変更することで解消されます",
 							EditorGUIUtility.Load( "console.warnicon.sml") as Texture2D), EditorStyles.helpBox);
+						
+						--EditorGUI.indentLevel;
 					}
 				}
 				if( ditheringProp != null)

@@ -44,9 +44,17 @@ namespace ZanShader.Editor
 					colorDstFactorProp.floatValue, 
 					colorBlendFactorEnabledProp?.floatValue, 
 					colorBlendFactorValueProp?.colorValue);
-				var nextColor = (BlendColorPreset)EditorGUILayout.Popup( 
-					"Color Channel Blending", (int)prevColor, BlendColorPresetParam.kBlendColorPresetNames);
+				BlendColorPreset nextColor = prevColor;
 				
+				colorFoldoutFlag = Foldout( colorFoldoutFlag, "Color Blending", (rect) =>
+				{
+					var popupRect = rect;
+					popupRect.xMin += rect.width / 2;
+					popupRect.yMin += 1;
+					nextColor = (BlendColorPreset)EditorGUI.Popup( popupRect, (int)prevColor, BlendColorPresetParam.kBlendColorPresetNames);
+					rect.xMax -= rect.width / 2;
+					return rect;
+				});
 				if( EditorGUI.EndChangeCheck() != false)
 				{
 					if( nextColor != prevColor)
@@ -64,54 +72,63 @@ namespace ZanShader.Editor
 						}
 					}
 				}
-				EditorGUILayout.BeginVertical( EditorStyles.inspectorDefaultMargins);
+				if( colorFoldoutFlag != false)
 				{
-					if( colorBlendFactorValueProp != null && colorBlendFactorEnabledProp != null)
+					EditorGUILayout.BeginVertical( EditorStyles.inspectorDefaultMargins);
 					{
-						materialEditor.ShaderProperty( colorBlendOpProp, "├─ " + colorBlendOpProp.displayName);
-						materialEditor.ShaderProperty( colorSrcFactorProp, "├─ " + colorSrcFactorProp.displayName);
-						materialEditor.ShaderProperty( colorDstFactorProp, "├─ " + colorDstFactorProp.displayName);
-						materialEditor.ShaderProperty( colorBlendFactorValueProp, "├─ " + colorBlendFactorValueProp.displayName);
-						materialEditor.ShaderProperty( colorBlendFactorEnabledProp, "└─ " + colorBlendFactorEnabledProp.displayName);
-					}
-					else
-					{
-						materialEditor.ShaderProperty( colorBlendOpProp, "├─ " + colorBlendOpProp.displayName);
-						materialEditor.ShaderProperty( colorSrcFactorProp, "├─ " + colorSrcFactorProp.displayName);
-						materialEditor.ShaderProperty( colorDstFactorProp, "└─ " + colorDstFactorProp.displayName);
-					}
-					string formula = string.Empty;
-					
-					if( TryGetBlendFormula( 
-						(BlendOp)colorBlendOpProp.floatValue,
-						(BlendMode)colorSrcFactorProp.floatValue,
-						(BlendMode)colorDstFactorProp.floatValue,
-						"rgb", out formula) != false)
-					{
+						materialEditor.ShaderProperty( colorBlendOpProp, colorBlendOpProp.displayName);
+						materialEditor.ShaderProperty( colorSrcFactorProp, colorSrcFactorProp.displayName);
+						materialEditor.ShaderProperty( colorDstFactorProp, colorDstFactorProp.displayName);
+						
+						if( colorBlendFactorValueProp != null && colorBlendFactorEnabledProp != null)
+						{
+							if( Foldout( materialEditor, colorBlendFactorEnabledProp, colorBlendFactorEnabledProp.displayName + " (option)") != false)
+							{
+								++EditorGUI.indentLevel;
+								materialEditor.ShaderProperty( colorBlendFactorValueProp, colorBlendFactorValueProp.displayName);
+								--EditorGUI.indentLevel;
+							}
+						}
+						string formula = string.Empty;
+						
+						if( TryGetBlendFormula( 
+							(BlendOp)colorBlendOpProp.floatValue,
+							(BlendMode)colorSrcFactorProp.floatValue,
+							(BlendMode)colorDstFactorProp.floatValue,
+							"rgb", out formula) != false)
+						{
+							if( colorBlendFactorEnabledProp?.floatValue != 0.0f)
+							{
+								formula = "src.rgb = src.rgb * src.a + PreBlendColor.rgb * (1.0 - src.a);\n" + formula;
+							}
+							EditorGUILayout.LabelField( new GUIContent( formula), EditorStyles.helpBox);
+						}
 						if( colorBlendFactorEnabledProp?.floatValue != 0.0f)
 						{
-							formula = "src.rgb = src.rgb * src.a + BlendFacter.rgb * (1.0 - src.a);\n" + formula;
+							EditorGUILayout.LabelField( new GUIContent( 
+								"事前に透過計算をするためにGPUへのプロパティ転送とフラグメント処理が追加されています",
+								EditorGUIUtility.Load( "console.infoicon.sml") as Texture2D), EditorStyles.helpBox);
 						}
-						EditorGUILayout.LabelField( new GUIContent( formula), EditorStyles.helpBox);
 					}
-					if( colorBlendFactorEnabledProp?.floatValue != 0.0f)
-					{
-						EditorGUILayout.LabelField( new GUIContent( 
-							"事前に透過計算をするためにGPUへのプロパティ転送とフラグメント演算が追加されています",
-							EditorGUIUtility.Load( "console.infoicon.sml") as Texture2D), EditorStyles.helpBox);
-					}
+					EditorGUILayout.EndVertical();
 				}
-				EditorGUILayout.EndVertical();
-				
 				/* alpha */
 				EditorGUI.BeginChangeCheck();
 				var prevAlpha = BlendAlphaPresetParam.GetPreset( 
 					alphaBlendOpProp.floatValue,
 					alphaSrcFactorProp.floatValue,
 					alphaDstFactorProp.floatValue);
-				var nextAlpha = (BlendAlphaPreset)EditorGUILayout.Popup( 
-					"Alpha Channel Blending", (int)prevAlpha, BlendAlphaPresetParam.kBlendAlphaPresetNames);
+				BlendAlphaPreset nextAlpha = prevAlpha;
 				
+				alphaFoldoutFlag = Foldout( alphaFoldoutFlag, "Alpha Blending", (rect) =>
+				{
+					var popupRect = rect;
+					popupRect.xMin += rect.width / 2;
+					popupRect.yMin += 1;
+					nextColor = (BlendColorPreset)EditorGUI.Popup( popupRect, (int)prevAlpha, BlendColorPresetParam.kBlendAlphaPresetNames);
+					rect.xMax -= rect.width / 2;
+					return rect;
+				});
 				if( EditorGUI.EndChangeCheck() != false)
 				{
 					if( nextAlpha != prevAlpha)
@@ -127,24 +144,27 @@ namespace ZanShader.Editor
 						}
 					}
 				}
-				EditorGUILayout.BeginVertical( EditorStyles.inspectorDefaultMargins);
+				if( alphaFoldoutFlag != false)
 				{
-					materialEditor.ShaderProperty( alphaBlendOpProp, "├─ " + alphaBlendOpProp.displayName);
-					materialEditor.ShaderProperty( alphaSrcFactorProp, "├─ " + alphaSrcFactorProp.displayName);
-					materialEditor.ShaderProperty( alphaDstFactorProp, "└─ " + alphaDstFactorProp.displayName);
-					
-					string formula;
-					
-					if( TryGetBlendFormula( 
-						(BlendOp)alphaBlendOpProp.floatValue,
-						(BlendMode)alphaSrcFactorProp.floatValue,
-						(BlendMode)alphaDstFactorProp.floatValue,
-						"a", out formula) != false)
+					EditorGUILayout.BeginVertical( EditorStyles.inspectorDefaultMargins);
 					{
-						EditorGUILayout.LabelField( new GUIContent( formula), EditorStyles.helpBox);
+						materialEditor.ShaderProperty( alphaBlendOpProp, alphaBlendOpProp.displayName);
+						materialEditor.ShaderProperty( alphaSrcFactorProp, alphaSrcFactorProp.displayName);
+						materialEditor.ShaderProperty( alphaDstFactorProp, alphaDstFactorProp.displayName);
+						
+						string formula;
+						
+						if( TryGetBlendFormula( 
+							(BlendOp)alphaBlendOpProp.floatValue,
+							(BlendMode)alphaSrcFactorProp.floatValue,
+							(BlendMode)alphaDstFactorProp.floatValue,
+							"a", out formula) != false)
+						{
+							EditorGUILayout.LabelField( new GUIContent( formula), EditorStyles.helpBox);
+						}
 					}
+					EditorGUILayout.EndVertical();
 				}
-				EditorGUILayout.EndVertical();
 				--EditorGUI.indentLevel;
 			}
 		}
@@ -259,6 +279,9 @@ namespace ZanShader.Editor
 			}
 			return string.IsNullOrEmpty( value) == false;
 		}
+		static bool colorFoldoutFlag = true;
+		static bool alphaFoldoutFlag = true;
+		
 		MaterialProperty colorBlendOpProp{ get{ return properties[ 0]; } }
 		MaterialProperty colorSrcFactorProp{ get{ return properties[ 1]; } }
 		MaterialProperty colorDstFactorProp{ get{ return properties[ 2]; } }
