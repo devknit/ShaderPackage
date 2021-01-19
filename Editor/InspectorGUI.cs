@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-namespace ZanShader.Editor
+namespace Shaders.Editor
 {
 	public class InspectorGUI : ShaderGUI
 	{

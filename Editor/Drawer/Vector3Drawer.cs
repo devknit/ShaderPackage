@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace ZanShader.Editor
+namespace Shaders.Editor
 {
 	class Vector3Drawer : MaterialPropertyDrawer
 	{

@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace ZanShader.Editor
+namespace Shaders.Editor
 {
 	public class BasicGUI : InspectorGUI
 	{

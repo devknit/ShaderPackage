@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace ZanShader.Editor
+namespace Shaders.Editor
 {
 	abstract class BlendStatusAtom : MaterialPropertyGroup
 	{
@@ -310,7 +310,7 @@ namespace ZanShader.Editor
 			"_AlphaSrcFactor",
 			"_AlphaDstFactor",
 			"_PreBlendColor",
-			"_USE_PREBLEND"
+			"_PREBLEND"
 		};
 		static bool foldoutFlag = true;
 	}
@@ -333,7 +333,7 @@ namespace ZanShader.Editor
 			"_AlphaSrcFactorA",
 			"_AlphaDstFactorA",
 			"_PreBlendColorA",
-			"_USE_PREBLENDA"
+			"_PREBLENDA"
 		};
 		static bool foldoutFlag = true;
 	}

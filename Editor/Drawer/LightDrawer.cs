@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace ZanShader.Editor
+namespace Shaders.Editor
 {
 	class LightDrawer : MaterialPropertyDrawer
 	{

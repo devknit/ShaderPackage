@@ -3,7 +3,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace ZanShader.Editor
+namespace Shaders.Editor
 {
 	class CaptionDecorator : MaterialPropertyDrawer
 	{

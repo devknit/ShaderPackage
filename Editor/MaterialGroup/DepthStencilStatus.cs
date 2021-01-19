@@ -1,5 +1,5 @@
 ﻿
-namespace ZanShader.Editor
+namespace Shaders.Editor
 {
 	class DepthStencilStatus : MaterialPropertyGroup
 	{

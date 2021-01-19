@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace ZanShader.Editor
+namespace Shaders.Editor
 {
 	internal enum BlendColorPreset
 	{

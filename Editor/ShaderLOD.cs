@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace ZanShader.Editor
+namespace Shaders.Editor
 {
 	static class ShaderLOD
 	{

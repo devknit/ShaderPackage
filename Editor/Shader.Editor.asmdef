@@ -1,5 +1,6 @@
 {
-    "name": "ZanShader.Editor",
+    "name": "Shader.Editor",
+    "rootNamespace": "",
     "references": [],
     "includePlatforms": [
         "Editor"
