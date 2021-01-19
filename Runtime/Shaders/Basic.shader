@@ -952,5 +952,5 @@ Shader "Zan/Lit/Basic"
 		}
 	}
 	Fallback Off
-	CustomEditor "ZanShader.Editor.BasicGUI"
+	CustomEditor "Shaders.Editor.BasicGUI"
 }
