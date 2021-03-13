@@ -1,4 +1,4 @@
-﻿Shader "Zan/Unlit/GrabMapDistortionFast"
+﻿Shader "Zan/Unlit/GrabDistortionFast"
 {
 	Properties
 	{
