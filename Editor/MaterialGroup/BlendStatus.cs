@@ -125,7 +125,7 @@ namespace Shaders.Editor
 					var popupRect = rect;
 					popupRect.xMin += rect.width / 2;
 					popupRect.yMin += 1;
-					nextColor = (BlendColorPreset)EditorGUI.Popup( popupRect, (int)prevAlpha, BlendColorPresetParam.kBlendAlphaPresetNames);
+					nextAlpha = (BlendAlphaPreset)EditorGUI.Popup( popupRect, (int)prevAlpha, BlendColorPresetParam.kBlendAlphaPresetNames);
 					rect.xMax -= rect.width / 2;
 					return rect;
 				});

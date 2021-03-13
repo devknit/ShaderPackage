@@ -19,6 +19,15 @@
 	#endif
 		return VertexColorBlending( baseColor, vertexColor, vertexColorBlendRatio, vertexAlphaBlendRatio);
 	}
+	inline fixed VertexAlphaBlending( fixed4 baseColor, fixed4 vertexColor)
+	{
+	#if !defined(_VERTEXALPHABLENDOP_NONE)
+		float vertexAlphaBlendRatio = UNITY_ACCESS_INSTANCED_PROP( Props, _VertexAlphaBlendRatio);
+	#else
+		float vertexAlphaBlendRatio = 0.0;
+	#endif
+		return VertexAlphaBlending( baseColor, vertexColor, vertexAlphaBlendRatio);
+	}
 #endif
 
 #endif /* __BLENDMACRO_CGINC__ */

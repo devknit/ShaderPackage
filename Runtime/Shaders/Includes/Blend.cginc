@@ -251,7 +251,7 @@ Shader
 	}
 }
 */
-inline fixed4 Blending1( fixed4 Base, fixed4 Blend, float ColorRatio, float AlphaRatio)
+inline fixed BlendingAlpha1( fixed4 Base, fixed4 Blend, float AlphaRatio)
 {
 	fixed alpha = Base.a;
 #if   _ALPHABLENDOP1_OVERRIDE
@@ -267,8 +267,12 @@ inline fixed4 Blending1( fixed4 Base, fixed4 Blend, float ColorRatio, float Alph
 #elif _ALPHABLENDOP1_MAXIMUM
 	alpha = max( Base.a, Blend.a);
 #endif
-	alpha = saturate( lerp( Base.a, alpha, AlphaRatio));
-
+	return saturate( lerp( Base.a, alpha, AlphaRatio));
+}
+inline fixed4 Blending1( fixed4 Base, fixed4 Blend, float ColorRatio, float AlphaRatio)
+{
+	fixed alpha = BlendingAlpha1( Base, Blend, AlphaRatio);
+	
 #if   _COLORBLENDSRC1_VALUE
 #elif _COLORBLENDSRC1_ALPHABLENDOP
 	ColorRatio *= alpha;
@@ -359,7 +363,7 @@ Shader
 	}
 }
 */
-inline fixed4 Blending2( fixed4 Base, fixed4 Blend, float ColorRatio, float AlphaRatio)
+inline fixed BlendingAlpha2( fixed4 Base, fixed4 Blend, float AlphaRatio)
 {
 	fixed alpha = Base.a;
 #if   _ALPHABLENDOP2_OVERRIDE
@@ -375,8 +379,12 @@ inline fixed4 Blending2( fixed4 Base, fixed4 Blend, float ColorRatio, float Alph
 #elif _ALPHABLENDOP2_MAXIMUM
 	alpha = max( Base.a, Blend.a);
 #endif
-	alpha = saturate( lerp( Base.a, alpha, AlphaRatio));
-
+	return saturate( lerp( Base.a, alpha, AlphaRatio));
+}
+inline fixed4 Blending2( fixed4 Base, fixed4 Blend, float ColorRatio, float AlphaRatio)
+{
+	fixed alpha = BlendingAlpha2( Base, Blend, AlphaRatio);
+	
 #if   _COLORBLENDSRC2_VALUE
 #elif _COLORBLENDSRC2_ALPHABLENDOP
 	ColorRatio *= alpha;
@@ -467,7 +475,7 @@ Shader
 	}
 }
 */
-inline fixed4 VertexColorBlending( fixed4 Base, fixed4 Blend, float ColorRatio, float AlphaRatio)
+inline fixed4 VertexAlphaBlending( fixed4 Base, fixed4 Blend, float AlphaRatio)
 {
 	fixed alpha = Base.a;
 #if   _VERTEXALPHABLENDOP_OVERRIDE
@@ -483,8 +491,12 @@ inline fixed4 VertexColorBlending( fixed4 Base, fixed4 Blend, float ColorRatio, 
 #elif _VERTEXALPHABLENDOP_MAXIMUM
 	alpha = max( Base.a, Blend.a);
 #endif
-	alpha = saturate( lerp( Base.a, alpha, AlphaRatio));
-
+	return saturate( lerp( Base.a, alpha, AlphaRatio));
+}
+inline fixed4 VertexColorBlending( fixed4 Base, fixed4 Blend, float ColorRatio, float AlphaRatio)
+{
+	fixed alpha = VertexAlphaBlending( Base, Blend, AlphaRatio);
+	
 #if   _VERTEXCOLORBLENDSRC_VALUE
 #elif _VERTEXCOLORBLENDSRC_ALPHABLENDOP
 	ColorRatio *= alpha;

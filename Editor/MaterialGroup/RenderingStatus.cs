@@ -20,6 +20,7 @@ namespace Shaders.Editor
 			"_ALPHACLIP",
 			"_AlphaClipThreshold",
 			"_DITHERING",
+			"_UseUIAlphaClip"
 		};
 		public override bool ValidGUI()
 		{
@@ -118,12 +119,14 @@ namespace Shaders.Editor
 				{
 					materialEditor.ShaderProperty( ditheringProp, ditheringProp.displayName);
 					
-					if( ditheringProp.floatValue != 0.0f
-					&&	alphaClipProp != null && alphaClipProp.floatValue == 0.0f)
+					if( ditheringProp.floatValue != 0.0f)
 					{
-						EditorGUILayout.LabelField( new GUIContent( 
-								"Alpha Clip の設定を有効にすることで擬似的な半透明として描画されます",
-								EditorGUIUtility.Load( "console.infoicon.sml") as Texture2D), EditorStyles.helpBox);
+						if( alphaClipProp != null && alphaClipProp.floatValue == 0.0f)
+						{
+							EditorGUILayout.LabelField( new GUIContent( 
+									"Alpha Clip の設定を有効にすることで擬似的な半透明として描画されます",
+									EditorGUIUtility.Load( "console.infoicon.sml") as Texture2D), EditorStyles.helpBox);
+						}
 					}
 				}
 				--EditorGUI.indentLevel;

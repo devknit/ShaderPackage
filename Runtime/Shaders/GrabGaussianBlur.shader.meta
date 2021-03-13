@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: cd3b6c74897088b45962dafcc773fdba
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures:
+  - _GaussianTex: {fileID: 2800000, guid: d1b606be8e285bb41af31ebd4c9fdba5, type: 3}
+  - _MainTex: {instanceID: 0}
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,4 +1,4 @@
-﻿Shader "Zan/Hidden/Shape"
+﻿Shader "Zan/Silhouette"
 {
 	Properties
 	{
