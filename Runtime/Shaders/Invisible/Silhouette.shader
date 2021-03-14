@@ -1,4 +1,4 @@
-﻿Shader "Zan/Silhouette"
+﻿Shader "Zan/Invisible/Silhouette"
 {
 	Properties
 	{
@@ -51,7 +51,6 @@
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			
 			#include "UnityCG.cginc"
 			
 			struct VertexInput

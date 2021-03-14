@@ -1,4 +1,4 @@
-﻿Shader "Zan/MultimapRimlight"
+﻿Shader "Zan/Unlit/MultimapRimlight"
 {
 	Properties
 	{

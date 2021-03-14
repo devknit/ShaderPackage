@@ -1,5 +1,5 @@
 ﻿
-Shader "Zan/GrabGaussianBlur"
+Shader "Zan/Unlit/GrabGaussianBlur"
 {
 	Properties
 	{
