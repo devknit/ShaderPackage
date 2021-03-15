@@ -8,7 +8,7 @@ Shader "Zan/Unlit/GrabGaussianBlur"
 		[PerRendererData] _GaussianTex( "Gaussian Texture", 2D) = "black" {}
 		
 		[Caption(Multi Map Blending Properties)]
-		_MainTex( "Sprite Texture", 2D) = "white" {}
+		_MainTex( "Blend Map", 2D) = "black" {}
 		[Vector2x2(Input, Output, Min, Max)]
 		_MainTexAlphaRemap( "Blend Map Alpha Remap Param", Vector) = (0.0, 1.0, 0.0, 1.0)
 		[KeywordEnum(None, Override, Multiply, Darken, ColorBurn, LinearBurn, Lighten, Screen, ColorDodge, LinearDodge, Overlay, HardLight, VividLight, LinearLight, PinLight, HardMix, Difference, Exclusion, Substract, Division)]

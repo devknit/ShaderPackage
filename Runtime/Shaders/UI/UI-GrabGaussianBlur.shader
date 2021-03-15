@@ -6,7 +6,7 @@ Shader "Zan/UI/GrabGaussianBlur"
 		[Caption(Gaussian Blur Properties)]
 		_BlurSample( "Grab Sample", Range( 1, 16)) = 10
 		[PerRendererData] _GaussianTex( "Gaussian Texture", 2D) = "black" {}
-		[PerRendererData] _MainTex( "Sprite Texture", 2D) = "white" {}
+		[PerRendererData] _MainTex( "Sprite Texture", 2D) = "black" {}
 		
 		[Caption(Multi Map Blending Properties)]
 		[Vector2x2(Input, Output, Min, Max)]
