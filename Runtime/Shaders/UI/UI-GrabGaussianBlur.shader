@@ -4,7 +4,8 @@ Shader "Zan/UI/GrabGaussianBlur"
 	Properties
 	{
 		[Caption(Gaussian Blur Properties)]
-		_BlurSample( "Grab Sample", Range( 1, 16)) = 10
+		_SampleCount( "Grab Sample Count", Range( 1, 16)) = 10
+		_SampleInterval( "Grab Sample Interval", Range( 1, 16)) = 1
 		[PerRendererData] _GaussianTex( "Gaussian Texture", 2D) = "black" {}
 		[PerRendererData] _MainTex( "Sprite Texture", 2D) = "black" {}
 		

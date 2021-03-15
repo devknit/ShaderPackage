@@ -18,7 +18,8 @@ float _VertexAlphaBlendRatio;
 
 sampler2D _GrabTexture;
 float4 _GrabTexture_TexelSize;
-int _BlurSample;
+int _SampleCount;
+int _SampleInterval;
 
 #include "UnityCG.cginc"
 #include "UnityUI.cginc"
@@ -56,12 +57,13 @@ half3 horizontal( float4 screenPosition)
 	float totalWeight = 1.0;
 	
 	[loop]
-	for( float i0 = _BlurSample; i0 > 0; i0 -= 1)
+	for( float i0 = _SampleCount; i0 > 0; i0 -= 1)
 	{
-		float weight = tex2D( _GaussianTex, float2( i0 / _BlurSample, 0)).r;
+		float weight = tex2D( _GaussianTex, float2( i0 / _SampleCount, 0)).r;
+		float texcoord = i0 * _SampleInterval * _GrabTexture_TexelSize.x;
 		totalWeight += weight * 2.0;
-		color += tex2Dproj( _GrabTexture, screenPosition + float4( i0 * _GrabTexture_TexelSize.x, 0, 0, 0)).rgb * weight;
-		color += tex2Dproj( _GrabTexture, screenPosition + float4( -i0 * _GrabTexture_TexelSize.x, 0, 0, 0)).rgb * weight;
+		color += tex2Dproj( _GrabTexture, screenPosition + float4( texcoord, 0, 0, 0)).rgb * weight;
+		color += tex2Dproj( _GrabTexture, screenPosition + float4( -texcoord, 0, 0, 0)).rgb * weight;
 	}
 	return color / totalWeight;
 }
@@ -99,12 +101,13 @@ half3 vertical( float4 screenPosition)
 	float totalWeight = 1.0;
 	
 	[loop]
-	for( float i0 = _BlurSample; i0 > 0; i0 -= 1)
+	for( float i0 = _SampleCount; i0 > 0; i0 -= 1)
 	{
-		float weight = tex2D( _GaussianTex, float2( i0 / _BlurSample, 0)).r;
+		float weight = tex2D( _GaussianTex, float2( i0 / _SampleCount, 0)).r;
+		float texcoord = i0 * _SampleInterval * _GrabTexture_TexelSize.y;
 		totalWeight += weight * 2.0;
-		color += tex2Dproj( _GrabTexture, screenPosition + float4( 0, i0 * _GrabTexture_TexelSize.y, 0, 0)).rgb * weight;
-		color += tex2Dproj( _GrabTexture, screenPosition + float4( 0, -i0 * _GrabTexture_TexelSize.y, 0, 0)).rgb * weight;
+		color += tex2Dproj( _GrabTexture, screenPosition + float4( 0, texcoord, 0, 0)).rgb * weight;
+		color += tex2Dproj( _GrabTexture, screenPosition + float4( 0, -texcoord, 0, 0)).rgb * weight;
 	}
 	return color / totalWeight;
 }
