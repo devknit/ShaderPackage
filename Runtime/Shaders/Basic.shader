@@ -128,7 +128,6 @@ Shader "Zan/Lit/Basic"
 		}
 		Pass
 		{
-			Name "FORWARD"
 			Tags
 			{
 				"LightMode" = "ForwardBase"

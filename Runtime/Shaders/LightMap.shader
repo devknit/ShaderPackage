@@ -57,11 +57,6 @@
 		}
 		Pass
 		{
-			Name "VertexLM"
-			Tags
-			{
-				"LightMode" = "VertexLM"
-			}
 			Lighting Off
 			Cull [_Cull]
 			ZWrite [_ZWrite]

@@ -104,7 +104,6 @@ Shader "Zan/UI/GrabGaussianBlur"
 		}
 		Pass
 		{
-			Name "HorizontalBlur"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment fragHorizontal
@@ -126,7 +125,6 @@ Shader "Zan/UI/GrabGaussianBlur"
 		}
 		Pass
 		{
-			Name "VerticalBlurAndBlending"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment fragVertical

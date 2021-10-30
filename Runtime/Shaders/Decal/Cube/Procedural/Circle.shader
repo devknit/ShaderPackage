@@ -72,11 +72,6 @@
 		}
 		Pass
 		{
-			Name "NORMAL"
-			Tags
-			{
-				"LightMode" = "Always"
-			}
 			Lighting Off
 			Cull [_Cull]
 			ZWrite [_ZWrite]
