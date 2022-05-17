@@ -20,6 +20,8 @@ namespace Shaders.Editor
 			"_StencilOp",
 			"_StencilFail",
 			"_StencilZFail",
+			"_OffsetFactor",
+			"_OffsetUnits"
 		};
 		static bool foldoutFlag = false;
 	}
