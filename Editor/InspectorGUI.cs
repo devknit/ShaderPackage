@@ -22,6 +22,9 @@ namespace Shaders.Editor
 				materialEditor.ShaderProperty( property, property.displayName);
 			}
 		}
+		protected virtual void OnFotterGUI( MaterialEditor materialEditor, List<MaterialProperty> properties)
+		{
+		}
 		public override void OnGUI( MaterialEditor materialEditor, MaterialProperty[] properties)
 		{
 			var materialProperties = new List<MaterialProperty>();
@@ -148,8 +151,48 @@ namespace Shaders.Editor
             }
             materialEditor.EnableInstancingField();
             materialEditor.DoubleSidedGIField();
-            
+            OnFotterGUI( materialEditor, materialProperties);
             CaptionDecorator.enabled = true;
+		}
+		protected static void RemoveUnusedProperties( Material material)
+		{
+			if( material != null)
+			{
+				var serializedObject = new SerializedObject( material);
+				if( serializedObject != null)
+				{
+					int removeTexEnvCount = RemoveProperties( material, serializedObject, "m_SavedProperties.m_TexEnvs", false);
+					int removeColorCount = RemoveProperties( material, serializedObject, "m_SavedProperties.m_Colors", true);
+					int removeFloatCount = RemoveProperties( material, serializedObject, "m_SavedProperties.m_Floats", true);
+					int removeIntCount = RemoveProperties( material, serializedObject, "m_SavedProperties.m_Ints", true);
+					
+					if( removeTexEnvCount > 0 || removeColorCount > 0 || removeFloatCount > 0 || removeIntCount > 0)
+					{
+						serializedObject.ApplyModifiedProperties();
+					}
+				}
+			}
+		}
+		protected static int RemoveProperties( Material material, SerializedObject serializedObject, string propertyPath, bool forced)
+		{
+			var arrayProperty = serializedObject.FindProperty( propertyPath);
+			int removeCount = 0;
+			
+			if( (arrayProperty?.isArray ?? false) != false)
+			{
+				for( int i0 = arrayProperty.arraySize - 1; i0 >= 0; --i0)
+				{
+					var property = arrayProperty.GetArrayElementAtIndex( i0);
+					var propertyName = property.FindPropertyRelative( "first").stringValue; //return property.displayName;
+					
+					if( forced != false || material.HasProperty( propertyName) == false)
+					{
+						arrayProperty.DeleteArrayElementAtIndex( i0);
+						++removeCount;
+					}
+				}
+			}
+			return removeCount;
 		}
 		protected virtual Type[] MaterialGroupTypes
 		{
